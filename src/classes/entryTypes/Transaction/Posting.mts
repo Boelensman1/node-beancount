@@ -1,4 +1,4 @@
-import { formatPrice } from '../utils/formatPrice.mjs'
+import { formatPrice } from '../../../utils/formatPrice.mjs'
 
 export class Posting {
   flag?: string

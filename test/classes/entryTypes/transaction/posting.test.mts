@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { Posting } from '../../src/classes/Posting.mjs'
+import { Posting } from '../../../../src/classes/entryTypes/Transaction/Posting.mjs'
 
 test('Parse posting with positive amount', () => {
   const posting = Posting.fromGenericParseResult(

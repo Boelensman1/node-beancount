@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
-import { Transaction } from '../../../src/classes/entryTypes/Transaction.mjs'
+import { Transaction } from '../../../src/classes/entryTypes/index.mjs'
+import { Tag } from '../../../src/classes/entryTypes/Transaction/Tag.mjs'
 
 test('Parse basic', () => {
   const directive = `
@@ -206,4 +207,145 @@ test('Parse with metadata', () => {
   expect(entry).toHaveProperty('metadata')
   expect(entry.metadata!.note).toBe('test')
   expect(entry.metadata!.booleanval).toBe(true)
+})
+
+test('Parse with link (space before link)', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent" ^link-to-transaction
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.links).toEqual(['link-to-transaction'])
+  expect(entry.tags).toEqual([])
+})
+
+test('Parse with link (no space before link)', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent"^link-to-transaction
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.links).toEqual(['link-to-transaction'])
+})
+
+test('Parse with multiple links', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent" ^transaction1 ^transaction2
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.links).toEqual(['transaction1', 'transaction2'])
+})
+
+test('Parse without narration but with link', () => {
+  const directive = `
+2023-04-04 * "RiverBank Properties"^link
+  Assets:US:BofA:Checking                           -4.00 USD
+  Expenses:Financial:Fees                            4.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.type).toBe('transaction')
+  expect(entry.date.toJSON()).toBe('2023-04-04')
+  expect(entry.payee).toBe('RiverBank Properties')
+  expect(entry.narration).toBeUndefined()
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.flag).toBe('*')
+  expect(entry.links).toEqual(['link'])
+})
+
+test('Parse with tag', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent" #tag
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.links).toEqual([])
+  expect(entry.tags).toHaveLength(1)
+  expect(entry.tags).toEqual([
+    new Tag({
+      content: 'tag',
+      fromStack: false,
+    }),
+  ])
+})
+
+test('Parse with multiple tags', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent" #tag1#tag2 #tag3
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.tags).toHaveLength(3)
+  expect(entry.tags).toEqual([
+    new Tag({
+      content: 'tag1',
+      fromStack: false,
+    }),
+    new Tag({
+      content: 'tag2',
+      fromStack: false,
+    }),
+    new Tag({
+      content: 'tag3',
+      fromStack: false,
+    }),
+  ])
+})
+
+test('Parse with multiple tags and links', () => {
+  const directive = `
+2023-04-05 * "RiverBank Properties" "Paying the rent"^link1 #tag1^link2#tag2 #tag3 ^link3
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.links).toHaveLength(3)
+  expect(entry.links).toEqual(['link1', 'link2', 'link3'])
+  expect(entry.tags).toHaveLength(3)
+  expect(entry.tags).toEqual([
+    new Tag({
+      content: 'tag1',
+      fromStack: false,
+    }),
+    new Tag({
+      content: 'tag2',
+      fromStack: false,
+    }),
+    new Tag({
+      content: 'tag3',
+      fromStack: false,
+    }),
+  ])
 })

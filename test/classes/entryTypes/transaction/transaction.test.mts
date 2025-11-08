@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { Transaction } from '../../../src/classes/entryTypes/index.mjs'
+import { Transaction } from '../../../../src/classes/entryTypes/index.mjs'
 
 describe('Transaction class', () => {
   test('toString', () => {
