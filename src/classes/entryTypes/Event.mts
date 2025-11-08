@@ -1,8 +1,7 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
-import { parseString, parseVal, Value } from '../../utils/parseVal.mjs'
-import { formatValue } from '../../utils/formatValue.mjs'
+import { parseString, Value } from '../Value.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 
 export class Event extends DateEntry {
@@ -18,12 +17,12 @@ export class Event extends DateEntry {
     return new Event({
       ...genericParseResult.props,
       name: parseString(name),
-      value: parseVal(value),
+      value: Value.fromString(value),
     })
   }
 
   toString() {
-    return `${this.getDateTypePrefix()} "${this.name}" ${formatValue(this.value)}${this.getMetaDataString()}`
+    return `${this.getDateTypePrefix()} "${this.name}" ${this.value.toString()}${this.getMetaDataString()}`
   }
 }
 

@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../src/parse.mjs'
 import { DateEntry } from '../src/classes/DateEntry.mjs'
+import { Value } from '../src/classes/Value.mjs'
 
 test('DateEntry types: Parse with metadata', () => {
   const directive = `
@@ -12,8 +13,8 @@ test('DateEntry types: Parse with metadata', () => {
 
   const entry = entries[0] as DateEntry
   expect(entry.metadata).toEqual({
-    name: 'Credit Card Balance',
-    statement: 'December 2014',
+    name: new Value({ type: 'string', value: 'Credit Card Balance' }),
+    statement: new Value({ type: 'string', value: 'December 2014' }),
   })
 })
 
@@ -22,7 +23,7 @@ test('Correcly parse metadata in multiline entries', () => {
 2014-07-09 query "france-balances" "
 
 
-  SELECT account, sum(position) WHERE ‘trip-france-2014’ in tags"
+  SELECT account, sum(position) WHERE 'trip-france-2014' in tags"
   description: "Query to find all cash positions"
   frequency: "monthly"
 `
@@ -32,8 +33,11 @@ test('Correcly parse metadata in multiline entries', () => {
   const entry = entries[0] as DateEntry
   expect(entry.type).toBe('query')
   expect(entry.metadata).toEqual({
-    description: 'Query to find all cash positions',
-    frequency: 'monthly',
+    description: new Value({
+      type: 'string',
+      value: 'Query to find all cash positions',
+    }),
+    frequency: new Value({ type: 'string', value: 'monthly' }),
   })
 })
 

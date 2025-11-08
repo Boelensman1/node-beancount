@@ -1,4 +1,4 @@
-import { parseVal, Value } from './parseVal.mjs'
+import { Value } from '../classes/Value.mjs'
 
 export type Metadata = Record<string, Value>
 
@@ -14,7 +14,7 @@ export const parseMetadata = (rest: string[]) => {
       if (!matches) {
         throw new Error('Could not parse metadata')
       }
-      acc[matches[1]] = parseVal(matches[2])
+      acc[matches[1]] = Value.fromString(matches[2])
       return acc
     }, {})
 }

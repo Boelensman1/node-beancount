@@ -2,7 +2,7 @@ import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
-import { parseString } from '../../utils/parseVal.mjs'
+import { parseString } from '../Value.mjs'
 
 export class Open extends DateEntry {
   type = 'open' as const

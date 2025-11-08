@@ -2,7 +2,7 @@ import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
-import { parseString } from '../../utils/parseVal.mjs'
+import { parseString } from '../Value.mjs'
 
 export class Query extends DateEntry {
   type = 'query' as const

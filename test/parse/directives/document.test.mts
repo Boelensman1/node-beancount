@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import type { Document } from '../../../src/classes/entryTypes/index.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse simple', () => {
   // simplest document directive
@@ -32,7 +33,7 @@ test('Parse with metadata', () => {
   expect(entry.account).toBe('Liabilities:CreditCard')
   expect(entry.pathToDocument).toBe('/home/joe/stmts/apr-2014.pdf')
   expect(entry.metadata).toEqual({
-    'metadata-test': 'value',
-    'metadata-test-boolean': true,
+    'metadata-test': new Value({ type: 'string', value: 'value' }),
+    'metadata-test-boolean': new Value({ type: 'boolean', value: true }),
   })
 })

@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import type { Custom } from '../../../src/classes/entryTypes/index.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse simple', () => {
   // simplest custom directive
@@ -11,7 +12,9 @@ test('Parse simple', () => {
   const entry = entries[0] as Custom
   expect(entry.type).toBe('custom')
   expect(entry.date.toJSON()).toBe('2014-07-09')
-  expect(entry.customType).toBe('budget')
+  expect(entry.customType).toEqual(
+    new Value({ type: 'string', value: 'budget' }),
+  )
   expect(entry.values).toBeUndefined()
 })
 
@@ -24,6 +27,13 @@ test('Parse with values', () => {
   const entry = entries[0] as Custom
   expect(entry.type).toBe('custom')
   expect(entry.date.toJSON()).toBe('2014-07-09')
-  expect(entry.customType).toBe('budget')
-  expect(entry.values).toEqual(['...', true, '45.30', 'USD'])
+  expect(entry.customType).toEqual(
+    new Value({ type: 'string', value: 'budget' }),
+  )
+  expect(entry.values).toEqual([
+    new Value({ type: 'string', value: '...' }),
+    new Value({ type: 'boolean', value: true }),
+    new Value({ type: 'amount', value: '45.30' }),
+    new Value({ type: 'amount', value: 'USD' }),
+  ])
 })

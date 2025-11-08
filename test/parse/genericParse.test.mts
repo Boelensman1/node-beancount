@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { genericParse } from '../../src/genericParse.mjs'
 import { stringAwareSplitLine } from '../../src/utils/stringAwareSplitLine.mjs'
+import { Value } from '../../src/classes/Value.mjs'
 
 const t = (
   input: string,
@@ -126,8 +127,8 @@ test('Entry with metadata', () => {
       {
         date: '2014-12-26',
         metadata: {
-          name: 'Credit Card Balance',
-          statement: 'December 2014',
+          name: new Value({ type: 'string', value: 'Credit Card Balance' }),
+          statement: new Value({ type: 'string', value: 'December 2014' }),
         },
       },
     ],
@@ -171,8 +172,11 @@ test('Entry with multiline first line and metadata', () => {
       {
         date: '2014-07-09',
         metadata: {
-          description: 'Query to find all cash positions',
-          frequency: 'monthly',
+          description: new Value({
+            type: 'string',
+            value: 'Query to find all cash positions',
+          }),
+          frequency: new Value({ type: 'string', value: 'monthly' }),
         },
       },
     ],

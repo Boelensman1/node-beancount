@@ -2,7 +2,7 @@ import type { GenericParseResultTransaction } from '../../../genericParse.mjs'
 import { assertEntryConstructor } from '../../Entry.mjs'
 import { DateEntry } from '../../DateEntry.mjs'
 import { stringAwareParseLine } from '../../../utils/stringAwareParseLine.mjs'
-import { parseString } from '../../../utils/parseVal.mjs'
+import { parseString } from '../../Value.mjs'
 import { parseMetadata } from '../../../utils/parseMetadata.mjs'
 
 import { Posting } from './Posting.mjs'
@@ -14,11 +14,17 @@ const getStringLinksAndTags = (input: string) => {
   let links: string[] = []
   let tags: Tag[] = []
 
+  // default if no narration
+  let strRemaining = ''
+  let linksAndTags = input
+
+  // check for narration
   const match = /^(".*")(.*)/.exec(input)
-  if (!match) {
-    throw new Error('Could not parse narration')
+  if (match) {
+    // strRemaining = narration
+    strRemaining = match[1]
+    linksAndTags = match[2]
   }
-  const [, strRemaining, linksAndTags] = match
 
   const linksMatch = linksAndTags.matchAll(/\^([\w-]*)/g)
   if (linksMatch) {
@@ -41,8 +47,8 @@ export class Transaction extends DateEntry {
   narration?: string
   flag?: string
   postings!: Posting[]
-  links?: string[]
-  tags?: Tag[]
+  links!: string[]
+  tags!: Tag[]
 
   static fromGenericParseResult(
     genericParseResult: GenericParseResultTransaction,
@@ -106,6 +112,10 @@ export class Transaction extends DateEntry {
     if (this.narration !== undefined) {
       firstLine.push(`"${this.narration}"`)
     }
+
+    firstLine.push(...this.links.map((l) => `^${l}`))
+    firstLine.push(...this.tags.map((t) => t.toString()))
+
     const lines = [firstLine.join(' ') + this.getMetaDataString()]
     lines.push(...this.postings.map((p) => `  ${p.toString()}`))
     return lines.join('\n')

@@ -1,7 +1,7 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
-import { parseString } from '../../utils/parseVal.mjs'
+import { parseString } from '../Value.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 
 export class Note extends DateEntry {

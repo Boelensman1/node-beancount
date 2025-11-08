@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import type { Commodity } from '../../../src/classes/entryTypes/index.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse simple', () => {
   // simplest commodity directive
@@ -29,7 +30,10 @@ test('Parse with metadata', () => {
   expect(entry.date.toJSON()).toBe('2012-01-01')
   expect(entry.currency).toBe('HOOL')
   expect(entry.metadata).toEqual({
-    name: 'Hooli Corporation Class C Shares',
-    'asset-class': 'stock',
+    name: new Value({
+      type: 'string',
+      value: 'Hooli Corporation Class C Shares',
+    }),
+    'asset-class': new Value({ type: 'string', value: 'stock' }),
   })
 })

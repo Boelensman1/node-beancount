@@ -47,6 +47,9 @@ export class Posting {
     if (this.price !== undefined) {
       parts.push(this.price)
     }
+    if (this.comment !== undefined) {
+      parts.push(';', this.comment)
+    }
     return parts.join(' ')
   }
 }

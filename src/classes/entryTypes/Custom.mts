@@ -2,12 +2,11 @@ import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
-import { parseVal, Value } from '../../utils/parseVal.mjs'
-import { formatValue } from '../../utils/formatValue.mjs'
+import { Value } from '../Value.mjs'
 
 export class Custom extends DateEntry {
   type = 'custom' as const
-  customType!: string
+  customType!: Value
   values?: Value[]
 
   static fromGenericParseResult(
@@ -17,17 +16,16 @@ export class Custom extends DateEntry {
 
     return new Custom({
       ...genericParseResult.props,
-      customType: parseVal(customType),
-      values: others.length > 0 ? others.map((o) => parseVal(o)) : undefined,
+      customType: Value.fromString(customType),
+      values:
+        others.length > 0 ? others.map((o) => Value.fromString(o)) : undefined,
     })
   }
 
   toString() {
-    const parts = [
-      `${this.getDateTypePrefix()} ${formatValue(this.customType)}`,
-    ]
+    const parts = [`${this.getDateTypePrefix()} ${this.customType.toString()}`]
     if (this.values !== undefined) {
-      parts.push(...this.values.map(formatValue))
+      parts.push(...this.values.map((v) => v.toString()))
     }
     return parts.join(' ') + this.getMetaDataString()
   }

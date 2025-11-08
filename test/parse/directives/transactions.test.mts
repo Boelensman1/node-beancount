@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import { Transaction } from '../../../src/classes/entryTypes/index.mjs'
 import { Tag } from '../../../src/classes/entryTypes/Transaction/Tag.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse basic', () => {
   const directive = `
@@ -205,8 +206,12 @@ test('Parse with metadata', () => {
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
   expect(entry).toHaveProperty('metadata')
-  expect(entry.metadata!.note).toBe('test')
-  expect(entry.metadata!.booleanval).toBe(true)
+  expect(entry.metadata!.note).toEqual(
+    new Value({ type: 'string', value: 'test' }),
+  )
+  expect(entry.metadata!.booleanval).toEqual(
+    new Value({ type: 'boolean', value: true }),
+  )
 })
 
 test('Parse with link (space before link)', () => {
@@ -252,7 +257,7 @@ test('Parse with multiple links', () => {
   expect(entry.links).toEqual(['transaction1', 'transaction2'])
 })
 
-test('Parse without narration but with link', () => {
+test('Parse without narration but with link (without space)', () => {
   const directive = `
 2023-04-04 * "RiverBank Properties"^link
   Assets:US:BofA:Checking                           -4.00 USD
@@ -268,6 +273,19 @@ test('Parse without narration but with link', () => {
   expect(entry.narration).toBeUndefined()
   expect(entry.postings).toHaveLength(2)
   expect(entry.flag).toBe('*')
+  expect(entry.links).toEqual(['link'])
+})
+
+test('Parse without narration but with link (with space)', () => {
+  const directive = `
+2023-04-04 * "RiverBank Properties" ^link
+  Assets:US:BofA:Checking                           -4.00 USD
+  Expenses:Financial:Fees                            4.00 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
   expect(entry.links).toEqual(['link'])
 })
 

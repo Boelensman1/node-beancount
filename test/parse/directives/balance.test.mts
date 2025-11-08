@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import type { Balance } from '../../../src/classes/entryTypes/index.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse simple', () => {
   // simplest balance directive
@@ -32,5 +33,8 @@ test('Parse with metadata', () => {
   expect(entry.amount).toBe('-3492.02')
   expect(entry.currency).toBe('USD')
   expect(entry.price).toBe('-3492.02 USD')
-  expect(entry.metadata).toEqual({ note: 'testnote', booleanInput: true })
+  expect(entry.metadata).toEqual({
+    note: new Value({ type: 'string', value: 'testnote' }),
+    booleanInput: new Value({ type: 'boolean', value: true }),
+  })
 })

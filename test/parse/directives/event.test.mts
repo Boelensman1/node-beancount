@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
 import type { Event } from '../../../src/classes/entryTypes/index.mjs'
+import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse simple (string)', () => {
   // simplest event directive
@@ -12,7 +13,9 @@ test('Parse simple (string)', () => {
   expect(entry.type).toBe('event')
   expect(entry.date.toJSON()).toBe('2014-07-09')
   expect(entry.name).toBe('location')
-  expect(entry.value).toBe('Paris, France')
+  expect(entry.value).toEqual(
+    new Value({ type: 'string', value: 'Paris, France' }),
+  )
 })
 
 test('Parse simple (boolean)', () => {
@@ -25,7 +28,7 @@ test('Parse simple (boolean)', () => {
   expect(entry.type).toBe('event')
   expect(entry.date.toJSON()).toBe('2014-07-09')
   expect(entry.name).toBe('location')
-  expect(entry.value).toBe(true)
+  expect(entry.value).toEqual(new Value({ type: 'boolean', value: true }))
 })
 
 test('Parse simple (number)', () => {
@@ -37,5 +40,5 @@ test('Parse simple (number)', () => {
   const entry = entries[0] as Event
   expect(entry.date.toJSON()).toBe('2014-07-09')
   expect(entry.name).toBe('location')
-  expect(entry.value).toBe('23.01')
+  expect(entry.value).toEqual(new Value({ type: 'amount', value: '23.01' }))
 })

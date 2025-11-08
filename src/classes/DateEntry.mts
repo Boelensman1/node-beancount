@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { Entry } from './Entry.mjs'
-import { Value } from '../utils/parseVal.mjs'
+import { Value } from './Value.mjs'
 import type { EntryType } from '../parse.mjs'
 
 export type DateEntryType = Exclude<EntryType, 'include' | 'option' | 'plugin'>
@@ -33,13 +33,14 @@ export abstract class DateEntry extends Entry {
   }
 
   getMetaDataString() {
+    const comment = this.comment ? ` ; ${this.comment}` : ''
     if (!this.metadata) {
-      return ''
+      return comment
     }
     return (
-      '\n' +
+      `${comment}\n` +
       Object.entries(this.metadata)
-        .map(([key, val]) => `  ${key}: ${val}`)
+        .map(([key, val]) => `  ${key}: ${val.toString()}`)
         .join('\n')
     )
   }

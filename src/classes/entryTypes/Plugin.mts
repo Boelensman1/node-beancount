@@ -1,5 +1,5 @@
 import type { GenericParseResult } from '../../genericParse.mjs'
-import { parseString } from '../../utils/parseVal.mjs'
+import { parseString } from '../Value.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 import { assertEntryConstructor, Entry } from '../Entry.mjs'
 

@@ -1,6 +1,5 @@
 import type { GenericParseResult } from '../../genericParse.mjs'
-import { parseString, parseVal, Value } from '../../utils/parseVal.mjs'
-import { formatValue } from '../../utils/formatValue.mjs'
+import { parseString, Value } from '../Value.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 import { assertEntryConstructor, Entry } from '../Entry.mjs'
 
@@ -14,12 +13,12 @@ export class Option extends Entry {
 
     return new Option({
       name: parseString(name),
-      value: parseVal(value),
+      value: Value.fromString(value),
     })
   }
 
   toString() {
-    return `${this.type} "${this.name}" ${formatValue(this.value)}`
+    return `${this.type} "${this.name}" ${this.value.toString()}`
   }
 }
 
