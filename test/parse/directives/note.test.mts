@@ -1,0 +1,18 @@
+import { expect, test } from 'vitest'
+import { parse } from '../../../src/parse.mjs'
+import type { Note } from '../../../src/classes/entryTypes/index.mjs'
+
+test('Parse simple', () => {
+  // simplest note directive
+  const directive =
+    '2013-11-03 note Liabilities:CreditCard "Called about fraudulent card."'
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Note
+  expect(entry.type).toBe('note')
+  expect(entry.date.toJSON()).toBe('2013-11-03')
+  expect(entry.account).toBe('Liabilities:CreditCard')
+  expect(entry.account).toBe('Liabilities:CreditCard')
+  expect(entry.description).toBe('Called about fraudulent card.')
+})

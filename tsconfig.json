@@ -1,0 +1,7 @@
+{
+  "extends": "@wtflegal/dev-configs/tsconfigs/node/tsconfig.json",
+  "include": ["eslint.config.mjs", "src/**/*", "test/**/*"],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}

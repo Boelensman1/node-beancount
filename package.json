@@ -1,0 +1,30 @@
+{
+  "name": "beancount",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./build/src/main.mjs",
+      "types": "./build/src/main.d.mts"
+    }
+  },
+  "types": "./build/src/main.d.mts",
+  "files": [
+    "build/**"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@wtflegal/dev-configs": "^0.2.2",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1"
+  }
+}
