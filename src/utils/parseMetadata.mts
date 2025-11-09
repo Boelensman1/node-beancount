@@ -10,7 +10,7 @@ export const parseMetadata = (rest: string[]) => {
   return rest
     .filter((r) => r.trim().length > 0)
     .reduce<Metadata>((acc, line) => {
-      const matches = /^(.*): *(.*)$/.exec(line.trim())
+      const matches = /^(.*?): *(.*)$/.exec(line.trim())
       if (!matches) {
         throw new Error('Could not parse metadata')
       }

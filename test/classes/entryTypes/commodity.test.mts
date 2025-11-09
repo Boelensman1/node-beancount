@@ -15,4 +15,11 @@ describe('Commodity class', () => {
     const commodity = Commodity.fromString(input)
     expect(commodity.toString()).toEqual(input)
   })
+
+  test('toString - with metadata (2)', () => {
+    const input = `1900-01-01 commodity VMMXX
+  export: "MUTF:VMMXX (MONEY:USD)"`
+    const commodity = Commodity.fromString(input)
+    expect(commodity.toString()).toEqual(input)
+  })
 })

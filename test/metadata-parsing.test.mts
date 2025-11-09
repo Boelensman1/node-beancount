@@ -65,3 +65,16 @@ test('DateEntry types: Parse without metadata should return undefined', () => {
     expect(entry.metadata).toBeUndefined()
   }
 })
+
+test('Correctly parse values with :', () => {
+  const directive = `1900-01-01 commodity VMMXX
+  export: "MUTF:VMMXX (MONEY:USD)"
+`
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as DateEntry
+  expect(entry.metadata).toEqual({
+    export: new Value({ type: 'string', value: 'MUTF:VMMXX (MONEY:USD)' }),
+  })
+})
