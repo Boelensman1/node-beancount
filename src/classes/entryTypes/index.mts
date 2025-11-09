@@ -1,5 +1,6 @@
 export { Transaction } from './Transaction/index.mjs'
 export { Balance } from './Balance.mjs'
+export { Blankline } from './Blankline.mjs'
 export { Close } from './Close.mjs'
 export { Comment } from './Comment.mjs'
 export { Commodity } from './Commodity.mjs'

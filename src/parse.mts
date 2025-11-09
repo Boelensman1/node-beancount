@@ -19,6 +19,7 @@ import {
   Price,
   Pushtag,
   Query,
+  Blankline,
 } from './classes/entryTypes/index.mjs'
 import { countChar } from './utils/countChar.mjs'
 import { stringAwareSplitLine } from './utils/stringAwareSplitLine.mjs'
@@ -61,9 +62,8 @@ export const splitStringIntoUnparsedEntries = (input: string): string[][] => {
   const unparsedEntries = lines.reduce<string[][]>((acc, line) => {
     if (!inString) {
       if (line.trim() === '') {
-        // empty newline, skip to next entry
+        // empty newline, next entry starts
         inEntry = false
-        return acc
       }
 
       if (!line.startsWith(' ') && inEntry) {
@@ -90,7 +90,7 @@ export const splitStringIntoUnparsedEntries = (input: string): string[][] => {
   return unparsedEntries.map((lines) => stringAwareSplitLine(lines.join('\n')))
 }
 
-export const parseEntry = (unparsedEntry: string[]) => {
+export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   const genericParseResult = genericParse(unparsedEntry)
   const { type } = genericParseResult
 
@@ -102,21 +102,31 @@ export const parseEntry = (unparsedEntry: string[]) => {
     )
   } else {
     assert(unparsedEntry.length === 1)
+
+    const unparsedEntryLine = unparsedEntry[0]
+    if (unparsedEntryLine === '') {
+      if (skipBlanklines) {
+        return
+      }
+      return Blankline.fromGenericParseResult(
+        {} as unknown as GenericParseResult,
+      )
+    }
     return Comment.fromGenericParseResult({
       type: 'comment',
-      props: { comment: unparsedEntry[0] },
+      props: { comment: unparsedEntryLine },
     } as unknown as GenericParseResult)
   }
 }
 
-export const parse = (input: string) => {
+export const parse = (input: string, skipBlanklines = true) => {
   const unparsedEntries = splitStringIntoUnparsedEntries(input)
 
   const parsedEntries = []
   const tagStack: Tag[] = []
 
   for (const unparsedEntry of unparsedEntries) {
-    const parsedEntry = parseEntry(unparsedEntry)
+    const parsedEntry = parseEntry(unparsedEntry, skipBlanklines)
     if (parsedEntry) {
       if (parsedEntry.type === 'pushtag') {
         tagStack.push(parsedEntry.tag)

@@ -19,7 +19,7 @@ export interface EntryConstructor<T extends Entry> {
 export abstract class Entry {
   comment?: string
 
-  abstract type: EntryType | 'comment' // not a real type, used for everything that doesnt match
+  abstract type: EntryType | 'comment' | 'blankline'
 
   constructor(obj: Record<string, unknown>) {
     Object.assign(this, obj)
