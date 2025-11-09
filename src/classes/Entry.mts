@@ -11,6 +11,10 @@ export interface EntryConstructor<T extends Entry> {
   fromGenericParseResult(parsedStart: ReturnType<typeof genericParse>): T
 }
 
+export interface FormatOptions {
+  currencyColumn: number
+}
+
 /**
  * Abstract base class for all Beancount entry types.
  *
@@ -38,6 +42,12 @@ export abstract class Entry {
       )
     }
     return result
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  toFormattedString(_formatOptions: FormatOptions) {
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    return this.toString()
   }
 }
 

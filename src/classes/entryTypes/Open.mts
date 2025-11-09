@@ -1,5 +1,5 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
-import { assertEntryConstructor } from '../Entry.mjs'
+import { assertEntryConstructor, FormatOptions } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { parseString } from '../Value.mjs'
@@ -36,8 +36,22 @@ export class Open extends DateEntry {
   }
 
   toString() {
+    return this.toFormattedString({ currencyColumn: 0 })
+  }
+
+  toFormattedString(formatOptions: FormatOptions) {
     const parts = [`${this.getDateTypePrefix()} ${this.account}`]
+
     if (this.constraintCurrencies !== undefined) {
+      const paddingLength =
+        formatOptions.currencyColumn -
+        parts.join(' ').length -
+        this.constraintCurrencies.join(',').length
+
+      if (paddingLength > 0) {
+        parts.push(' '.repeat(paddingLength))
+      }
+
       parts.push(this.constraintCurrencies.join(','))
     }
     if (this.bookingMethod !== undefined) {

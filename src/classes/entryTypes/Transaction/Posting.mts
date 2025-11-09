@@ -1,4 +1,5 @@
 import { formatPrice } from '../../../utils/formatPrice.mjs'
+import { FormatOptions } from '../../Entry.mjs'
 
 export class Posting {
   flag?: string
@@ -58,12 +59,29 @@ export class Posting {
   }
 
   toString() {
+    return this.toFormattedString({ currencyColumn: 0 })
+  }
+
+  toFormattedString(formatOptions: FormatOptions) {
     const parts: string[] = []
     if (this.flag !== undefined) {
       parts.push(this.flag)
     }
     parts.push(this.account)
+
     if (this.price !== undefined) {
+      const paddingLength =
+        formatOptions.currencyColumn -
+        parts.join(' ').length -
+        this.amount!.length -
+        2 - // indent
+        2 - // spacing
+        2 // not sure what this is for
+
+      if (paddingLength > 0) {
+        parts.push(' '.repeat(paddingLength))
+      }
+
       parts.push(this.price)
     }
     if (this.comment !== undefined) {

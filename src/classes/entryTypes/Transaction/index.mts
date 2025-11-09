@@ -1,5 +1,5 @@
 import type { GenericParseResultTransaction } from '../../../genericParse.mjs'
-import { assertEntryConstructor } from '../../Entry.mjs'
+import { assertEntryConstructor, FormatOptions } from '../../Entry.mjs'
 import { DateEntry } from '../../DateEntry.mjs'
 import { stringAwareParseLine } from '../../../utils/stringAwareParseLine.mjs'
 import { parseString } from '../../Value.mjs'
@@ -104,6 +104,10 @@ export class Transaction extends DateEntry {
   }
 
   toString() {
+    return this.toFormattedString({ currencyColumn: 0 })
+  }
+
+  toFormattedString(formatOptions: FormatOptions) {
     const firstLine = [
       this.date.toJSON(),
       this.flag ?? 'txn',
@@ -117,7 +121,9 @@ export class Transaction extends DateEntry {
     firstLine.push(...this.tags.map((t) => t.toString()))
 
     const lines = [firstLine.join(' ') + this.getMetaDataString()]
-    lines.push(...this.postings.map((p) => `  ${p.toString()}`))
+    lines.push(
+      ...this.postings.map((p) => `  ${p.toFormattedString(formatOptions)}`),
+    )
     return lines.join('\n')
   }
 }

@@ -1,5 +1,5 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
-import { assertEntryConstructor } from '../Entry.mjs'
+import { assertEntryConstructor, FormatOptions } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { formatPrice } from '../../utils/formatPrice.mjs'
@@ -30,7 +30,17 @@ export class Balance extends DateEntry {
   }
 
   toString() {
-    return `${this.getDateTypePrefix()} ${this.account} ${this.price}${this.getMetaDataString()}`
+    return this.toFormattedString({ currencyColumn: 0 })
+  }
+
+  toFormattedString(formatOptions: FormatOptions) {
+    const firstPart = `${this.getDateTypePrefix()} ${this.account}`
+
+    const paddingLength =
+      formatOptions.currencyColumn - firstPart.length - this.amount.length - 2 // not sure what this is for
+    const padding = ' '.repeat(Math.max(1, paddingLength))
+
+    return [firstPart, padding, this.price, this.getMetaDataString()].join('')
   }
 }
 
