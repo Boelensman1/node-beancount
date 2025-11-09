@@ -4,12 +4,25 @@ import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { parseString } from '../Value.mjs'
 
+/**
+ * Represents an Open entry that declares a new account.
+ * Open directives define the beginning of an account's lifespan.
+ */
 export class Open extends DateEntry {
+  /** @inheritdoc */
   type = 'open' as const
+  /** The account name being opened */
   account!: string
+  /** Optional list of allowed currencies for this account */
   constraintCurrencies?: string[]
+  /** Optional booking method specification */
   bookingMethod?: string
 
+  /**
+   * Creates an Open instance from a generic parse result.
+   * @param genericParseResult - The parsed open entry data
+   * @returns A new Open instance
+   */
   static fromGenericParseResult(
     genericParseResult: GenericParseResultWithDate,
   ) {
@@ -35,10 +48,12 @@ export class Open extends DateEntry {
     })
   }
 
+  /** @inheritdoc */
   toString() {
     return this.toFormattedString({ currencyColumn: 0 })
   }
 
+  /** @inheritdoc */
   toFormattedString(formatOptions: FormatOptions) {
     const parts = [`${this.getDateTypePrefix()} ${this.account}`]
 

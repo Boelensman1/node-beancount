@@ -1,20 +1,44 @@
 import { formatPrice } from '../../../utils/formatPrice.mjs'
 import { FormatOptions } from '../../Entry.mjs'
 
+/**
+ * Represents a single posting (account movement) within a transaction.
+ * Each posting records an amount moving to/from an account.
+ */
 export class Posting {
+  /** Optional posting flag (e.g., '*' for cleared) */
   flag?: string
+  /** The account name for this posting */
   account!: string
+  /** The amount as a string (may be omitted for auto-calculated postings) */
   amount?: string
+  /** The currency code for the amount */
   currency?: string
+  /** Optional cost specification (e.g., for currency conversions) */
   cost?: string
+  /** Currency for the price annotation */
   priceCurrency?: string
+  /** Amount for the price annotation */
   priceAmount?: string
+  /** Optional comment for this posting */
   comment?: string
 
+  /**
+   * Creates a new Posting instance.
+   * @param obj - Object containing posting properties
+   */
   constructor(obj: Record<string, unknown>) {
     Object.assign(this, obj)
   }
 
+  /**
+   * Parses a posting line string into a Posting instance.
+   * Expected format: [Flag] Account [Amount Currency] [{Cost}] [@ PriceAmount PriceCurrency] [; Comment]
+   *
+   * @param unparsedline - The posting line string to parse
+   * @returns A new Posting instance
+   * @throws {Error} If the posting line cannot be parsed
+   */
   static fromGenericParseResult(unparsedline: string) {
     // [Flag] Account Amount [{Cost}] [@ Price]
     const matches =
@@ -48,6 +72,10 @@ export class Posting {
     })
   }
 
+  /**
+   * Gets the formatted price string combining amount, currency, cost, and price annotation.
+   * @returns The formatted price string, or undefined if no price components exist
+   */
   get price(): string | undefined {
     return formatPrice(
       this.amount,
@@ -58,10 +86,23 @@ export class Posting {
     )
   }
 
+  /**
+   * Converts this posting to a string representation.
+   * Delegates to toFormattedString with zero currency column alignment.
+   *
+   * @returns The string representation of this posting
+   */
   toString() {
     return this.toFormattedString({ currencyColumn: 0 })
   }
 
+  /**
+   * Converts this posting to a formatted string with aligned currency column.
+   * Adds padding before the price to align at the specified column.
+   *
+   * @param formatOptions - Formatting options including currency column position
+   * @returns The formatted string representation of this posting
+   */
   toFormattedString(formatOptions: FormatOptions) {
     const parts: string[] = []
     if (this.flag !== undefined) {

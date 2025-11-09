@@ -17,8 +17,10 @@
   "license": "ISC",
   "devDependencies": {
     "@wtflegal/dev-configs": "^0.2.2",
+    "eslint-plugin-jsdoc": "^61.1.12",
     "prettier": "^3.6.2",
     "tsx": "^4.20.6",
+    "typedoc": "^0.28.14",
     "vitest": "^3.2.4"
   },
   "engines": {

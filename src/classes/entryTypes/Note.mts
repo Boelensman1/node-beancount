@@ -4,11 +4,23 @@ import { DateEntry } from '../DateEntry.mjs'
 import { parseString } from '../Value.mjs'
 import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 
+/**
+ * Represents a Note entry that attaches a comment to an account.
+ * Note directives associate free-form text descriptions with accounts at specific dates.
+ */
 export class Note extends DateEntry {
+  /** @inheritdoc */
   type = 'note' as const
+  /** The account the note is attached to */
   account!: string
+  /** The note description text */
   description!: string
 
+  /**
+   * Creates a Note instance from a generic parse result.
+   * @param genericParseResult - The parsed note entry data
+   * @returns A new Note instance
+   */
   static fromGenericParseResult(
     genericParseResult: GenericParseResultWithDate,
   ) {
@@ -23,6 +35,7 @@ export class Note extends DateEntry {
     })
   }
 
+  /** @inheritdoc */
   toString() {
     return `${this.getDateTypePrefix()} ${this.account} "${this.description}"${this.getMetaDataString()}`
   }

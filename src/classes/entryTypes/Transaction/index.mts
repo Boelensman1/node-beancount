@@ -8,8 +8,20 @@ import { parseMetadata } from '../../../utils/parseMetadata.mjs'
 import { Posting } from './Posting.mjs'
 import { Tag } from './Tag.mjs'
 
+/**
+ * Valid Beancount account type prefixes.
+ * @internal
+ */
 const AccountTypes = ['Assets', 'Liabilities', 'Equity', 'Income', 'Expenses']
 
+/**
+ * Parses a string to extract narration/payee, links, and tags.
+ * Links are prefixed with '^' and tags with '#'.
+ *
+ * @param input - The string to parse (may contain narration in quotes, links, and tags)
+ * @returns An object containing extracted links, tags, and the remaining string (narration/payee)
+ * @internal
+ */
 const getStringLinksAndTags = (input: string) => {
   let links = new Set<string>()
   let tags: Tag[] = []
@@ -41,15 +53,33 @@ const getStringLinksAndTags = (input: string) => {
   return { links, tags, string: strRemaining }
 }
 
+/**
+ * Represents a Beancount transaction entry.
+ * Transactions record financial movements between accounts with postings.
+ */
 export class Transaction extends DateEntry {
+  /** @inheritdoc */
   type = 'transaction' as const
+  /** The payee of the transaction */
   payee!: string
+  /** Optional narration/description of the transaction */
   narration?: string
+  /** Optional transaction flag (e.g., '*' for cleared, '!' for pending) */
   flag?: string
+  /** Array of postings (account movements) in this transaction */
   postings!: Posting[]
+  /** Set of link identifiers associated with this transaction */
   links!: Set<string>
+  /** Array of tags associated with this transaction (from inline tags and tag stack) */
   tags!: Tag[]
 
+  /**
+   * Creates a Transaction instance from a generic parse result.
+   * Parses payee, narration, links, tags, postings, and metadata.
+   *
+   * @param genericParseResult - The parsed transaction data
+   * @returns A new Transaction instance
+   */
   static fromGenericParseResult(
     genericParseResult: GenericParseResultTransaction,
   ) {
@@ -103,10 +133,12 @@ export class Transaction extends DateEntry {
     })
   }
 
+  /** @inheritdoc */
   toString() {
     return this.toFormattedString({ currencyColumn: 0 })
   }
 
+  /** @inheritdoc */
   toFormattedString(formatOptions: FormatOptions) {
     const firstLine = [
       this.date.toJSON(),

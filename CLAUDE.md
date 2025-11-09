@@ -39,8 +39,12 @@ command make benchmark
 command make test
 # Uses vitest
 
-# Run linting (includes prettier, tsc type-check, and eslint)
+# Run linting (includes prettier, tsc type-check, eslint, and typedoc check)
 command make lint
+
+# Generate docs
+command make docs
+# Uses typedoc
 
 # Clean dependencies
 command make clean

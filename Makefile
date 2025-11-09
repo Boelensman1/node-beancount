@@ -23,9 +23,12 @@ lint: $(INSTALL_DEPS)
 	npx --no-install prettier --check .
 	npx --no-install tsc --noEmit
 	npx --no-install eslint .
+	npx --no-install typedoc --emit none
 
 benchmark: $(INSTALL_DEPS) build
 	node ./build/src/benchmark.mjs
 
+docs: $(INSTALL_DEPS)
+	npx --no-install typedoc
 
-.PHONY: dev install clean lint test benchmark
+.PHONY: dev install clean lint test benchmark docs

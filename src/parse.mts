@@ -30,7 +30,10 @@ import {
 } from './genericParse.mjs'
 import { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
 
-// from https://beancount.github.io/docs/beancount_language_syntax.html#directives-1
+/**
+ * Mapping of Beancount entry type names to their corresponding class constructors.
+ * @internal
+ */
 const entryTypes = {
   transaction: Transaction,
   balance: Balance,
@@ -51,8 +54,47 @@ const entryTypes = {
   query: Query,
 }
 
-export type EntryType = keyof typeof entryTypes
+/**
+ * Union type of all valid Beancount entry type names.
+ * EntryTypes derived from https://beancount.github.io/docs/beancount_language_syntax.html#directives-1
+ * Entries can have two additional 'fake' types: 'comment' and 'blankline'
+ */
+export type BeancountEntryType =
+  | 'transaction'
+  | 'balance'
+  | 'close'
+  | 'commodity'
+  | 'custom'
+  | 'document'
+  | 'event'
+  | 'include'
+  | 'note'
+  | 'open'
+  | 'option'
+  | 'pad'
+  | 'plugin'
+  | 'poptag'
+  | 'price'
+  | 'pushtag'
+  | 'query'
 
+// Compile-time assertion: entryTypes must have all EntryType keys
+// entryTypes is written out instead of derrived so that tsdoc can read it
+entryTypes satisfies Record<BeancountEntryType, unknown>
+
+/**
+ * Splits a Beancount file string into an array of unparsed entry arrays.
+ * Each entry is represented as an array of strings (tokens).
+ *
+ * This function handles:
+ * - Splitting on blank lines between entries
+ * - Detecting new entries based on indentation
+ * - Preserving multi-line strings that span lines
+ *
+ * @param input - The complete Beancount file content as a string
+ * @returns An array where each element is an array of string tokens representing one entry
+ * @internal
+ */
 export const splitStringIntoUnparsedEntries = (input: string): string[][] => {
   const lines = input.split('\n')
 
@@ -90,6 +132,18 @@ export const splitStringIntoUnparsedEntries = (input: string): string[][] => {
   return unparsedEntries.map((lines) => stringAwareSplitLine(lines.join('\n')))
 }
 
+/**
+ * Parses a single unparsed entry into its corresponding Entry class instance.
+ *
+ * This function:
+ * - Performs generic parsing to determine entry type
+ * - Instantiates the appropriate Entry subclass
+ * - Handles special cases for comments and blank lines
+ *
+ * @param unparsedEntry - Array of string tokens representing a single entry
+ * @param skipBlanklines - If true, returns undefined for blank lines; if false, returns Blankline instances
+ * @returns An Entry instance, or undefined if the entry is blank and skipBlanklines is true
+ */
 export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   const genericParseResult = genericParse(unparsedEntry)
   const { type } = genericParseResult
@@ -119,10 +173,59 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   }
 }
 
+/**
+ * Options for configuring the parse function behavior.
+ */
 export interface ParseOptions {
+  /**
+   * If true, blank lines in the input are skipped and not included in the result.
+   * If false, blank lines are preserved as Blankline entries.
+   * Defaults to true.
+   */
   skipBlanklines?: boolean
 }
 
+/**
+ * Parses a complete Beancount file string into a ParseResult containing Entry objects.
+ *
+ * This is the main entry point for parsing Beancount files. It handles:
+ * - Splitting the input into individual entries
+ * - Parsing each entry into its appropriate type
+ * - Managing the tag stack for pushtag/poptag directives
+ * - Applying tags from the stack to transactions
+ *
+ * @remarks
+ * This is the primary function you'll use from this library. It takes a Beancount file
+ * as a string and returns a structured ParseResult object containing all parsed entries.
+ *
+ * @example
+ * Basic usage:
+ * ```typescript
+ * import { parse } from 'node-beancount'
+ *
+ * const content = `
+ * 2024-01-01 open Assets:Checking
+ * 2024-01-02 * "Payee" "Narration"
+ *   Assets:Checking  100.00 USD
+ *   Income:Salary   -100.00 USD
+ * `
+ *
+ * const result = parse(content)
+ * // result.entries contains parsed Entry objects
+ * ```
+ *
+ * @example
+ * With options:
+ * ```typescript
+ * // Preserve blank lines in output
+ * const result = parse(content, { skipBlanklines: false })
+ * ```
+ *
+ * @param input - The complete Beancount file content as a string
+ * @param options - Optional parsing configuration
+ * @param options.skipBlanklines - If true, skips blank lines; defaults to true
+ * @returns A ParseResult instance containing all parsed entries
+ */
 export const parse = (
   input: string,
   { skipBlanklines = true }: ParseOptions = {},

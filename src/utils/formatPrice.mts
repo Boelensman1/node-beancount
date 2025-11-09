@@ -1,10 +1,15 @@
 /**
- * Formats a price string from amount and currency components.
+ * Formats a price string from amount, currency, cost, and price annotation components.
  * Returns undefined if either amount or currency is missing.
+ *
+ * Format: "amount currency [{cost}] [@ priceAmount priceCurrency]"
  *
  * @param amount - The amount portion of the price
  * @param currency - The currency portion of the price
- * @returns Formatted price string "amount currency" or undefined
+ * @param cost - Optional cost specification in curly braces
+ * @param priceAmount - Optional price annotation amount
+ * @param priceCurrency - Optional price annotation currency
+ * @returns Formatted price string or undefined if amount/currency are missing
  */
 export const formatPrice = (
   amount: string | undefined,

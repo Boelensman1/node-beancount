@@ -1,0 +1,17 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./src/main.mts"],
+  "out": "docs",
+  "exclude": ["**/node_modules/**", "**/test/**", "**/*.test.mts"],
+  "plugin": [],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "readme": "none",
+  "navigation": {
+    "includeCategories": false,
+    "includeGroups": true
+  },
+  "categorizeByGroup": false,
+  "intentionallyNotExported": ["EntryConstructor"]
+}
