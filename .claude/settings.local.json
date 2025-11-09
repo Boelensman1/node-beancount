@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx prettier:*)",
       "Bash(command make lint)",
-      "Bash(command make test:*)"
+      "Bash(command make test:*)",
+      "Bash(npx vitest:*)"
     ],
     "deny": [],
     "ask": []
