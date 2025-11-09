@@ -1,6 +1,7 @@
 import assert from 'node:assert'
 import { ParseResult } from './classes/ParseResult.mjs'
 import {
+  Transaction,
   Balance,
   Close,
   Comment,
@@ -14,9 +15,10 @@ import {
   Option,
   Pad,
   Plugin,
+  Poptag,
   Price,
+  Pushtag,
   Query,
-  Transaction,
 } from './classes/entryTypes/index.mjs'
 import { countChar } from './utils/countChar.mjs'
 import { stringAwareSplitLine } from './utils/stringAwareSplitLine.mjs'
@@ -25,9 +27,11 @@ import {
   GenericParseResult,
   GenericParseResultTransaction,
 } from './genericParse.mjs'
+import { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
 
 // from https://beancount.github.io/docs/beancount_language_syntax.html#directives-1
 const entryTypes = {
+  transaction: Transaction,
   balance: Balance,
   close: Close,
   commodity: Commodity,
@@ -40,9 +44,10 @@ const entryTypes = {
   option: Option,
   pad: Pad,
   plugin: Plugin,
+  poptag: Poptag,
   price: Price,
+  pushtag: Pushtag,
   query: Query,
-  transaction: Transaction,
 }
 
 export type EntryType = keyof typeof entryTypes
@@ -107,9 +112,32 @@ export const parseEntry = (unparsedEntry: string[]) => {
 export const parse = (input: string) => {
   const unparsedEntries = splitStringIntoUnparsedEntries(input)
 
-  return new ParseResult(
-    unparsedEntries
-      .map((unparsedEntry) => parseEntry(unparsedEntry))
-      .filter((e) => e !== undefined),
-  )
+  const parsedEntries = []
+  const tagStack: Tag[] = []
+
+  for (const unparsedEntry of unparsedEntries) {
+    const parsedEntry = parseEntry(unparsedEntry)
+    if (parsedEntry) {
+      if (parsedEntry.type === 'pushtag') {
+        tagStack.push(parsedEntry.tag)
+      } else if (parsedEntry.type === 'poptag') {
+        // Find and remove the most recent matching tag from the stack
+        const tagToRemove = parsedEntry.tag.content
+        for (let i = tagStack.length - 1; i >= 0; i--) {
+          if (tagStack[i].content === tagToRemove) {
+            tagStack.splice(i, 1)
+            break
+          }
+        }
+      }
+
+      if (parsedEntry.type === 'transaction') {
+        parsedEntry.tags.push(...tagStack)
+      }
+
+      parsedEntries.push(parsedEntry)
+    }
+  }
+
+  return new ParseResult(parsedEntries)
 }
