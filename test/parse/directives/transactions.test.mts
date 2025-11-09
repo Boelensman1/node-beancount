@@ -367,3 +367,45 @@ test('Parse with multiple tags and links', () => {
     }),
   ])
 })
+
+test('Parse with cost', () => {
+  const directive = `
+2024-04-15 * "Investing 60% of cash in RGAGX"
+  Assets:US:Vanguard:RGAGX 6.805 RGAGX {52.90 USD, 2024-04-15}
+  Assets:US:Vanguard:Cash -359.98 USD`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(2)
+  expect(entry.postings[0].account).toBe('Assets:US:Vanguard:RGAGX')
+  expect(entry.postings[0].amount).toBe('6.805')
+  expect(entry.postings[0].currency).toBe('RGAGX')
+  expect(entry.postings[0].cost).toBe('52.90 USD, 2024-04-15')
+  expect(entry.postings[0].price).toBe('6.805 RGAGX {52.90 USD, 2024-04-15}')
+})
+
+test('Parse with cost and posting price', () => {
+  const directive = `2023-10-28 * "Sell shares of ITOT"
+  Assets:US:ETrade:ITOT -11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD
+  Assets:US:ETrade:Cash 1323.26 USD
+  Expenses:Financial:Commissions 8.95 USD
+  Income:US:ETrade:PnL 52.36 USD
+`
+
+  const { entries } = parse(directive)
+  expect(entries).toHaveLength(1)
+
+  const entry = entries[0] as Transaction
+  expect(entry.postings).toHaveLength(4)
+  expect(entry.postings[0].account).toBe('Assets:US:ETrade:ITOT')
+  expect(entry.postings[0].amount).toBe('-11')
+  expect(entry.postings[0].currency).toBe('ITOT')
+  expect(entry.postings[0].cost).toBe('125.87 USD, 2023-10-02')
+  expect(entry.postings[0].priceAmount).toBe('121.11')
+  expect(entry.postings[0].priceCurrency).toBe('USD')
+  expect(entry.postings[0].price).toBe(
+    '-11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD',
+  )
+})

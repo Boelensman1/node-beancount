@@ -9,6 +9,20 @@
 export const formatPrice = (
   amount: string | undefined,
   currency: string | undefined,
+  cost?: string,
+  priceAmount?: string,
+  priceCurrency?: string,
 ): string | undefined => {
-  return amount && currency ? amount.trim() + ' ' + currency.trim() : undefined
+  if (!amount || !currency) {
+    return undefined
+  }
+  const result = [amount.trim() + ' ' + currency.trim()]
+  if (cost) {
+    result.push(`{${cost.trim()}}`)
+  }
+  if (priceAmount && priceCurrency) {
+    result.push('@', formatPrice(priceAmount, priceCurrency)!)
+  }
+
+  return result.join(' ')
 }

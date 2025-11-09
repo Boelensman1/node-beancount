@@ -125,4 +125,22 @@ describe('Transaction class', () => {
     const transaction = Transaction.fromString(input)
     expect(transaction.toString()).toEqual(input)
   })
+
+  test('toString - with price info', () => {
+    const input = `2024-04-15 * "Investing 60% of cash in RGAGX"
+  Assets:US:Vanguard:RGAGX 6.805 RGAGX {52.90 USD, 2024-04-15}
+  Assets:US:Vanguard:Cash -359.98 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('toString - with price info (2)', () => {
+    const input = `2023-10-28 * "Sell shares of ITOT"
+  Assets:US:ETrade:ITOT -11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD
+  Assets:US:ETrade:Cash 1323.26 USD
+  Expenses:Financial:Commissions 8.95 USD
+  Income:US:ETrade:PnL 52.36 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
 })

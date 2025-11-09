@@ -5,6 +5,9 @@ export class Posting {
   account!: string
   amount?: string
   currency?: string
+  cost?: string
+  priceCurrency?: string
+  priceAmount?: string
   comment?: string
 
   constructor(obj: Record<string, unknown>) {
@@ -14,14 +17,23 @@ export class Posting {
   static fromGenericParseResult(unparsedline: string) {
     // [Flag] Account Amount [{Cost}] [@ Price]
     const matches =
-      /^(?:([^ ]) )?([^ ]*)(?: +([^A-Z]*) +(\w+)(?: +{.*})?(?: +@ +(\d+\.?\d* (\w+)))?)?( *;.*)?$/.exec(
+      /^(?:([^ ]) )?([^ ]*)(?: +([^A-Z]*) +(\w+)(?: +{(.*)})?(?: +@ +(?:(\d+\.?\d*) (\w+)))?)?( *;.*)?$/.exec(
         unparsedline,
       )
     if (!matches) {
       throw new Error('Could not parse posting')
     }
-    const [, flag, account, amount, currency, cost, postingPrice, comment] =
-      matches
+    const [
+      ,
+      flag,
+      account,
+      amount,
+      currency,
+      cost,
+      priceAmount,
+      priceCurrency,
+      comment,
+    ] = matches
 
     return new Posting({
       flag: flag,
@@ -29,13 +41,20 @@ export class Posting {
       amount: amount?.trim(),
       currency: currency?.trim(),
       cost: cost?.trim(),
-      postingPrice: postingPrice?.trim(),
+      priceAmount: priceAmount?.trim(),
+      priceCurrency: priceCurrency?.trim(),
       comment: comment?.replace(/^ *;/, '').trim(),
     })
   }
 
   get price(): string | undefined {
-    return formatPrice(this.amount, this.currency)
+    return formatPrice(
+      this.amount,
+      this.currency,
+      this.cost,
+      this.priceAmount,
+      this.priceCurrency,
+    )
   }
 
   toString() {
