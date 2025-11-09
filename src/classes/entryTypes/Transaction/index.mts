@@ -11,7 +11,7 @@ import { Tag } from './Tag.mjs'
 const AccountTypes = ['Assets', 'Liabilities', 'Equity', 'Income', 'Expenses']
 
 const getStringLinksAndTags = (input: string) => {
-  let links: string[] = []
+  let links = new Set<string>()
   let tags: Tag[] = []
 
   // default if no narration
@@ -28,7 +28,7 @@ const getStringLinksAndTags = (input: string) => {
 
   const linksMatch = linksAndTags.matchAll(/\^([\w-]*)/g)
   if (linksMatch) {
-    links = linksMatch.map((m) => m[1]).toArray()
+    links = new Set(linksMatch.map((m) => m[1]))
   }
 
   const tagsMatch = linksAndTags.matchAll(/#([\w-]*)/g)
@@ -47,7 +47,7 @@ export class Transaction extends DateEntry {
   narration?: string
   flag?: string
   postings!: Posting[]
-  links!: string[]
+  links!: Set<string>
   tags!: Tag[]
 
   static fromGenericParseResult(
@@ -56,7 +56,7 @@ export class Transaction extends DateEntry {
     // eslint-disable-next-line prefer-const
     let [payee, ...rest] = stringAwareParseLine(genericParseResult.header)
 
-    let links: string[] = []
+    let links: Set<string> = new Set<string>()
     let tags: Tag[] = []
     let narration
 
@@ -117,7 +117,7 @@ export class Transaction extends DateEntry {
       firstLine.push(`"${this.narration}"`)
     }
 
-    firstLine.push(...this.links.map((l) => `^${l}`))
+    firstLine.push(...this.links.values().map((l) => `^${l}`))
     firstLine.push(...this.tags.map((t) => t.toString()))
 
     const lines = [firstLine.join(' ') + this.getMetaDataString()]

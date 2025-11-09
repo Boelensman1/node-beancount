@@ -225,7 +225,7 @@ test('Parse with link (space before link)', () => {
 
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(['link-to-transaction'])
+  expect(entry.links).toEqual(new Set(['link-to-transaction']))
   expect(entry.tags).toEqual([])
 })
 
@@ -240,7 +240,7 @@ test('Parse with link (no space before link)', () => {
 
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(['link-to-transaction'])
+  expect(entry.links).toEqual(new Set(['link-to-transaction']))
 })
 
 test('Parse with multiple links', () => {
@@ -254,7 +254,7 @@ test('Parse with multiple links', () => {
 
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(['transaction1', 'transaction2'])
+  expect(entry.links).toEqual(new Set(['transaction1', 'transaction2']))
 })
 
 test('Parse without narration but with link (without space)', () => {
@@ -273,7 +273,7 @@ test('Parse without narration but with link (without space)', () => {
   expect(entry.narration).toBeUndefined()
   expect(entry.postings).toHaveLength(2)
   expect(entry.flag).toBe('*')
-  expect(entry.links).toEqual(['link'])
+  expect(entry.links).toEqual(new Set(['link']))
 })
 
 test('Parse without narration but with link (with space)', () => {
@@ -286,7 +286,7 @@ test('Parse without narration but with link (with space)', () => {
   expect(entries).toHaveLength(1)
 
   const entry = entries[0] as Transaction
-  expect(entry.links).toEqual(['link'])
+  expect(entry.links).toEqual(new Set(['link']))
 })
 
 test('Parse with tag', () => {
@@ -300,7 +300,7 @@ test('Parse with tag', () => {
 
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual([])
+  expect(entry.links.size).toEqual(0)
   expect(entry.tags).toHaveLength(1)
   expect(entry.tags).toEqual([
     new Tag({
@@ -349,8 +349,9 @@ test('Parse with multiple tags and links', () => {
 
   const entry = entries[0] as Transaction
   expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toHaveLength(3)
-  expect(entry.links).toEqual(['link1', 'link2', 'link3'])
+
+  expect(entry.links.size).toBe(3)
+  expect(entry.links).toEqual(new Set(['link1', 'link2', 'link3']))
   expect(entry.tags).toHaveLength(3)
   expect(entry.tags).toEqual([
     new Tag({
