@@ -119,7 +119,14 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   }
 }
 
-export const parse = (input: string, skipBlanklines = true) => {
+export interface ParseOptions {
+  skipBlanklines?: boolean
+}
+
+export const parse = (
+  input: string,
+  { skipBlanklines = true }: ParseOptions = {},
+) => {
   const unparsedEntries = splitStringIntoUnparsedEntries(input)
 
   const parsedEntries = []

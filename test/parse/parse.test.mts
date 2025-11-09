@@ -191,3 +191,33 @@ poptag #q2-2014`
     ])
   })
 })
+
+test('Newlines', () => {
+  const input = `
+2014-01-15 * "Q1 Expense"
+  Expenses:Office               100.00 USD
+  Assets:Checking
+
+
+
+
+2014-04-15 * "Q2 Expense"
+  Expenses:Office               150.00 USD
+  Assets:Checking
+
+`
+
+  const output = parse(input, { skipBlanklines: false })
+  expect(output.entries).toHaveLength(9)
+  expect(output.entries.map((e) => e.type)).toEqual([
+    'blankline',
+    'transaction',
+    'blankline',
+    'blankline',
+    'blankline',
+    'blankline',
+    'transaction',
+    'blankline',
+    'blankline',
+  ])
+})
