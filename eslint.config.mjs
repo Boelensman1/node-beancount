@@ -46,6 +46,7 @@ export default [
         {
           // Allow TypeDoc-specific tags
           definedTags: [
+            'remarks',
             'category',
             'categoryDescription',
             'group',
