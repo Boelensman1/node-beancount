@@ -1,4 +1,4 @@
-import sharedConfig from '@wtflegal/dev-configs/eslints/typescript.mjs'
+import sharedConfig from 'wtf-devconfigs/eslints/typescript.mjs'
 import jsdoc from 'eslint-plugin-jsdoc'
 
 export default [
