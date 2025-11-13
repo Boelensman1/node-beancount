@@ -1,5 +1,5 @@
 /**
- * node-beancount - TypeScript parser for Beancount accounting files
+ * beancount - A parser and editor for Beancount accounting files with full type safety.
  *
  * @remarks
  * The primary function you'll use is {@link parse}, which parses a complete Beancount file
@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { parse } from 'node-beancount'
+ * import { parse } from 'beancount'
  *
  * const beancountContent = `
  * 2024-01-01 open Assets:Checking

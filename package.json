@@ -1,7 +1,7 @@
 {
   "name": "beancount",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Parse and work with Beancount accounting files in TypeScript with full type safety",
   "type": "module",
   "exports": {
     ".": {
@@ -13,8 +13,13 @@
   "files": [
     "build/**"
   ],
-  "author": "",
+  "author": "Wigger Boelens <me@wiggerboelens.com> (http://www.wiggerboelens.com/)",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Boelensman1/node-beancount.git"
+  },
+  "homepage": "https://Boelensman1.github.io/node-beancount/",
   "devDependencies": {
     "wtf-devconfigs": "^0.3.2",
     "eslint-plugin-jsdoc": "^61.1.12",

@@ -201,7 +201,7 @@ export interface ParseOptions {
  * @example
  * Basic usage:
  * ```typescript
- * import { parse } from 'node-beancount'
+ * import { parse } from 'beancount'
  *
  * const content = `
  * 2024-01-01 open Assets:Checking
