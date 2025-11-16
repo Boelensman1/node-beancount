@@ -1,26 +1,6 @@
 import assert from 'node:assert'
 import { ParseResult } from './classes/ParseResult.mjs'
-import {
-  Transaction,
-  Balance,
-  Close,
-  Comment,
-  Commodity,
-  Custom,
-  Document,
-  Event,
-  Include,
-  Note,
-  Open,
-  Option,
-  Pad,
-  Plugin,
-  Poptag,
-  Price,
-  Pushtag,
-  Query,
-  Blankline,
-} from './classes/entryTypes/index.mjs'
+import { Comment, Blankline } from './classes/entryTypes/index.mjs'
 import { countChar } from './utils/countChar.mjs'
 import { stringAwareSplitLine } from './utils/stringAwareSplitLine.mjs'
 import {
@@ -29,58 +9,7 @@ import {
   GenericParseResultTransaction,
 } from './genericParse.mjs'
 import { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
-
-/**
- * Mapping of Beancount entry type names to their corresponding class constructors.
- * @internal
- */
-const entryTypes = {
-  transaction: Transaction,
-  balance: Balance,
-  close: Close,
-  commodity: Commodity,
-  custom: Custom,
-  document: Document,
-  event: Event,
-  include: Include,
-  note: Note,
-  open: Open,
-  option: Option,
-  pad: Pad,
-  plugin: Plugin,
-  poptag: Poptag,
-  price: Price,
-  pushtag: Pushtag,
-  query: Query,
-}
-
-/**
- * Union type of all valid Beancount entry type names.
- * EntryTypes derived from https://beancount.github.io/docs/beancount_language_syntax.html#directives-1
- * Entries can have two additional 'fake' types: 'comment' and 'blankline'
- */
-export type BeancountEntryType =
-  | 'transaction'
-  | 'balance'
-  | 'close'
-  | 'commodity'
-  | 'custom'
-  | 'document'
-  | 'event'
-  | 'include'
-  | 'note'
-  | 'open'
-  | 'option'
-  | 'pad'
-  | 'plugin'
-  | 'poptag'
-  | 'price'
-  | 'pushtag'
-  | 'query'
-
-// Compile-time assertion: entryTypes must have all EntryType keys
-// entryTypes is written out instead of derrived so that tsdoc can read it
-entryTypes satisfies Record<BeancountEntryType, unknown>
+import { beancountEntryToClass } from './entryTypeToClass.mjs'
 
 /**
  * Splits a Beancount file string into an array of unparsed entry arrays.
@@ -148,7 +77,7 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   const genericParseResult = genericParse(unparsedEntry)
   const { type } = genericParseResult
 
-  const EntryClass = entryTypes[type]
+  const EntryClass = beancountEntryToClass[type]
 
   if (EntryClass) {
     return EntryClass.fromGenericParseResult(

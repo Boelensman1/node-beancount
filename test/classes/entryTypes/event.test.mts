@@ -20,3 +20,26 @@ describe('toString', () => {
     expect(event.toString()).toEqual(input)
   })
 })
+
+describe('toJSON & fromJSON roundtrip', () => {
+  test('string value', () => {
+    const input = '2014-07-09 event "location" "Paris, France"'
+    const event = Event.fromString(input)
+
+    expect(Event.fromJSON(JSON.stringify(event))).toEqual(event)
+  })
+
+  test('boolean value', () => {
+    const input = '2014-07-09 event "location" TRUE'
+    const event = Event.fromString(input)
+
+    expect(Event.fromJSON(JSON.stringify(event))).toEqual(event)
+  })
+
+  test('number value', () => {
+    const input = '2014-07-09 event "location" 23.01'
+    const event = Event.fromString(input)
+
+    expect(Event.fromJSON(JSON.stringify(event))).toEqual(event)
+  })
+})

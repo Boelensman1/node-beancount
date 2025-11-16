@@ -1,3 +1,4 @@
+import { EntryType, entryTypeToClass } from '../entryTypeToClass.mjs'
 import { Entry } from './Entry.mjs'
 
 /**
@@ -34,5 +35,32 @@ export class ParseResult {
     return this.entries
       .map((e) => e.toFormattedString({ currencyColumn }))
       .join('\n')
+  }
+
+  /**
+   * Creates an ParseResult instance from JSON data.
+   * Calls parseJSON to allow subclasses to transform the data before construction.
+   *
+   * @param jsonString - JSON data representing an ParseResult
+   * @remarks **Warning:** No validation is performed on the JSON input. We assume the JSON is valid and well-formed.
+   * @returns A new instance of ParseResult loaded with the data in the JSON
+   */
+  static fromJSON(jsonString: string) {
+    const json = JSON.parse(jsonString) as { entries: { type: EntryType }[] }
+
+    const jsonEntries = json.entries
+    const entries = jsonEntries.map((jsonEntry) => {
+      const { type } = jsonEntry
+      const EntryClass = entryTypeToClass[type]
+      if (!EntryClass) {
+        throw new Error(`No entryclass found for type ${type}`)
+      }
+      // Type assertion needed because TypeScript can't verify that all entry classes
+      // in the union type have compatible constructor signatures
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      return (EntryClass as any).fromJSON(JSON.stringify(jsonEntry)) as Entry
+    })
+
+    return new ParseResult(entries)
   }
 }

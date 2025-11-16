@@ -25,7 +25,7 @@
 
 // Primary parsing functionality
 export { parse, parseEntry, splitStringIntoUnparsedEntries } from './parse.mjs'
-export type { ParseOptions, BeancountEntryType } from './parse.mjs'
+export type { ParseOptions } from './parse.mjs'
 
 // Generic parse result types
 export type {
@@ -68,3 +68,7 @@ export { Transaction } from './classes/entryTypes/Transaction/index.mjs'
 // Transaction sub-components
 export { Posting } from './classes/entryTypes/Transaction/Posting.mjs'
 export { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
+
+// Entry type mappings
+export type { BeancountEntryType, EntryType } from './entryTypeToClass.mjs'
+export { beancountEntryToClass, entryTypeToClass } from './entryTypeToClass.mjs'

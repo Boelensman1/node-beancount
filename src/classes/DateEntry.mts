@@ -1,7 +1,7 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { Entry } from './Entry.mjs'
-import { Value } from './Value.mjs'
-import type { BeancountEntryType } from '../parse.mjs'
+import { Value, type ValueType } from './Value.mjs'
+import type { BeancountEntryType } from '../entryTypeToClass.mjs'
 
 /**
  * Union type of all Beancount entry types that include a date field.
@@ -31,11 +31,22 @@ export abstract class DateEntry extends Entry {
    * @param obj.date - The date string in YYYY-MM-DD format
    */
   constructor(obj: { date: string; [key: string]: unknown }) {
-    const { date, ...props } = obj
+    const { date, metadata, ...props } = obj
     super(props)
 
     if (date) {
       this.date = Temporal.PlainDate.from(date, { overflow: 'reject' })
+    }
+
+    if (metadata) {
+      this.metadata = Object.fromEntries(
+        Object.entries(metadata as Record<string, unknown>).map(
+          ([key, val]) => [
+            key,
+            new Value(val as { type: ValueType; value: unknown }),
+          ],
+        ),
+      )
     }
   }
 

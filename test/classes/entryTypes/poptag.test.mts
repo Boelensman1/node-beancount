@@ -8,3 +8,12 @@ describe('toString', () => {
     expect(include.toString()).toEqual(input)
   })
 })
+
+describe('toJSON & fromJSON roundtrip', () => {
+  test('simple', () => {
+    const input = 'poptag #berlin-trip-2014'
+    const poptag = Poptag.fromString(input)
+
+    expect(Poptag.fromJSON(JSON.stringify(poptag))).toEqual(poptag)
+  })
+})

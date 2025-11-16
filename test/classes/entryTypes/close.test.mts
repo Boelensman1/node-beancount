@@ -8,3 +8,12 @@ describe('toString', () => {
     expect(close.toString()).toEqual(input)
   })
 })
+
+describe('toJSON & fromJSON roundtrip', () => {
+  test('simple', () => {
+    const input = '2014-05-01 close Liabilities:CreditCard:CapitalOne'
+    const close = Close.fromString(input)
+
+    expect(Close.fromJSON(JSON.stringify(close))).toEqual(close)
+  })
+})

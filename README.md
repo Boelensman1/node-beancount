@@ -19,7 +19,7 @@ npm install beancount
 ## Quick Start
 
 ```typescript
-import { parse } from 'beancount'
+import { parse, ParseResult } from 'beancount'
 
 const beancountContent = `
 2024-01-01 open Assets:Checking USD
@@ -36,6 +36,13 @@ console.log(result.entries.length) // 2
 
 // Convert back to string
 console.log(result.toString())
+
+// Convert to JSON
+const resultJSON = JSON.stringify(result)
+console.log(resultJSON)
+
+// Convert back to parsed entries
+console.log(ParseResult.fromJSON(result))
 
 // Or with formatted output (aligned columns)
 // only partially implemented at this point

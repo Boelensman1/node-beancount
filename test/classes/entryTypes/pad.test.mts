@@ -8,3 +8,12 @@ describe('toString', () => {
     expect(pad.toString()).toEqual(input)
   })
 })
+
+describe('toJSON & fromJSON roundtrip', () => {
+  test('simple', () => {
+    const input = '2014-06-01 pad Assets:BofA:Checking Equity:Opening-Balances'
+    const pad = Pad.fromString(input)
+
+    expect(Pad.fromJSON(JSON.stringify(pad))).toEqual(pad)
+  })
+})

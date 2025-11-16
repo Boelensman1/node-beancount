@@ -2,7 +2,7 @@ import type { GenericParseResultTransaction } from '../../../genericParse.mjs'
 import { assertEntryConstructor, FormatOptions } from '../../Entry.mjs'
 import { DateEntry } from '../../DateEntry.mjs'
 import { stringAwareParseLine } from '../../../utils/stringAwareParseLine.mjs'
-import { parseString } from '../../Value.mjs'
+import { parseString, Value, type ValueType } from '../../Value.mjs'
 import { parseMetadata } from '../../../utils/parseMetadata.mjs'
 
 import { Posting } from './Posting.mjs'
@@ -157,6 +157,55 @@ export class Transaction extends DateEntry {
       ...this.postings.map((p) => `  ${p.toFormattedString(formatOptions)}`),
     )
     return lines.join('\n')
+  }
+
+  /**
+   * Converts this transaction to a JSON-serializable object.
+   * Ensures the links Set is properly serialized as an array.
+   *
+   * @returns A JSON-serializable representation of this transaction
+   */
+  toJSON() {
+    return {
+      ...this,
+      links: Array.from(this.links),
+    }
+  }
+
+  /**
+   * Transforms JSON data before creating a Transaction instance.
+   * Deserializes transaction-specific properties including postings, tags, links, and metadata.
+   *
+   * @param json - The JSON data to transform
+   * @returns The transformed data with:
+   *   - postings converted to Posting instances
+   *   - tags converted to Tag instances
+   *   - links converted from array to Set<string>
+   *   - metadata values converted to Value instances
+   */
+  protected parseJSON(json: Record<string, unknown>): Record<string, unknown> {
+    const { postings, tags, links, metadata, ...rest } = json
+
+    return {
+      ...rest,
+      postings: (postings as Record<string, unknown>[])?.map(
+        (p) => new Posting(p),
+      ),
+      tags: (tags as { content: string; fromStack: boolean }[])?.map(
+        (t) => new Tag(t),
+      ),
+      links: links ? new Set(links as string[]) : new Set(),
+      metadata: metadata
+        ? Object.fromEntries(
+            Object.entries(metadata as Record<string, unknown>).map(
+              ([key, val]) => [
+                key,
+                new Value(val as { type: ValueType; value: unknown }),
+              ],
+            ),
+          )
+        : undefined,
+    }
   }
 }
 

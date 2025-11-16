@@ -8,3 +8,12 @@ describe('toString', () => {
     expect(include.toString()).toEqual(input)
   })
 })
+
+describe('toJSON & fromJSON roundtrip', () => {
+  test('simple', () => {
+    const input = 'include "path/to/include/file.beancount"'
+    const include = Include.fromString(input)
+
+    expect(Include.fromJSON(JSON.stringify(include))).toEqual(include)
+  })
+})

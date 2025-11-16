@@ -1,6 +1,6 @@
+import type { BeancountEntryType } from '../entryTypeToClass.mjs'
 import { genericParse } from '../../src/genericParse.mjs'
 import { stringAwareSplitLine } from '../utils/stringAwareSplitLine.mjs'
-import type { BeancountEntryType } from '../parse.mjs'
 
 /**
  * Type helper for Entry class constructors that enforce the static factory methods.
@@ -67,6 +67,28 @@ export abstract class Entry {
   }
 
   /**
+   * Creates an Entry instance from JSON data.
+   * Calls parseJSON to allow subclasses to transform the data before construction.
+   *
+   * @param jsonString - JSON data representing an entry
+   * @returns A new instance of the Entry subclass
+   * @remarks **Warning:** No validation is performed on the JSON input. We assume the JSON is valid and well-formed.
+   */
+  static fromJSON<T extends Entry>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this: new (obj: any) => T,
+    jsonString: string,
+  ): T {
+    const json = JSON.parse(jsonString) as Record<string, unknown>
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const instance = new this({} as any)
+    const transformedData = instance.parseJSON(json)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new this(transformedData as any)
+  }
+
+  /**
    * Converts this entry to a formatted string with aligned columns.
    * Default implementation delegates to toString(). Subclasses can override for custom formatting.
    *
@@ -77,6 +99,19 @@ export abstract class Entry {
   toFormattedString(_formatOptions: FormatOptions) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.toString()
+  }
+
+  /**
+   * Transforms JSON data before creating an Entry instance.
+   * Default implementation returns the input unchanged.
+   * Subclasses can override this to handle custom deserialization logic
+   * (e.g., converting nested objects, handling dates, etc.).
+   *
+   * @param json - The JSON data to transform
+   * @returns The transformed data ready for the constructor
+   */
+  protected parseJSON(json: Record<string, unknown>): Record<string, unknown> {
+    return json
   }
 }
 

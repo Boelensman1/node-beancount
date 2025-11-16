@@ -1,4 +1,4 @@
-import type { BeancountEntryType } from './parse.mjs'
+import type { BeancountEntryType } from './entryTypeToClass.mjs'
 import { parseMetadata, type Metadata } from './utils/parseMetadata.mjs'
 
 /**
