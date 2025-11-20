@@ -18,7 +18,7 @@ class TestEntryClass extends DateEntry {
   }
 }
 
-// Test class that overrides parseJSON to verify it's called
+// Test class that overrides fromJSONData to verify it's called
 class TestEntryWithCustomParseJSON extends DateEntry {
   type = 'transaction' as const
   customField?: string
@@ -33,7 +33,9 @@ class TestEntryWithCustomParseJSON extends DateEntry {
     return new TestEntryWithCustomParseJSON({ date: unparsedEntry[0] })
   }
 
-  protected parseJSON(json: Record<string, unknown>): Record<string, unknown> {
+  protected parseJSONData(
+    json: Record<string, unknown>,
+  ): Record<string, unknown> {
     // Transform the data by adding a prefix to customField
     return {
       ...json,
@@ -101,7 +103,7 @@ describe('Entry class', () => {
       expect(entry.comment).toBe('Test comment')
     })
 
-    test('parseJSON can be overridden to transform data', () => {
+    test('fromJSONData can be overridden to transform data', () => {
       const jsonData = { date: '2025-01-15', customField: 'value' }
       const entry = TestEntryWithCustomParseJSON.fromJSON(
         JSON.stringify(jsonData),
@@ -110,7 +112,7 @@ describe('Entry class', () => {
       expect(entry.date?.toJSON()).toBe('2025-01-15')
     })
 
-    test('default parseJSON returns input unchanged', () => {
+    test('default fromJSONData returns input unchanged', () => {
       const jsonData = { date: '2025-01-15', comment: 'test comment' }
       const entry = TestEntryClass.fromJSON(JSON.stringify(jsonData))
       expect(entry.comment).toBe('test comment')

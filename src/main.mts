@@ -36,7 +36,7 @@ export type {
 export type { Metadata } from './utils/parseMetadata.mjs'
 
 // Core classes
-export { ParseResult } from './classes/ParseResult.mjs'
+export { ParseResult, type ParseResultObj } from './classes/ParseResult.mjs'
 export { Entry, assertEntryConstructor } from './classes/Entry.mjs'
 export type { FormatOptions } from './classes/Entry.mjs'
 export { DateEntry } from './classes/DateEntry.mjs'

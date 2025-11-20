@@ -183,7 +183,9 @@ export class Transaction extends DateEntry {
    *   - links converted from array to Set<string>
    *   - metadata values converted to Value instances
    */
-  protected parseJSON(json: Record<string, unknown>): Record<string, unknown> {
+  protected parseJSONData(
+    json: Record<string, unknown>,
+  ): Record<string, unknown> {
     const { postings, tags, links, metadata, ...rest } = json
 
     return {

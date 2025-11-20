@@ -68,7 +68,7 @@ export abstract class Entry {
 
   /**
    * Creates an Entry instance from JSON data.
-   * Calls parseJSON to allow subclasses to transform the data before construction.
+   * Calls fromJSONData to allow subclasses to transform the data before construction.
    *
    * @param jsonString - JSON data representing an entry
    * @returns A new instance of the Entry subclass
@@ -81,9 +81,26 @@ export abstract class Entry {
   ): T {
     const json = JSON.parse(jsonString) as Record<string, unknown>
 
+    // @ts-expect-error Not sure how to type this correctly
+    return this.fromJSONData<T>(json) // eslint-disable-line
+  }
+
+  /**
+   * Creates an Entry instance from JSON data.
+   * Calls fromJSONData to allow subclasses to transform the data before construction.
+   *
+   * @param jsonData - object representing an entry
+   * @returns A new instance of the Entry subclass
+   * @remarks **Warning:** No validation is performed on the input. We assume the input is valid and well-formed.
+   */
+  static fromJSONData<T extends Entry>(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this: new (obj: any) => T,
+    jsonData: Record<string, unknown>,
+  ): T {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const instance = new this({} as any)
-    const transformedData = instance.parseJSON(json)
+    const transformedData = instance.parseJSONData(jsonData)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new this(transformedData as any)
   }
@@ -110,7 +127,9 @@ export abstract class Entry {
    * @param json - The JSON data to transform
    * @returns The transformed data ready for the constructor
    */
-  protected parseJSON(json: Record<string, unknown>): Record<string, unknown> {
+  protected parseJSONData(
+    json: Record<string, unknown>,
+  ): Record<string, unknown> {
     return json
   }
 }
