@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { DateEntry } from '../../src/classes/DateEntry.mjs'
+import { DateEntry } from '../../src/main.mjs'
 
 class TestEntryClass extends DateEntry {
   type = 'transaction' as const
@@ -124,6 +124,15 @@ describe('Entry class', () => {
       const restored = TestEntryClass.fromJSON(JSON.stringify(original))
       expect(restored.date?.toJSON()).toBe(original.date?.toJSON())
       expect(restored.type).toBe(original.type)
+    })
+
+    test('handles roundtrip serialization with internalMetadata', () => {
+      const original = TestEntryClass.fromObject({ date: '2024-06-20' })
+      original.internalMetadata.testProp = 2
+      const restored = TestEntryClass.fromJSON(JSON.stringify(original))
+      expect(restored.internalMetadata.testProp).toBe(
+        original.internalMetadata.testProp,
+      )
     })
 
     test('converts ISO date string to Temporal.PlainDate', () => {
