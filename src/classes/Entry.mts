@@ -29,7 +29,7 @@ export abstract class Entry {
   /** Internal metadata key-value pairs associated with this entry.
    * These can be anything, are not used in the output, and are meant to be used
    * to allow your pipeline to keep track of an internal property */
-  internalMetadata?: Record<string, unknown>
+  internalMetadata: Record<string, unknown> = {}
 
   /** The type of this entry (e.g., 'open', 'close', 'transaction', 'comment', 'blankline') */
   abstract type: BeancountEntryType | 'comment' | 'blankline'
