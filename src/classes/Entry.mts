@@ -1,6 +1,7 @@
 import type { BeancountEntryType } from '../entryTypeToClass.mjs'
 import { genericParse } from '../../src/genericParse.mjs'
 import { stringAwareSplitLine } from '../utils/stringAwareSplitLine.mjs'
+import { FormatOptions, defaultFormatOptions } from './ParseResult.mjs'
 
 /**
  * Type helper for Entry class constructors that enforce the static factory methods.
@@ -14,14 +15,6 @@ export interface EntryConstructor<T extends Entry> {
    * @returns A new instance of the Entry subclass
    */
   fromGenericParseResult(parsedStart: ReturnType<typeof genericParse>): T
-}
-
-/**
- * Options for formatting Entry output.
- */
-export interface FormatOptions {
-  /** The column position where currency symbols should be aligned */
-  currencyColumn: number
 }
 
 /**
@@ -113,7 +106,7 @@ export abstract class Entry {
    * @returns The formatted string representation of this entry
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  toFormattedString(_formatOptions: FormatOptions) {
+  toFormattedString(_formatOptions: FormatOptions = defaultFormatOptions) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.toString()
   }

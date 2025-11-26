@@ -1,5 +1,5 @@
 import type { GenericParseResultTransaction } from '../../../genericParse.mjs'
-import { assertEntryConstructor, FormatOptions } from '../../Entry.mjs'
+import { assertEntryConstructor } from '../../Entry.mjs'
 import { DateEntry } from '../../DateEntry.mjs'
 import { stringAwareParseLine } from '../../../utils/stringAwareParseLine.mjs'
 import { parseString, Value, type ValueType } from '../../Value.mjs'
@@ -7,6 +7,7 @@ import { parseMetadata } from '../../../utils/parseMetadata.mjs'
 
 import { Posting } from './Posting.mjs'
 import { Tag } from './Tag.mjs'
+import { defaultFormatOptions, FormatOptions } from '../../ParseResult.mjs'
 
 /**
  * Valid Beancount account type prefixes.
@@ -139,7 +140,7 @@ export class Transaction extends DateEntry {
   }
 
   /** @inheritdoc */
-  toFormattedString(formatOptions: FormatOptions) {
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     const firstLine = [
       this.date.toJSON(),
       this.flag ?? 'txn',

@@ -1,8 +1,9 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
-import { assertEntryConstructor, FormatOptions } from '../Entry.mjs'
+import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { parseString } from '../Value.mjs'
+import { defaultFormatOptions, FormatOptions } from '../ParseResult.mjs'
 
 /**
  * Represents an Open entry that declares a new account.
@@ -54,7 +55,7 @@ export class Open extends DateEntry {
   }
 
   /** @inheritdoc */
-  toFormattedString(formatOptions: FormatOptions) {
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     const parts = [`${this.getDateTypePrefix()} ${this.account}`]
 
     if (this.constraintCurrencies !== undefined) {

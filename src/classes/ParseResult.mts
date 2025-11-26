@@ -6,6 +6,18 @@ export interface ParseResultObj {
 }
 
 /**
+ * Options for formatting output.
+ */
+export interface FormatOptions {
+  /** The column position where currency symbols should be aligned */
+  currencyColumn: number
+}
+
+export const defaultFormatOptions = {
+  currencyColumn: 59,
+}
+
+/**
  * Container class for parsed Beancount entries.
  * Provides methods for converting entries back to string format.
  */
@@ -15,6 +27,158 @@ export class ParseResult {
    * @param entries - Array of parsed Entry objects
    */
   constructor(public entries: Entry[]) {}
+
+  /**
+   * Gets all transaction entries from the parsed entries.
+   * @returns Array of entries that are transactions
+   */
+  get transactions() {
+    return this.entries.filter((entry) => entry.type === 'transaction')
+  }
+
+  /**
+   * Gets all balance entries from the parsed entries.
+   * @returns Array of entries that are balance directives
+   */
+  get balance() {
+    return this.entries.filter((entry) => entry.type === 'balance')
+  }
+
+  /**
+   * Gets all close entries from the parsed entries.
+   * @returns Array of entries that are close directives
+   */
+  get close() {
+    return this.entries.filter((entry) => entry.type === 'close')
+  }
+
+  /**
+   * Gets all commodity entries from the parsed entries.
+   * @returns Array of entries that are commodity directives
+   */
+  get commodity() {
+    return this.entries.filter((entry) => entry.type === 'commodity')
+  }
+
+  /**
+   * Gets all custom entries from the parsed entries.
+   * @returns Array of entries that are custom directives
+   */
+  get custom() {
+    return this.entries.filter((entry) => entry.type === 'custom')
+  }
+
+  /**
+   * Gets all document entries from the parsed entries.
+   * @returns Array of entries that are document directives
+   */
+  get document() {
+    return this.entries.filter((entry) => entry.type === 'document')
+  }
+
+  /**
+   * Gets all event entries from the parsed entries.
+   * @returns Array of entries that are event directives
+   */
+  get event() {
+    return this.entries.filter((entry) => entry.type === 'event')
+  }
+
+  /**
+   * Gets all include entries from the parsed entries.
+   * @returns Array of entries that are include directives
+   */
+  get include() {
+    return this.entries.filter((entry) => entry.type === 'include')
+  }
+
+  /**
+   * Gets all note entries from the parsed entries.
+   * @returns Array of entries that are note directives
+   */
+  get note() {
+    return this.entries.filter((entry) => entry.type === 'note')
+  }
+
+  /**
+   * Gets all open entries from the parsed entries.
+   * @returns Array of entries that are open directives
+   */
+  get open() {
+    return this.entries.filter((entry) => entry.type === 'open')
+  }
+
+  /**
+   * Gets all option entries from the parsed entries.
+   * @returns Array of entries that are option directives
+   */
+  get option() {
+    return this.entries.filter((entry) => entry.type === 'option')
+  }
+
+  /**
+   * Gets all pad entries from the parsed entries.
+   * @returns Array of entries that are pad directives
+   */
+  get pad() {
+    return this.entries.filter((entry) => entry.type === 'pad')
+  }
+
+  /**
+   * Gets all plugin entries from the parsed entries.
+   * @returns Array of entries that are plugin directives
+   */
+  get plugin() {
+    return this.entries.filter((entry) => entry.type === 'plugin')
+  }
+
+  /**
+   * Gets all poptag entries from the parsed entries.
+   * @returns Array of entries that are poptag directives
+   */
+  get poptag() {
+    return this.entries.filter((entry) => entry.type === 'poptag')
+  }
+
+  /**
+   * Gets all price entries from the parsed entries.
+   * @returns Array of entries that are price directives
+   */
+  get price() {
+    return this.entries.filter((entry) => entry.type === 'price')
+  }
+
+  /**
+   * Gets all pushtag entries from the parsed entries.
+   * @returns Array of entries that are pushtag directives
+   */
+  get pushtag() {
+    return this.entries.filter((entry) => entry.type === 'pushtag')
+  }
+
+  /**
+   * Gets all query entries from the parsed entries.
+   * @returns Array of entries that are query directives
+   */
+  get query() {
+    return this.entries.filter((entry) => entry.type === 'query')
+  }
+
+  /**
+   * Gets all comment entries from the parsed entries.
+   * @returns Array of entries that are comments
+   */
+  get comment() {
+    return this.entries.filter((entry) => entry.type === 'comment')
+  }
+
+  /**
+   * Gets all blankline entries from the parsed entries.
+   * @returns Array of entries that are blank lines
+   */
+  get blankline() {
+    return this.entries.filter((entry) => entry.type === 'blankline')
+  }
 
   /**
    * Converts all entries to their string representation.
@@ -29,15 +193,13 @@ export class ParseResult {
   /**
    * Converts all entries to a formatted string with aligned columns.
    * Uses each entry's toFormattedString() method for consistent formatting.
+   * @param formatOptions - Formatting options
    *
    * @returns The formatted Beancount file content as a string
    */
-  toFormattedString() {
-    // TODO: calculate currencyColumn
-    const currencyColumn = 59
-
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     return this.entries
-      .map((e) => e.toFormattedString({ currencyColumn }))
+      .map((e) => e.toFormattedString(formatOptions))
       .join('\n')
   }
 

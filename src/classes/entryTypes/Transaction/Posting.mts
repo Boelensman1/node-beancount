@@ -1,5 +1,5 @@
 import { formatPrice } from '../../../utils/formatPrice.mjs'
-import { FormatOptions } from '../../Entry.mjs'
+import { defaultFormatOptions, FormatOptions } from '../../ParseResult.mjs'
 
 /**
  * Represents a single posting (account movement) within a transaction.
@@ -103,7 +103,7 @@ export class Posting {
    * @param formatOptions - Formatting options including currency column position
    * @returns The formatted string representation of this posting
    */
-  toFormattedString(formatOptions: FormatOptions) {
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     const parts: string[] = []
     if (this.flag !== undefined) {
       parts.push(this.flag)

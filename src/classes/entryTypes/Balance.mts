@@ -1,8 +1,9 @@
 import type { GenericParseResultWithDate } from '../../genericParse.mjs'
-import { assertEntryConstructor, FormatOptions } from '../Entry.mjs'
+import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { formatPrice } from '../../utils/formatPrice.mjs'
+import { defaultFormatOptions, FormatOptions } from '../ParseResult.mjs'
 
 /**
  * Represents a Balance assertion entry.
@@ -52,7 +53,7 @@ export class Balance extends DateEntry {
   }
 
   /** @inheritdoc */
-  toFormattedString(formatOptions: FormatOptions) {
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     const firstPart = `${this.getDateTypePrefix()} ${this.account}`
 
     const paddingLength =
