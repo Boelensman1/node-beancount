@@ -1,3 +1,5 @@
+import { Temporal } from '@js-temporal/polyfill'
+
 /**
  * Union type of all possible value types in Beancount metadata and expressions.
  */
@@ -11,6 +13,23 @@ export type ValueType = 'string' | 'date' | 'boolean' | 'amount' | 'numbers'
 export const parseString = (val: string): string => {
   return val.replace(/^"|"$/g, '')
 }
+
+/**
+ * Converts a JavaScript Date object to a Temporal.PlainDate.
+ * @param date - The JavaScript Date to convert
+ * @returns A Temporal.PlainDate representing the same calendar date
+ */
+const jsDateToTemporal = (date: Date): Temporal.PlainDate =>
+  Temporal.PlainDate.from(
+    {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    },
+    {
+      overflow: 'reject',
+    },
+  )
 
 /**
  * Represents a typed value in Beancount (used in metadata, expressions, etc.).
@@ -28,8 +47,39 @@ export class Value {
    * @param obj.type - The value type
    * @param obj.value - The value data
    */
-  constructor(obj: { type: ValueType; value: unknown }) {
-    Object.assign(this, obj)
+  constructor({ type, value }: { type: ValueType; value: unknown }) {
+    this.type = type
+
+    switch (this.type) {
+      case 'boolean':
+        this.value = Boolean(value)
+        return
+      case 'string':
+        this.value = String(value)
+        return
+      case 'date':
+        if (value instanceof Temporal.PlainDate) {
+          this.value = value
+          return
+        }
+        if (value instanceof Date) {
+          this.value = jsDateToTemporal(value)
+        }
+        if (typeof value === 'string') {
+          this.value = jsDateToTemporal(new Date(value))
+        }
+        if (typeof value === 'number') {
+          this.value = jsDateToTemporal(new Date(value))
+        }
+        return
+      case 'amount':
+      case 'numbers':
+        // as string so we don't lose precision
+        this.value = String(value)
+        return
+      default:
+        throw new Error(`Unknown value type: ${type}`)
+    }
   }
 
   /**
