@@ -1,19 +1,17 @@
 import { describe, expect, test } from 'vitest'
 import { DateEntry } from '../../src/main.mjs'
+import { Temporal } from '@js-temporal/polyfill'
 
 class TestEntryClass extends DateEntry {
   type = 'transaction' as const
-
-  // Expose constructor for testing purposes
-  constructor(inp: { date: string; [key: string]: unknown }) {
-    super(inp)
-  }
 
   static fromGenericParseResult(unparsedEntry: string[]): TestEntryClass {
     return new TestEntryClass({ date: unparsedEntry[0] })
   }
 
-  static fromObject(inp: { date: string }): TestEntryClass {
+  static fromObject(inp: {
+    date: string | Temporal.PlainDate
+  }): TestEntryClass {
     return new TestEntryClass(inp)
   }
 }
@@ -22,10 +20,6 @@ class TestEntryClass extends DateEntry {
 class TestEntryWithCustomParseJSON extends DateEntry {
   type = 'transaction' as const
   customField?: string
-
-  constructor(inp: { date: string; [key: string]: unknown }) {
-    super(inp)
-  }
 
   static fromGenericParseResult(
     unparsedEntry: string[],
@@ -64,10 +58,28 @@ describe('Entry class', () => {
       })
     })
 
+    test('creates entry with temporal date', () => {
+      const dateStr = '2024-12-31'
+      const entry = TestEntryClass.fromObject({
+        date: Temporal.PlainDate.from(dateStr),
+      })
+
+      expect(entry.date?.toJSON()).toBe(dateStr)
+    })
+
     test('throws error for malformed date string', () => {
       expect(() => {
         TestEntryClass.fromObject({ date: 'not-a-date' })
       }).toThrow()
+    })
+
+    test('throws error for date of wrong type', () => {
+      expect(() => {
+        // @ts-expect-error Wrong type is on purpose
+        TestEntryClass.fromObject({ date: new Date() })
+      }).toThrow(
+        'Could not parse date, should be either string of Temporal.PlainDate',
+      )
     })
 
     test('throws error for invalid date format - no leading zeros', () => {

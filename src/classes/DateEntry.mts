@@ -30,12 +30,23 @@ export abstract class DateEntry extends Entry {
    * @param obj - Object containing entry properties
    * @param obj.date - The date string in YYYY-MM-DD format
    */
-  constructor(obj: { date: string; [key: string]: unknown }) {
+  constructor(obj: {
+    date: string | Temporal.PlainDate
+    [key: string]: unknown
+  }) {
     const { date, metadata, ...props } = obj
     super(props)
 
     if (date) {
-      this.date = Temporal.PlainDate.from(date, { overflow: 'reject' })
+      if (date instanceof Temporal.PlainDate) {
+        this.date = date
+      } else if (typeof date === 'string') {
+        this.date = Temporal.PlainDate.from(date, { overflow: 'reject' })
+      } else {
+        throw new Error(
+          'Could not parse date, should be either string of Temporal.PlainDate',
+        )
+      }
     }
 
     if (metadata) {
