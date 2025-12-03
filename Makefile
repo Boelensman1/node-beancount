@@ -17,6 +17,9 @@ dev: $(INSTALL_DEPS)
 install: $(INSTALL_DEPS)
 
 test: $(INSTALL_DEPS)
+	npx vitest run
+
+test-watch: $(INSTALL_DEPS)
 	npx vitest
 
 lint: $(INSTALL_DEPS)
