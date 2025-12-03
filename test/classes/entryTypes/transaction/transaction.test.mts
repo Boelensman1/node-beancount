@@ -233,6 +233,20 @@ describe('format', () => {
     // All currencies should align at the same column (right-aligned to width 100)
     expect(transaction.toFormattedString(formatOptions)).toEqual(input)
   })
+
+  test('extra complex', () => {
+    const input = `2023-10-28 * "Sell shares of ITOT"
+  Assets:US:ETrade:ITOT                               -11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD
+  Assets:US:ETrade:Cash                 (1323.26/2 + 100) USD
+  Expenses:Financial:Commissions (1323.26/2             + 100) USD ; too long, but this is the best we can do
+  Income:US:ETrade:PnL                              52.36 USD`
+    const transaction = Transaction.fromString(input)
+    const formatOptions = {
+      currencyColumn: 59,
+    }
+    // All currencies should align at the same column (right-aligned to width 100)
+    expect(transaction.toFormattedString(formatOptions)).toEqual(input)
+  })
 })
 
 describe('toJSON & fromJSON roundtrip', () => {

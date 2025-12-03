@@ -40,6 +40,7 @@ export {
   ParseResult,
   type ParseResultObj,
   type FormatOptions,
+  type CalculateCurrencyColumnOptions,
 } from './classes/ParseResult.mjs'
 export { Entry, assertEntryConstructor } from './classes/Entry.mjs'
 export { DateEntry } from './classes/DateEntry.mjs'

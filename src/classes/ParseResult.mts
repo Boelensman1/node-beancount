@@ -1,5 +1,6 @@
 import { EntryType, entryTypeToClass } from '../entryTypeToClass.mjs'
 import { Entry } from './Entry.mjs'
+import { Posting } from './entryTypes/Transaction/Posting.mjs'
 
 export interface ParseResultObj {
   entries: { type: EntryType }[]
@@ -15,6 +16,18 @@ export interface FormatOptions {
 
 export const defaultFormatOptions = {
   currencyColumn: 59,
+}
+
+/**
+ * Options for calculating the optimal currency column position.
+ */
+export interface CalculateCurrencyColumnOptions {
+  /** Override the maximum left part length (flag + account name) */
+  maxLeftPartLength?: number
+  /** Override the maximum amount length */
+  maxAmountLength?: number
+  /** Minimum padding between account and amount (default: 2) */
+  minPadding?: number
 }
 
 /**
@@ -239,5 +252,88 @@ export class ParseResult {
     })
 
     return new ParseResult(entries)
+  }
+
+  /**
+   * Calculates the optimal currency column position for formatting.
+   *
+   * The currency column is determined by analyzing all postings across transactions
+   * and finding the maximum widths needed for account names and amounts.
+   *
+   * Formula: currencyColumn = maxLeftPartLength + maxAmountLength + minPadding + 6
+   *
+   * Where:
+   * - maxLeftPartLength = max((flag.length + 1 if flag) + account.length)
+   * - maxAmountLength = max(amount.length) for all postings with amounts
+   * - minPadding = desired minimum spaces between account and amount (default: 2)
+   * - 6 = fixed overhead (2 for indent + 2 for spacing + 2 for buffer)
+   *
+   * @param options - Optional configuration for the calculation
+   * @returns The calculated currency column position (1-indexed)
+   *
+   * @example
+   * ```typescript
+   * const parseResult = parse(beancountString)
+   * const currencyColumn = parseResult.calculateCurrencyColumn()
+   * const formatted = parseResult.toFormattedString({ currencyColumn })
+   * ```
+   */
+  calculateCurrencyColumn(
+    options: CalculateCurrencyColumnOptions = {},
+  ): number {
+    const {
+      maxLeftPartLength: overrideMaxLeft,
+      maxAmountLength: overrideMaxAmount,
+      minPadding = 2,
+    } = options
+
+    // Ensure minPadding is at least 1
+    const effectiveMinPadding = Math.max(1, minPadding)
+
+    // Get all transactions
+    const transactions = this.transactions
+
+    // Edge case: No transactions
+    if (transactions.length === 0) {
+      return defaultFormatOptions.currencyColumn
+    }
+
+    // Extract all postings
+    const allPostings: Posting[] = []
+    for (const entry of transactions) {
+      if ('postings' in entry && Array.isArray(entry.postings)) {
+        allPostings.push(...(entry.postings as Posting[]))
+      }
+    }
+
+    // Edge case: No postings
+    if (allPostings.length === 0) {
+      return defaultFormatOptions.currencyColumn
+    }
+
+    // Calculate maxLeftPartLength (flag + account)
+    let maxLeftPartLength = overrideMaxLeft ?? 0
+    if (overrideMaxLeft === undefined) {
+      for (const posting of allPostings) {
+        let leftPartLength = posting.account.length
+        if (posting.flag !== undefined) {
+          leftPartLength += posting.flag.length + 1
+        }
+        maxLeftPartLength = Math.max(maxLeftPartLength, leftPartLength)
+      }
+    }
+
+    // Calculate maxAmountLength
+    let maxAmountLength = overrideMaxAmount ?? 0
+    if (overrideMaxAmount === undefined) {
+      for (const posting of allPostings) {
+        if (posting.amount !== undefined) {
+          maxAmountLength = Math.max(maxAmountLength, posting.amount.length)
+        }
+      }
+    }
+
+    // Calculate and return currency column
+    return maxLeftPartLength + maxAmountLength + effectiveMinPadding + 6
   }
 }
