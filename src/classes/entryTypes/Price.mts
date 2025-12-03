@@ -3,6 +3,7 @@ import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
 import { formatPrice } from '../../utils/formatPrice.mjs'
+import { defaultFormatOptions, FormatOptions } from '../ParseResult.mjs'
 
 /**
  * Represents a Price entry that records the price of a commodity.
@@ -48,7 +49,27 @@ export class Price extends DateEntry {
 
   /** @inheritdoc */
   toString() {
-    return `${this.getDateTypePrefix()} ${this.commodity} ${this.amount} ${this.currency}${this.getMetaDataString()}`
+    return this.toFormattedString({ currencyColumn: 0 })
+  }
+
+  /** @inheritdoc */
+  toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
+    const parts: string[] = [this.getDateTypePrefix(), this.commodity]
+
+    const paddingLength =
+      formatOptions.currencyColumn -
+      parts.join(' ').length -
+      this.amount.length -
+      2 - // indent
+      2 // spacing
+
+    if (paddingLength > 0) {
+      parts.push(' '.repeat(paddingLength))
+    }
+
+    parts.push(this.amount, `${this.currency}${this.getMetaDataString()}`)
+
+    return parts.join(' ')
   }
 }
 
