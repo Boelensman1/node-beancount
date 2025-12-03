@@ -29,6 +29,15 @@ test('Parse posting without amount (auto-balance)', () => {
   expect(posting.currency).toBeUndefined()
 })
 
+test('Parse posting without amount (auto-balance), with comment', () => {
+  const posting = Posting.fromString('Assets:MyBank:Savings ;comment')
+
+  expect(posting.account).toBe('Assets:MyBank:Savings')
+  expect(posting.amount).toBeUndefined()
+  expect(posting.currency).toBeUndefined()
+  expect(posting.comment).toBe('comment')
+})
+
 test('Parse posting with extra whitespace', () => {
   const posting = Posting.fromString(
     'Liabilities:CreditCard:CapitalOne         -45.00          USD',
@@ -128,7 +137,12 @@ test('Parse posting arithmetic expression and without currency ', () => {
   expect(posting.currency).toBe(undefined)
 })
 
-test('Correctly format strings', () => {
+test('Correctly format postings without currency', () => {
   const posting = Posting.fromString('Expenses:General (60.02)/2')
   expect(posting.toString()).toBe('Expenses:General (60.02)/2')
+})
+
+test('Correctly place comments in postings without amount', () => {
+  const posting = Posting.fromString('Expenses:General ;test')
+  expect(posting.toFormattedString()).toBe('Expenses:General ; test')
 })

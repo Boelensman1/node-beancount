@@ -44,7 +44,7 @@ export class Posting {
     const flagPattern = `([^ ]) +`
     const accountPattern = `([^ ]*)`
 
-    const amountPattern = `([^A-Z]*)`
+    const amountPattern = `([^A-Z;]*)`
     const currencyPattern = `(\\w+)`
     const costPattern = `{(.*)}`
     const pricePattern = `+@ +(?:(\\d+\\.?\\d*) (\\w+))`
@@ -73,7 +73,7 @@ export class Posting {
     return new Posting({
       flag: flag,
       account: account?.trim(),
-      amount: amount?.trim(),
+      amount: amount?.trim().length > 0 ? amount.trim() : undefined,
       currency: currency?.trim(),
       cost: cost?.trim(),
       priceAmount: priceAmount?.trim(),
