@@ -185,6 +185,17 @@ describe('ParseResult class', () => {
       expect(formatted).toContain('2400.00 USD')
     })
 
+    test('Keeps spacing of comments', () => {
+      const input = `2023-04-05 * "RiverBank Properties" "Paying the rent"
+  Assets:US:BofA:Checking -2400.00 USD
+  Expenses:Home:Rent 2400.00 USD
+  ; comment`
+
+      const parsed = parse(input)
+      const formatted = parsed.toString()
+      expect(formatted).toEqual(input)
+    })
+
     test('round-trip: parse → toFormattedString maintains structure', () => {
       const input = `2023-01-01 open Assets:Checking USD
 

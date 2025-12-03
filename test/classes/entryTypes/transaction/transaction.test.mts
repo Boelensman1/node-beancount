@@ -42,6 +42,46 @@ describe('toString', () => {
     expect(transaction.toString()).toEqual(input)
   })
 
+  test('with standalone comment at beginning', () => {
+    const input = `2023-04-05 * "Test"
+  ; comment0
+  Assets:Checking -100 USD
+  Expenses:Food 100 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with standalone comments between postings', () => {
+    const input = `2023-04-05 * "Test"
+  Assets:Checking -100 USD
+  ; comment1
+  ; comment2
+  Expenses:Food 100 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with standalone comments at various positions', () => {
+    const input = `2023-04-05 * "Test"
+  ; comment0
+  Assets:Checking -100 USD
+  ; comment2
+  Expenses:Food 50 USD
+  ; comment4
+  Expenses:Shopping 50 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with standalone comment at end', () => {
+    const input = `2023-04-05 * "Test"
+  Assets:Checking -100 USD
+  Expenses:Food 100 USD
+  ; comment at end`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
   test('with posting having a flag', () => {
     const input = `2023-04-05 * "RiverBank Properties" "Paying the rent"
   ! Assets:US:BofA:Checking -2400.00 USD

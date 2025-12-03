@@ -46,3 +46,26 @@ test('Split entry with multiple newlines in string', () => {
   expect(unparsedEntries).toHaveLength(1)
   expect(unparsedEntries[0]).toHaveLength(1)
 })
+
+test('Split transactions with a comment part of transaction', () => {
+  const entries = `2023-04-05 * "RiverBank Properties" "Paying the rent"
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD
+  ; comment`
+
+  const unparsedEntries = splitStringIntoUnparsedEntries(entries)
+  expect(unparsedEntries).toHaveLength(1)
+  expect(unparsedEntries[0]).toHaveLength(4)
+})
+
+test('Split transactions with a comment not part of transaction', () => {
+  const entries = `2023-04-05 * "RiverBank Properties" "Paying the rent"
+  Assets:US:BofA:Checking                        -2400.00 USD
+  Expenses:Home:Rent                              2400.00 USD
+; comment`
+
+  const unparsedEntries = splitStringIntoUnparsedEntries(entries)
+  expect(unparsedEntries).toHaveLength(2)
+  expect(unparsedEntries[0]).toHaveLength(3)
+  expect(unparsedEntries[1]).toHaveLength(1)
+})

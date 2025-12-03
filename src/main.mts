@@ -66,7 +66,10 @@ export { Poptag } from './classes/entryTypes/Poptag.mjs'
 export { Price } from './classes/entryTypes/Price.mjs'
 export { Pushtag } from './classes/entryTypes/Pushtag.mjs'
 export { Query } from './classes/entryTypes/Query.mjs'
-export { Transaction } from './classes/entryTypes/Transaction/index.mjs'
+export {
+  Transaction,
+  type PostingComment,
+} from './classes/entryTypes/Transaction/index.mjs'
 
 // Transaction sub-components
 export { Posting } from './classes/entryTypes/Transaction/Posting.mjs'

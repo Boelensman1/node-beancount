@@ -54,6 +54,11 @@ const getStringLinksAndTags = (input: string) => {
   return { links, tags, string: strRemaining }
 }
 
+export interface PostingComment {
+  order: number
+  comment: string
+}
+
 /**
  * Represents a Beancount transaction entry.
  * Transactions record financial movements between accounts with postings.
@@ -69,6 +74,8 @@ export class Transaction extends DateEntry {
   flag?: string
   /** Array of postings (account movements) in this transaction */
   postings!: Posting[]
+  /** Array of comments under this transaction (mixed in with the postings) */
+  postingComments!: PostingComment[]
   /** Set of link identifiers associated with this transaction */
   links!: Set<string>
   /** Array of tags associated with this transaction (from inline tags and tag stack) */
@@ -106,6 +113,7 @@ export class Transaction extends DateEntry {
 
     const unparsedPostings: string[] = []
     const unparsedMetadata: string[] = []
+    const postingComments: PostingComment[] = []
 
     genericParseResult.body.forEach((line) => {
       //                           V remove flag,       V get account type
@@ -113,14 +121,17 @@ export class Transaction extends DateEntry {
 
       if (AccountTypes.includes(accountType)) {
         unparsedPostings.push(line)
+      } else if (line.startsWith(';')) {
+        postingComments.push({
+          comment: line,
+          order: unparsedPostings.length + postingComments.length,
+        })
       } else {
         unparsedMetadata.push(line)
       }
     })
 
-    const postings = unparsedPostings.map((p) =>
-      Posting.fromUnparsedLine(p),
-    )
+    const postings = unparsedPostings.map((p) => Posting.fromString(p))
     const metadata = parseMetadata(unparsedMetadata)
 
     return new Transaction({
@@ -128,6 +139,7 @@ export class Transaction extends DateEntry {
       payee: parseString(payee),
       narration: narration ? parseString(narration) : undefined,
       postings,
+      postingComments,
       metadata,
       links,
       tags,
@@ -154,9 +166,15 @@ export class Transaction extends DateEntry {
     firstLine.push(...this.tags.map((t) => t.toString()))
 
     const lines = [firstLine.join(' ') + this.getMetaDataString()]
-    lines.push(
-      ...this.postings.map((p) => `  ${p.toFormattedString(formatOptions)}`),
+
+    const postingLines = this.postings.map(
+      (p) => `  ${p.toFormattedString(formatOptions)}`,
     )
+    this.postingComments.forEach((comment) => {
+      postingLines.splice(comment.order, 0, `  ${comment.comment}`)
+    })
+
+    lines.push(...postingLines)
     return lines.join('\n')
   }
 
