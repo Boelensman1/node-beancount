@@ -91,13 +91,13 @@ function compileEntryRegex(): RegExp {
   const datePattern = `\\d{4}-\\d{2}-\\d{2}`
   const datedEntryPattern = `${datePattern} +(?:${datedEntryTypePattern})`
 
-  const pattern = `^(?:${nonDatedEntryPattern})|${datedEntryPattern} `
+  const pattern = `^(?:${nonDatedEntryPattern})|(?:^${datedEntryPattern}) `
   return new RegExp(pattern)
 }
 
 /**
  * Regex pattern to identify Beancount entries that start with a date.
- * Generated from {@link DATED_ENTRY_TYPES} to ensure validation of entry types.
+ * Generated from {@link NON_DATED_ENTRY_TYPES} and {@link DATED_ENTRY_TYPES} to ensure validation of entry types.
  */
 const beanCountEntryRegex = compileEntryRegex()
 

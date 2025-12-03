@@ -87,6 +87,28 @@ describe('ParseResult class', () => {
         blanklineCount,
       )
     })
+
+    test('Re-creates complex', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+
+2023-04-05 * "Test"
+  Assets:Checking 100.00 USD
+  Income:Salary -100.00 USD
+
+
+;2024-01-08 * "Commented out transaction payee" "Commented out narration with date: 010 07/01/2024 15:20 Value date: 08/01/2024"
+;  Assets:Checking  -8.99 USD
+
+2023-04-05 * "RiverBank Properties" "Paying the rent"
+  Assets:Checking -2400.00 USD
+  Expenses:Rent 2400.00 USD
+
+2023-12-31 close Assets:Checking`
+
+      const parsed = parse(input, { skipBlanklines: false })
+      const output = parsed.toString()
+      expect(output).toEqual(input)
+    })
   })
 
   describe('toFormattedString()', () => {
