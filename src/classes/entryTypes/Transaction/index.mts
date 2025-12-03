@@ -205,13 +205,14 @@ export class Transaction extends DateEntry {
   protected parseJSONData(
     json: Record<string, unknown>,
   ): Record<string, unknown> {
-    const { postings, tags, links, metadata, ...rest } = json
+    const { postings, postingComments, tags, links, metadata, ...rest } = json
 
     return {
       ...rest,
       postings: (postings as Record<string, unknown>[])?.map(
         (p) => new Posting(p),
       ),
+      postingComments: postingComments ?? [],
       tags: (tags as { content: string; fromStack: boolean }[])?.map(
         (t) => new Tag(t),
       ),
