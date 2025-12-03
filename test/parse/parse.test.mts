@@ -221,3 +221,13 @@ test('Newlines', () => {
     'blankline',
   ])
 })
+
+test('Commented out transaction', () => {
+  const input = `
+;2024-01-08 * "Commented out transaction payee" "Commented out narration with date: 010 07/01/2024 15:20 Value date: 08/01/2024"
+;  Assets:Checking  -8.99 USD`
+
+  const output = parse(input)
+  expect(output.entries).toHaveLength(2)
+  expect(output.entries.map((e) => e.type)).toEqual(['comment', 'comment'])
+})

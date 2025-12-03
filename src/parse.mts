@@ -9,7 +9,10 @@ import {
   GenericParseResultTransaction,
 } from './genericParse.mjs'
 import { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
-import { beancountEntryToClass } from './entryTypeToClass.mjs'
+import {
+  beancountEntryToClass,
+  BeancountEntryType,
+} from './entryTypeToClass.mjs'
 
 /**
  * Splits a Beancount file string into an array of unparsed entry arrays.
@@ -77,7 +80,22 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   const genericParseResult = genericParse(unparsedEntry)
   const { type } = genericParseResult
 
-  const EntryClass = beancountEntryToClass[type]
+  if (genericParseResult.fake) {
+    if (type === 'blankline') {
+      if (skipBlanklines) {
+        return
+      }
+      return Blankline.fromGenericParseResult(
+        genericParseResult as unknown as GenericParseResult,
+      )
+    } else {
+      return Comment.fromGenericParseResult(
+        genericParseResult as unknown as GenericParseResult,
+      )
+    }
+  }
+
+  const EntryClass = beancountEntryToClass[type as BeancountEntryType]
 
   if (EntryClass) {
     return EntryClass.fromGenericParseResult(
@@ -87,14 +105,6 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
     assert(unparsedEntry.length === 1)
 
     const unparsedEntryLine = unparsedEntry[0]
-    if (unparsedEntryLine === '') {
-      if (skipBlanklines) {
-        return
-      }
-      return Blankline.fromGenericParseResult(
-        {} as unknown as GenericParseResult,
-      )
-    }
     return Comment.fromGenericParseResult({
       type: 'comment',
       props: { comment: unparsedEntryLine },

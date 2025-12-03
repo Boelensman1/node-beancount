@@ -111,3 +111,13 @@ test('Parse posting with empty cost and price', () => {
   expect(posting.amount).toBe('-76.3989')
   expect(posting.currency).toBe('STOCKB')
 })
+
+test('Parse posting without currency', () => {
+  const posting = Posting.fromGenericParseResult(
+    'Assets:AccountsReceivable:John -76.3989',
+  )
+
+  expect(posting.account).toBe('Assets:AccountsReceivable:John')
+  expect(posting.amount).toBe('-76.3989')
+  expect(posting.currency).toBe(undefined)
+})

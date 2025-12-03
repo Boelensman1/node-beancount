@@ -19,35 +19,37 @@ import {
   Query,
   Blankline,
 } from './classes/entryTypes/index.mjs'
+import type { DATED_ENTRY_TYPES, NON_DATED_ENTRY_TYPES } from './entryTypes.mjs'
+
+/**
+ * Union type of all Beancount entry types that include a date field.
+ * Derived from {@link DATED_ENTRY_TYPES}.
+ */
+export type BeancountDatedEntryType = (typeof DATED_ENTRY_TYPES)[number]
+
+/**
+ * Union type of all Beancount entry types that do NOT include a date field.
+ * Derived from {@link NON_DATED_ENTRY_TYPES}.
+ */
+export type BeancountNonDatedEntryType = (typeof NON_DATED_ENTRY_TYPES)[number]
 
 /**
  * Union type of all valid Beancount entry type names.
  * EntryTypes derived from https://beancount.github.io/docs/beancount_language_syntax.html#directives-1
  * Entries can have two additional 'fake' types: 'comment' and 'blankline', see {@link EntryType}
+ *
+ * Derived from {@link DATED_ENTRY_TYPES} and {@link NON_DATED_ENTRY_TYPES}.
  */
 export type BeancountEntryType =
-  | 'transaction'
-  | 'balance'
-  | 'close'
-  | 'commodity'
-  | 'custom'
-  | 'document'
-  | 'event'
-  | 'include'
-  | 'note'
-  | 'open'
-  | 'option'
-  | 'pad'
-  | 'plugin'
-  | 'poptag'
-  | 'price'
-  | 'pushtag'
-  | 'query'
+  | BeancountDatedEntryType
+  | BeancountNonDatedEntryType
+
+export type FakeEntryType = 'comment' | 'blankline'
 
 /**
  * Union type of all valid entry type names, including the 'fake' entry types of comment and blankline.
  */
-export type EntryType = BeancountEntryType | 'comment' | 'blankline'
+export type EntryType = BeancountEntryType | FakeEntryType
 
 /**
  * Mapping of Beancount entry type names to their corresponding class constructors.

@@ -73,5 +73,12 @@ export { Posting } from './classes/entryTypes/Transaction/Posting.mjs'
 export { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
 
 // Entry type mappings
-export type { BeancountEntryType, EntryType } from './entryTypeToClass.mjs'
+export type {
+  BeancountEntryType,
+  EntryType,
+  FakeEntryType,
+  BeancountDatedEntryType,
+  BeancountNonDatedEntryType,
+} from './entryTypeToClass.mjs'
 export { beancountEntryToClass, entryTypeToClass } from './entryTypeToClass.mjs'
+export { DATED_ENTRY_TYPES, NON_DATED_ENTRY_TYPES } from './entryTypes.mjs'

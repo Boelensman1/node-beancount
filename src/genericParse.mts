@@ -1,4 +1,5 @@
-import type { BeancountEntryType } from './entryTypeToClass.mjs'
+import type { BeancountEntryType, FakeEntryType } from './entryTypeToClass.mjs'
+import { DATED_ENTRY_TYPES, NON_DATED_ENTRY_TYPES } from './entryTypes.mjs'
 import { parseMetadata, type Metadata } from './utils/parseMetadata.mjs'
 
 /**
@@ -15,6 +16,13 @@ export interface GenericParseResult {
     /** Optional comment text following a semicolon */
     comment?: string
   }
+  fake?: false
+}
+
+export interface GenericParseResultFakeEntry
+  extends Omit<GenericParseResult, 'fake' | 'type'> {
+  type: FakeEntryType
+  fake: true
 }
 
 /**
@@ -51,6 +59,49 @@ export interface GenericParseResultTransaction
 }
 
 /**
+ * Compiles a regex pattern that validates both date format AND entry type.
+ *
+ * The generated pattern matches lines starting with:
+ * - Date in YYYY-MM-DD format
+ * - Followed by one or more whitespace characters
+ * - Followed by either:
+ *   - A valid dated entry type keyword from {@link DATED_ENTRY_TYPES}
+ *   - A transaction flag (* or !)
+ *   - The transaction alias 'txn'
+ * - Followed by a word boundary to prevent partial matches
+ *
+ * This ensures that only valid Beancount directives with correct entry types
+ * are recognized. Invalid entry types will be treated as comments.
+ *
+ * Pattern: `^YYYY-MM-DD\s+(validType|[*!]|txn)\b`
+ *
+ * @returns A RegExp that validates dated entry lines
+ */
+function compileEntryRegex(): RegExp {
+  // Join all non dated entry types with | for regex alternation
+  const nonDatedEntryPattern = NON_DATED_ENTRY_TYPES.join('|')
+
+  // Join all dated entry types with | for regex alternation
+  const datedEntryTypePattern = [
+    ...DATED_ENTRY_TYPES,
+    'txn',
+    '[^ ]' /* flag */,
+  ].join('|')
+
+  const datePattern = `\\d{4}-\\d{2}-\\d{2}`
+  const datedEntryPattern = `${datePattern} +(?:${datedEntryTypePattern})`
+
+  const pattern = `^(?:${nonDatedEntryPattern})|${datedEntryPattern} `
+  return new RegExp(pattern)
+}
+
+/**
+ * Regex pattern to identify Beancount entries that start with a date.
+ * Generated from {@link DATED_ENTRY_TYPES} to ensure validation of entry types.
+ */
+const beanCountEntryRegex = compileEntryRegex()
+
+/**
  * Performs generic parsing on an unparsed entry to extract common fields.
  *
  * This function:
@@ -68,10 +119,20 @@ export const genericParse = (
 ):
   | GenericParseResult
   | GenericParseResultTransaction
-  | GenericParseResultWithDate => {
+  | GenericParseResultWithDate
+  | GenericParseResultFakeEntry => {
   const [firstLine, ...rest] = unparsedEntry
+
+  if (firstLine.trim() === '') {
+    return { type: 'blankline', header: '', props: {}, fake: true }
+  }
+  if (!beanCountEntryRegex.test(firstLine)) {
+    // not a valid beancount entry, return it as a comment
+    return { type: 'comment', header: firstLine, props: {}, fake: true }
+  }
+
   const splitFirstLine = firstLine.split(' ')
-  if (/\d{4}-\d{2}-\d{2}/.exec(splitFirstLine[0])) {
+  if (/^\d{4}-\d{2}-\d{2}/.exec(splitFirstLine[0].trim())) {
     let type = splitFirstLine[1]
 
     let flag

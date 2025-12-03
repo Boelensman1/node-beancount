@@ -40,11 +40,21 @@ export class Posting {
    * @throws {Error} If the posting line cannot be parsed
    */
   static fromGenericParseResult(unparsedline: string) {
-    // [Flag] Account Amount [{Cost}] [@ Price]
-    const matches =
-      /^(?:([^ ]) )?([^ ]*)(?: +([^A-Z]*) +(\w+)(?: +{(.*)})?(?: +@ +(?:(\d+\.?\d*) (\w+)))?)?( *;.*)?$/.exec(
-        unparsedline,
-      )
+    // [Flag] Account Amount [Currency] [{Cost}] [@ Price]
+    const flagPattern = `([^ ]) +`
+    const accountPattern = `([^ ]*)`
+
+    const amountPattern = `([^A-Z]*)`
+    const currencyPattern = `(\\w+)`
+    const costPattern = `{(.*)}`
+    const pricePattern = `+@ +(?:(\\d+\\.?\\d*) (\\w+))`
+    const amountCurrenyCostPattern = `${amountPattern}(?: +${currencyPattern})?(?: +${costPattern})?(?: ${pricePattern})?`
+    const commentPattern = `( *;.*)?`
+
+    const pattern = `^(?:${flagPattern})?${accountPattern}(?: +${amountCurrenyCostPattern})?${commentPattern}$`
+
+    const matches = RegExp(pattern).exec(unparsedline)
+
     if (!matches) {
       throw new Error('Could not parse posting')
     }

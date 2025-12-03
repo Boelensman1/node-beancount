@@ -19,7 +19,7 @@ export class Comment extends Entry {
     genericParseResult: GenericParseResult, // not a real genericParseResult
   ) {
     return new Comment({
-      comment: genericParseResult.props.comment!,
+      comment: genericParseResult.header,
     })
   }
 
@@ -38,8 +38,11 @@ export class Comment extends Entry {
     input: string,
   ): T {
     return this.fromGenericParseResult({
-      props: { comment: input },
-    } as GenericParseResult)
+      type: 'comment',
+      header: input,
+      props: {},
+      fake: true,
+    })
   }
 }
 

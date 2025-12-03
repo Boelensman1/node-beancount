@@ -1,16 +1,16 @@
 import { Temporal } from '@js-temporal/polyfill'
 import { Entry } from './Entry.mjs'
 import { Value, type ValueType } from './Value.mjs'
-import type { BeancountEntryType } from '../entryTypeToClass.mjs'
+import type { BeancountDatedEntryType } from '../entryTypeToClass.mjs'
 
 /**
  * Union type of all Beancount entry types that include a date field.
- * Excludes non-dated directives 'include', 'option', and 'plugin'.
+ * Excludes non-dated directives: include, option, plugin, pushtag, poptag.
+ *
+ * @deprecated This type is re-exported from entryTypeToClass.mjs for backward compatibility.
+ * Use BeancountDatedEntryType instead.
  */
-export type BeancountDateEntryType = Exclude<
-  BeancountEntryType,
-  'include' | 'option' | 'plugin'
->
+export type BeancountDateEntryType = BeancountDatedEntryType
 
 /**
  * Abstract base class for all Beancount entry types that have a date.
@@ -19,7 +19,7 @@ export type BeancountDateEntryType = Exclude<
  */
 export abstract class DateEntry extends Entry {
   /** The type of this dated entry */
-  abstract type: BeancountDateEntryType
+  abstract type: BeancountDatedEntryType
   /** The date of this entry as a Temporal.PlainDate object */
   date!: Temporal.PlainDate
   /** Optional metadata key-value pairs associated with this entry */
