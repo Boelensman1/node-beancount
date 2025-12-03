@@ -39,7 +39,7 @@ export class Posting {
    * @returns A new Posting instance
    * @throws {Error} If the posting line cannot be parsed
    */
-  static fromUnparsedLine(unparsedline: string) {
+  static fromString(unparsedline: string) {
     // [Flag] Account Amount [Currency] [{Cost}] [@ Price]
     const flagPattern = `([^ ]) +`
     const accountPattern = `([^ ]*)`
