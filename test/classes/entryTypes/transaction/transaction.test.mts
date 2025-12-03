@@ -126,6 +126,14 @@ describe('toString', () => {
     expect(transaction.toString()).toEqual(input)
   })
 
+  test('with link with special chars', () => {
+    const input = `2023-04-05 * "RiverBank Properties" "Paying the rent" ^link.xxx.aaa
+  Assets:US:BofA:Checking -2400.00 USD
+  Expenses:Home:Rent 2400.00 USD`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
   test('with multiple links', () => {
     const input = `2023-04-05 * "RiverBank Properties" "Paying the rent" ^transaction1 ^transaction2
   Assets:US:BofA:Checking -2400.00 USD

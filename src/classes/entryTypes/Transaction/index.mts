@@ -39,12 +39,12 @@ const getStringLinksAndTags = (input: string) => {
     linksAndTags = match[2]
   }
 
-  const linksMatch = linksAndTags.matchAll(/\^([\w-]*)/g)
+  const linksMatch = linksAndTags.matchAll(/\^([\w-_.]*)/g)
   if (linksMatch) {
     links = new Set(linksMatch.map((m) => m[1]))
   }
 
-  const tagsMatch = linksAndTags.matchAll(/#([\w-]*)/g)
+  const tagsMatch = linksAndTags.matchAll(/#([\w-_.]*)/g)
   if (tagsMatch) {
     tags = tagsMatch
       .map((m) => new Tag({ content: m[1], fromStack: false }))
