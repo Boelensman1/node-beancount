@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { Posting } from '../../../../src/classes/entryTypes/Transaction/Posting.mjs'
 
 test('Parse posting with positive amount', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:MyBank:Checking             3062.68 USD',
   )
 
@@ -12,7 +12,7 @@ test('Parse posting with positive amount', () => {
 })
 
 test('Parse posting with negative amount', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:MyBank:Checking            -400.00 USD',
   )
 
@@ -22,7 +22,7 @@ test('Parse posting with negative amount', () => {
 })
 
 test('Parse posting without amount (auto-balance)', () => {
-  const posting = Posting.fromGenericParseResult('Assets:MyBank:Savings')
+  const posting = Posting.fromUnparsedLine('Assets:MyBank:Savings')
 
   expect(posting.account).toBe('Assets:MyBank:Savings')
   expect(posting.amount).toBeUndefined()
@@ -30,7 +30,7 @@ test('Parse posting without amount (auto-balance)', () => {
 })
 
 test('Parse posting with extra whitespace', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Liabilities:CreditCard:CapitalOne         -45.00          USD',
   )
 
@@ -40,7 +40,7 @@ test('Parse posting with extra whitespace', () => {
 })
 
 test('Parse posting with arithmetic expression (parentheses)', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:AccountsReceivable:John            ((40.00/3) + 5) USD',
   )
 
@@ -50,7 +50,7 @@ test('Parse posting with arithmetic expression (parentheses)', () => {
 })
 
 test('Parse posting with arithmetic expression (division)', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:AccountsReceivable:Michael         40.00/3         USD',
   )
 
@@ -60,7 +60,7 @@ test('Parse posting with arithmetic expression (division)', () => {
 })
 
 test('Parse posting with per-unit price', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:MyBank:Checking            -400.00 USD @ 1.09 CAD',
   )
 
@@ -72,7 +72,7 @@ test('Parse posting with per-unit price', () => {
 })
 
 test('Parse posting with cost and price', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:ETrade:IVV               -10 IVV {183.07 USD} @ 197.90 USD',
   )
 
@@ -83,7 +83,7 @@ test('Parse posting with cost and price', () => {
 })
 
 test('Parse posting with cost and label', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:ETrade:IVV                20 IVV {183.07 USD, "ref-001"}',
   )
 
@@ -93,7 +93,7 @@ test('Parse posting with cost and label', () => {
 })
 
 test('Parse posting with cost and date', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:Broker:StockA 35.5968 STOCKA {206.85 EUR, 2025-01-17}',
   )
 
@@ -103,7 +103,7 @@ test('Parse posting with cost and date', () => {
 })
 
 test('Parse posting with empty cost and price', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:Broker:StockB -76.3989 STOCKB {} @ 209.3200 EUR',
   )
 
@@ -113,11 +113,26 @@ test('Parse posting with empty cost and price', () => {
 })
 
 test('Parse posting without currency', () => {
-  const posting = Posting.fromGenericParseResult(
+  const posting = Posting.fromUnparsedLine(
     'Assets:AccountsReceivable:John -76.3989',
   )
 
   expect(posting.account).toBe('Assets:AccountsReceivable:John')
   expect(posting.amount).toBe('-76.3989')
   expect(posting.currency).toBe(undefined)
+})
+
+test('Parse posting arithmetic expression and without currency ', () => {
+  const posting = Posting.fromUnparsedLine(
+    'Assets:AccountsReceivable:John (60.02)/2',
+  )
+
+  expect(posting.account).toBe('Assets:AccountsReceivable:John')
+  expect(posting.amount).toBe('(60.02)/2')
+  expect(posting.currency).toBe(undefined)
+})
+
+test('Correctly format strings', () => {
+  const posting = Posting.fromUnparsedLine('Expenses:General (60.02)/2')
+  expect(posting.toString()).toBe('Expenses:General (60.02)/2')
 })

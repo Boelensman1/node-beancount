@@ -119,7 +119,7 @@ export class Transaction extends DateEntry {
     })
 
     const postings = unparsedPostings.map((p) =>
-      Posting.fromGenericParseResult(p),
+      Posting.fromUnparsedLine(p),
     )
     const metadata = parseMetadata(unparsedMetadata)
 

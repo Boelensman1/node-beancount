@@ -18,10 +18,10 @@ export const formatPrice = (
   priceAmount?: string,
   priceCurrency?: string,
 ): string | undefined => {
-  if (!amount || !currency) {
+  if (!amount) {
     return undefined
   }
-  const result = [amount.trim() + ' ' + currency.trim()]
+  const result = [amount.trim() + (currency ? ' ' + currency.trim() : '')]
   if (cost) {
     result.push(`{${cost.trim()}}`)
   }
