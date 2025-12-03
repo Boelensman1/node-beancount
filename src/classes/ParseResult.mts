@@ -26,7 +26,7 @@ export interface CalculateCurrencyColumnOptions {
   maxLeftPartLength?: number
   /** Override the maximum amount length */
   maxAmountLength?: number
-  /** Minimum padding between account and amount (default: 2) */
+  /** Minimum padding between account and amount (default: 3) */
   minPadding?: number
 }
 
@@ -284,7 +284,7 @@ export class ParseResult {
     const {
       maxLeftPartLength: overrideMaxLeft,
       maxAmountLength: overrideMaxAmount,
-      minPadding = 2,
+      minPadding = 3,
     } = options
 
     // Ensure minPadding is at least 1

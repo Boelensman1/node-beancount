@@ -13,10 +13,10 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:Checking".length = 15
       // maxAmountLength = "-100.00".length = 7
-      // minPadding = 2
+      // minPadding = 3
       // overhead = 6
-      // Expected: 15 + 7 + 2 + 6 = 30
-      expect(calculated).toBe(30)
+      // Expected: 15 + 7 + 3 + 6 = 30
+      expect(calculated).toBe(31)
     })
 
     test('calculates correct column for transaction with long account names', () => {
@@ -28,8 +28,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:US:BofA:Checking".length = 23
       // maxAmountLength = "-2400.00".length = 8
-      // Expected: 23 + 8 + 2 + 6 = 39
-      expect(calculated).toBe(39)
+      // Expected: 23 + 8 + 3 + 6 = 40
+      expect(calculated).toBe(40)
     })
 
     test('calculates correct column for postings with flags', () => {
@@ -41,8 +41,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "!" + " " + "Assets:Checking".length = 1 + 1 + 15 = 17
       // maxAmountLength = "-100.00".length = 7
-      // Expected: 17 + 7 + 2 + 6 = 32
-      expect(calculated).toBe(32)
+      // Expected: 17 + 7 + 3 + 6 = 33
+      expect(calculated).toBe(33)
     })
 
     test('handles postings with arithmetic expressions', () => {
@@ -55,8 +55,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:AccountsReceivable:John".length = 30
       // maxAmountLength = "((40.00/3) + 5)".length = 15
-      // Expected: 30 + 15 + 2 + 6 = 53
-      expect(calculated).toBe(53)
+      // Expected: 30 + 15 + 3 + 6 = 54
+      expect(calculated).toBe(54)
     })
 
     test('handles complex transaction with cost and price', () => {
@@ -70,8 +70,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Expenses:Financial:Commissions".length = 30
       // maxAmountLength = "1323.26".length = 7
-      // Expected: 30 + 7 + 2 + 6 = 45
-      expect(calculated).toBe(45)
+      // Expected: 30 + 7 + 3 + 6 = 46
+      expect(calculated).toBe(46)
     })
   })
 
@@ -97,8 +97,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:Checking".length = 15
       // maxAmountLength = 0 (no amounts)
-      // Expected: 15 + 0 + 2 + 6 = 23
-      expect(calculated).toBe(23)
+      // Expected: 15 + 0 + 3 + 6 = 24
+      expect(calculated).toBe(24)
     })
 
     test('handles mix of postings with and without amounts', () => {
@@ -110,8 +110,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:Checking".length = 15
       // maxAmountLength = "-100.00".length = 7
-      // Expected: 15 + 7 + 2 + 6 = 30
-      expect(calculated).toBe(30)
+      // Expected: 15 + 7 + 3 + 6 = 31
+      expect(calculated).toBe(31)
     })
 
     test('handles postings without currency', () => {
@@ -123,8 +123,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:AccountsReceivable:John".length = 30
       // maxAmountLength = "-76.3989".length = 8
-      // Expected: 30 + 8 + 2 + 6 = 46
-      expect(calculated).toBe(46)
+      // Expected: 30 + 8 + 3 + 6 = 47
+      expect(calculated).toBe(47)
     })
   })
 
@@ -171,8 +171,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
         maxLeftPartLength: 50,
       })
 
-      // Expected: 50 + 7 + 2 + 6 = 65
-      expect(calculated).toBe(65)
+      // Expected: 50 + 7 + 3 + 6 = 66
+      expect(calculated).toBe(66)
     })
 
     test('respects overridden maxAmountLength', () => {
@@ -184,8 +184,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
         maxAmountLength: 15,
       })
 
-      // Expected: 15 + 15 + 2 + 6 = 38
-      expect(calculated).toBe(38)
+      // Expected: 15 + 15 + 3 + 6 = 39
+      expect(calculated).toBe(39)
     })
 
     test('respects both overrides together', () => {
@@ -198,8 +198,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
         maxAmountLength: 12,
       })
 
-      // Expected: 40 + 12 + 2 + 6 = 60
-      expect(calculated).toBe(60)
+      // Expected: 40 + 12 + 3 + 6 = 61
+      expect(calculated).toBe(61)
     })
   })
 
@@ -217,8 +217,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:VeryLongAccountName:SubAccount:Details".length = 45
       // maxAmountLength = "-123456.78".length = 10
-      // Expected: 45 + 10 + 2 + 6 = 63
-      expect(calculated).toBe(63)
+      // Expected: 45 + 10 + 3 + 6 = 64
+      expect(calculated).toBe(64)
     })
 
     test('considers all postings across all transactions', () => {
@@ -238,8 +238,8 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
 
       // maxLeftPartLength = "Assets:Very:Long:Account:Name:Here".length = 34
       // maxAmountLength = "-1234567.89".length = 11
-      // Expected: 34 + 11 + 2 + 6 = 53
-      expect(calculated).toBe(53)
+      // Expected: 34 + 11 + 3 + 6 = 54
+      expect(calculated).toBe(54)
     })
   })
 
@@ -279,7 +279,6 @@ describe('ParseResult.calculateCurrencyColumn()', () => {
       const result = parse(input)
       const currencyColumn = result.calculateCurrencyColumn()
       const formatted = result.toFormattedString({ currencyColumn })
-      console.log(formatted)
       const reparsed = parse(formatted)
 
       // Should be able to round-trip

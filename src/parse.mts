@@ -102,13 +102,7 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
       genericParseResult as GenericParseResultTransaction,
     )
   } else {
-    assert(unparsedEntry.length === 1)
-
-    const unparsedEntryLine = unparsedEntry[0]
-    return Comment.fromGenericParseResult({
-      type: 'comment',
-      props: { comment: unparsedEntryLine },
-    } as unknown as GenericParseResult)
+    throw Error(`Could not parse ${unparsedEntry.toString()}`)
   }
 }
 
