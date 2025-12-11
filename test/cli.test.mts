@@ -149,6 +149,27 @@ describe('CLI format tool', () => {
     }
   })
 
+  test('handles directory input gracefully', () => {
+    try {
+      execSync(`npx tsx ${CLI_PATH} test/fixtures`, {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      })
+      // Should not reach here
+      expect(true).toBe(false)
+    } catch (error: unknown) {
+      // Should exit with error code 1
+      if (error && typeof error === 'object' && 'status' in error) {
+        expect(error.status).toBe(1)
+      }
+      // Error message should indicate it's a directory
+      if (error && typeof error === 'object' && 'stderr' in error) {
+        const stderr = String(error.stderr)
+        expect(stderr).toContain('is a directory, not a file')
+      }
+    }
+  })
+
   test('handles invalid beancount syntax gracefully', () => {
     try {
       execSync(`npx tsx ${CLI_PATH} test/fixtures/cli-test-invalid.beancount`, {

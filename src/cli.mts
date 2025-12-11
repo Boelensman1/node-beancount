@@ -50,6 +50,13 @@ function formatFile(
   force = false,
 ): boolean {
   try {
+    // Check if path is a directory
+    const stats = fs.statSync(filePath)
+    if (stats.isDirectory()) {
+      console.error(`Error processing ${filePath}: is a directory, not a file`)
+      return false
+    }
+
     // Read file content
     const content = fs.readFileSync(filePath, 'utf-8')
 
