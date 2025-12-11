@@ -9,6 +9,13 @@ describe('toString', () => {
     expect(document.toString()).toEqual(input)
   })
 
+  test('with space', () => {
+    const input =
+      '2013-11-03 document Liabilities:CreditCard "/home/joe/stmts/apr 2014.pdf"'
+    const document = Document.fromString(input)
+    expect(document.toString()).toEqual(input)
+  })
+
   test('with metadata', () => {
     const input = `2013-11-03 document Liabilities:CreditCard "/home/joe/stmts/apr-2014.pdf"
   metadata-test: "value"

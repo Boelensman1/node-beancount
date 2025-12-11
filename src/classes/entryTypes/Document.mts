@@ -2,7 +2,7 @@ import type { GenericParseResultWithDate } from '../../genericParse.mjs'
 import { assertEntryConstructor } from '../Entry.mjs'
 import { DateEntry } from '../DateEntry.mjs'
 import { parseString } from '../Value.mjs'
-import { simpleParseLine } from '../../utils/simpleParseLine.mjs'
+import { stringAwareParseLine } from '../../utils/stringAwareParseLine.mjs'
 
 /**
  * Represents a Document entry that links an external file to an account.
@@ -24,7 +24,9 @@ export class Document extends DateEntry {
   static fromGenericParseResult(
     genericParseResult: GenericParseResultWithDate,
   ) {
-    const [account, pathToDocument] = simpleParseLine(genericParseResult.header)
+    const [account, pathToDocument] = stringAwareParseLine(
+      genericParseResult.header,
+    )
 
     return new Document({
       ...genericParseResult.props,
