@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill'
 import type { GenericParseResultTransaction } from '../../../genericParse.mjs'
 import { assertEntryConstructor } from '../../Entry.mjs'
 import { DateEntry } from '../../DateEntry.mjs'
@@ -75,11 +76,33 @@ export class Transaction extends DateEntry {
   /** Array of postings (account movements) in this transaction */
   postings!: Posting[]
   /** Array of comments under this transaction (mixed in with the postings) */
-  postingComments: PostingComment[] = []
+  postingComments!: PostingComment[]
   /** Set of link identifiers associated with this transaction */
   links!: Set<string>
   /** Array of tags associated with this transaction (from inline tags and tag stack) */
   tags!: Tag[]
+
+  /**
+   * Creates a new Transaction instance.
+   *
+   * This constructor exists to provide a default value for `postingComments`.
+   * Class field initializers (e.g., `postingComments = []`) run after `super()` returns,
+   * which would overwrite values set by `Object.assign` in the parent constructor.
+   * By setting the default here, after `super()`, we allow passed values to take
+   * precedence while still providing a fallback.
+   *
+   * @inheritdoc
+   */
+  constructor(obj: {
+    date: string | Temporal.PlainDate
+    [key: string]: unknown
+  }) {
+    super(obj)
+    this.postingComments ??= []
+    this.postings ??= []
+    this.links ??= new Set()
+    this.tags ??= []
+  }
 
   /**
    * Creates a Transaction instance from a generic parse result.
