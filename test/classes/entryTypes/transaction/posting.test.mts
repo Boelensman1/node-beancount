@@ -73,6 +73,20 @@ test('Parse posting with per-unit price', () => {
     'Assets:MyBank:Checking            -400.00 USD @ 1.09 CAD',
   )
 
+  expect(posting.atSigns).toBe(1)
+  expect(posting.account).toBe('Assets:MyBank:Checking')
+  expect(posting.amount).toBe('-400.00')
+  expect(posting.currency).toBe('USD')
+  // Price should be parsed separately
+  expect(posting.price).toBeDefined()
+})
+
+test('Parse posting with total price', () => {
+  const posting = Posting.fromString(
+    'Assets:MyBank:Checking            -400.00 USD @@ 1.09 CAD',
+  )
+
+  expect(posting.atSigns).toBe(2)
   expect(posting.account).toBe('Assets:MyBank:Checking')
   expect(posting.amount).toBe('-400.00')
   expect(posting.currency).toBe('USD')
@@ -138,11 +152,18 @@ test('Parse posting arithmetic expression and without currency ', () => {
 })
 
 test('Correctly format postings without currency', () => {
-  const posting = Posting.fromString('Expenses:General (60.02)/2')
-  expect(posting.toString()).toBe('Expenses:General (60.02)/2')
+  const input = 'Expenses:General (60.02)/2'
+  const posting = Posting.fromString(input)
+  expect(posting.toString()).toBe(input)
 })
 
 test('Correctly place comments in postings without amount', () => {
   const posting = Posting.fromString('Expenses:General ;test')
   expect(posting.toFormattedString()).toBe('Expenses:General ; test')
+})
+
+test('Correctly format postings with total price', () => {
+  const input = 'Assets:MyBank:Checking -400.00 USD @@ 1.09 CAD'
+  const posting = Posting.fromString(input)
+  expect(posting.toString()).toBe(input)
 })

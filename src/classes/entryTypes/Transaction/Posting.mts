@@ -23,6 +23,8 @@ export class Posting {
   priceAmount?: string
   /** Optional comment for this posting */
   comment?: string
+  /** When a cost is given, defines the amount of at signs (1 for unit price, 2 for total price) */
+  atSigns?: number
 
   /**
    * Creates a new Posting instance.
@@ -47,7 +49,7 @@ export class Posting {
 
     const amountPattern = `([^A-Z;]*)`
     const costPattern = `{(.*)}`
-    const pricePattern = `+@ +(?:(\\d+\\.?\\d*) (\\w+))`
+    const pricePattern = `+(@|@@) +(?:(\\d+\\.?\\d*) ${currencyPattern})`
     const amountCurrenyCostPattern = `${amountPattern}(?: +${currencyPattern})?(?: +${costPattern})?(?: ${pricePattern})?`
     const commentPattern = `( *;.*)?`
 
@@ -65,6 +67,7 @@ export class Posting {
       amount,
       currency,
       cost,
+      atSigns,
       priceAmount,
       priceCurrency,
       comment,
@@ -78,6 +81,7 @@ export class Posting {
       cost: cost?.trim(),
       priceAmount: priceAmount?.trim(),
       priceCurrency: priceCurrency?.trim(),
+      atSigns: atSigns ? atSigns.length : undefined,
       comment: comment?.replace(/^ *;/, '').trim(),
     })
   }
@@ -93,6 +97,7 @@ export class Posting {
       this.cost,
       this.priceAmount,
       this.priceCurrency,
+      this.atSigns,
     )
   }
 

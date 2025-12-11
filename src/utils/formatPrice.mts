@@ -9,6 +9,7 @@
  * @param cost - Optional cost specification in curly braces
  * @param priceAmount - Optional price annotation amount
  * @param priceCurrency - Optional price annotation currency
+ * @param atSigns - Number of @ signs to use for price annotation (1 for unit price, 2 for total price)
  * @returns Formatted price string or undefined if amount/currency are missing
  */
 export const formatPrice = (
@@ -17,6 +18,7 @@ export const formatPrice = (
   cost?: string,
   priceAmount?: string,
   priceCurrency?: string,
+  atSigns = 1,
 ): string | undefined => {
   if (!amount) {
     return undefined
@@ -26,7 +28,7 @@ export const formatPrice = (
     result.push(`{${cost.trim()}}`)
   }
   if (priceAmount && priceCurrency) {
-    result.push('@', formatPrice(priceAmount, priceCurrency)!)
+    result.push('@'.repeat(atSigns), formatPrice(priceAmount, priceCurrency)!)
   }
 
   return result.join(' ')
