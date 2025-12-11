@@ -75,7 +75,7 @@ export class Transaction extends DateEntry {
   /** Array of postings (account movements) in this transaction */
   postings!: Posting[]
   /** Array of comments under this transaction (mixed in with the postings) */
-  postingComments!: PostingComment[]
+  postingComments: PostingComment[] = []
   /** Set of link identifiers associated with this transaction */
   links!: Set<string>
   /** Array of tags associated with this transaction (from inline tags and tag stack) */
