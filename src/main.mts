@@ -24,7 +24,7 @@
  */
 
 // Primary parsing functionality
-export { parse, parseEntry, splitStringIntoUnparsedEntries } from './parse.mjs'
+export { parse, parseEntry } from './parse.mjs'
 export type { ParseOptions } from './parse.mjs'
 
 // Generic parse result types

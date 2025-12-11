@@ -83,20 +83,18 @@ export class Transaction extends DateEntry {
   tags!: Tag[]
 
   /**
-   * Creates a new Transaction instance.
-   *
-   * This constructor exists to provide a default value for `postingComments`.
-   * Class field initializers (e.g., `postingComments = []`) run after `super()` returns,
-   * which would overwrite values set by `Object.assign` in the parent constructor.
-   * By setting the default here, after `super()`, we allow passed values to take
-   * precedence while still providing a fallback.
-   *
    * @inheritdoc
    */
   constructor(obj: {
     date: string | Temporal.PlainDate
     [key: string]: unknown
   }) {
+    /*
+     * This constructor exists to provide a default value for some values.
+     * Class field initializers (e.g., `postingComments = []`) run after
+     * `super()` returns, which would overwrite values set by `Object.assign`
+     * in the parent constructor.
+     */
     super(obj)
     this.postingComments ??= []
     this.postings ??= []
