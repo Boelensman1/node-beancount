@@ -102,7 +102,9 @@ test('Parse posting with cost and price', () => {
   expect(posting.account).toBe('Assets:ETrade:IVV')
   expect(posting.amount).toBe('-10')
   expect(posting.currency).toBe('IVV')
-  // Cost and price should be parsed
+  expect(posting.cost).toBe('183.07 USD')
+  expect(posting.priceAmount).toBe('197.90')
+  expect(posting.priceCurrency).toBe('USD')
 })
 
 test('Parse posting with cost and label', () => {
@@ -113,6 +115,7 @@ test('Parse posting with cost and label', () => {
   expect(posting.account).toBe('Assets:ETrade:IVV')
   expect(posting.amount).toBe('20')
   expect(posting.currency).toBe('IVV')
+  expect(posting.cost).toBe('183.07 USD, "ref-001"')
 })
 
 test('Parse posting with cost and date', () => {
@@ -123,6 +126,7 @@ test('Parse posting with cost and date', () => {
   expect(posting.account).toBe('Assets:Broker:StockA')
   expect(posting.amount).toBe('35.5968')
   expect(posting.currency).toBe('STOCKA')
+  expect(posting.cost).toBe('206.85 EUR, 2025-01-17')
 })
 
 test('Parse posting with empty cost and price', () => {
@@ -133,6 +137,7 @@ test('Parse posting with empty cost and price', () => {
   expect(posting.account).toBe('Assets:Broker:StockB')
   expect(posting.amount).toBe('-76.3989')
   expect(posting.currency).toBe('STOCKB')
+  expect(posting.cost).toBe('')
 })
 
 test('Parse posting without currency', () => {
@@ -164,6 +169,12 @@ test('Correctly place comments in postings without amount', () => {
 
 test('Correctly format postings with total price', () => {
   const input = 'Assets:MyBank:Checking -400.00 USD @@ 1.09 CAD'
+  const posting = Posting.fromString(input)
+  expect(posting.toString()).toBe(input)
+})
+
+test('Correctly format postings with auto selected postings', () => {
+  const input = 'Assets:MyBank:Checking -400.00 IVV {} @@ 1.09 CAD'
   const posting = Posting.fromString(input)
   expect(posting.toString()).toBe(input)
 })

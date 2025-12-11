@@ -24,7 +24,7 @@ export const formatPrice = (
     return undefined
   }
   const result = [amount.trim() + (currency ? ' ' + currency.trim() : '')]
-  if (cost) {
+  if (typeof cost === 'string') {
     result.push(`{${cost.trim()}}`)
   }
   if (priceAmount && priceCurrency) {
