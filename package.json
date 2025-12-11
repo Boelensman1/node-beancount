@@ -10,6 +10,9 @@
     }
   },
   "types": "./build/src/main.d.mts",
+  "bin": {
+    "beancount-format": "./build/src/cli.mjs"
+  },
   "files": [
     "build/**"
   ],

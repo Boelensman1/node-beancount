@@ -1,0 +1,21 @@
+option "title" "Test Ledger"
+option "operating_currency" "USD"
+
+2024-01-01 open Assets:Checking
+2024-01-01 open Expenses:Groceries
+2024-01-01 open Expenses:Rent
+2024-01-01 open Income:Salary
+
+2024-01-05 * "Grocery Store" "Weekly shopping"
+  Assets:Checking  -45.23 USD
+  Expenses:Groceries  45.23 USD
+
+2024-01-10 * "Landlord" "Monthly rent payment"
+  Assets:Checking  -1500.00 USD
+  Expenses:Rent  1500.00 USD
+
+2024-01-15 * "Employer" "Salary deposit"
+  Assets:Checking  3500.00 USD
+  Income:Salary  -3500.00 USD
+
+2024-02-01 balance Assets:Checking  1954.77 USD

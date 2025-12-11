@@ -14,7 +14,8 @@ npm install beancount
 - **Type-Safe** - Complete TypeScript types for all entries and components
 - **Rich Transaction Support** - Tags, links, metadata, costs, price annotations, and postings
 - **Round-Trip Parsing** - Parse to objects and serialize back to text
-- **Formatted Output** - Column-aligned output with `toFormattedString()` (WIP)
+- **Formatted Output** - Column-aligned output with `toFormattedString()` and CLI formatter
+- **CLI Formatter** - Command-line tool `beancount-format` for formatting files with auto-aligned columns
 
 ## Quick Start
 
@@ -47,6 +48,42 @@ console.log(ParseResult.fromJSON(result))
 // Or with formatted output (aligned columns)
 // only partially implemented at this point
 console.log(result.toFormattedString())
+```
+
+## CLI Usage
+
+The package includes a `beancount-format` command-line tool for formatting Beancount files with aligned currency columns.
+
+### Basic Usage
+
+```bash
+# Format a file to stdout (preview changes)
+beancount-format ledger.beancount
+
+# Format a file in-place (modify the file)
+beancount-format -w ledger.beancount
+
+# Format multiple files
+beancount-format -w accounts.beancount transactions.beancount
+```
+
+### Options
+
+- `-w, --write` - Write formatted output back to the file(s) (default: print to stdout)
+- `-c, --currency-column N` - Align currencies at column N (default: auto-calculate optimal alignment)
+- `-h, --help` - Show help message
+
+### Examples
+
+```bash
+# Preview formatting changes
+beancount-format my-ledger.beancount
+
+# Apply formatting to multiple files
+beancount-format -w income.beancount expenses.beancount
+
+# Use custom currency column alignment
+beancount-format --currency-column 60 ledger.beancount
 ```
 
 ## Documentation

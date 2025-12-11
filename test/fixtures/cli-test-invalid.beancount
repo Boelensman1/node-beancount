@@ -1,0 +1,9 @@
+option "title" "Invalid Test Ledger"
+
+2024-01-01 open Assets:Checking
+
+2024-01-05 * "Test Transaction"
+  This is not a valid posting line
+  Assets:Checking  100.00 USD
+
+INVALID_DIRECTIVE 2024-01-10 "This should fail"

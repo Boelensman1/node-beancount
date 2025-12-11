@@ -60,4 +60,12 @@ export default [
       ],
     },
   },
+  {
+    files: ['src/cli.mts'],
+    rules: {
+      // CLI file needs shebang and process.exit() for proper CLI functionality
+      'n/hashbang': 'off',
+      'n/no-process-exit': 'off',
+    },
+  },
 ]
