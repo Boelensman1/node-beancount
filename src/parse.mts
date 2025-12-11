@@ -1,4 +1,3 @@
-import assert from 'node:assert'
 import { ParseResult } from './classes/ParseResult.mjs'
 import { Comment, Blankline } from './classes/entryTypes/index.mjs'
 import { countChar } from './utils/countChar.mjs'
