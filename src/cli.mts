@@ -51,7 +51,7 @@ function formatFile(
     const content = fs.readFileSync(filePath, 'utf-8')
 
     // Parse the beancount file
-    const parseResult = parse(content)
+    const parseResult = parse(content, { skipBlanklines: false })
 
     // Determine currency column
     const column = currencyColumn ?? parseResult.calculateCurrencyColumn()
