@@ -20,6 +20,7 @@ Format Beancount accounting files with aligned columns
 Options:
   -w, --write              Write formatted output to files (default: print to stdout)
   -c, --currency-column N  Use column N for currency alignment (default: auto-calculate)
+  -f, --force              Also format files that don't seem to be beancount files (default: skip these files)
   -h, --help               Show this help message
 
 Examples:
@@ -39,12 +40,14 @@ Examples:
  * @param filePath Path to the file to format
  * @param write Whether to write the formatted content back to the file
  * @param currencyColumn Currency column number, or null to auto-calculate
+ * @param force Wether to also format files with 0 entries, defaults to false
  * @returns true if successful, false if an error occurred
  */
 function formatFile(
   filePath: string,
   write: boolean,
   currencyColumn: number | null,
+  force = false,
 ): boolean {
   try {
     // Read file content
@@ -52,6 +55,18 @@ function formatFile(
 
     // Parse the beancount file
     const parseResult = parse(content, { skipBlanklines: false })
+
+    // check if we have any non-comment non-blankline entries
+    if (
+      !force &&
+      parseResult.entries.length ===
+        parseResult.blankline.length + parseResult.comment.length
+    ) {
+      console.error(
+        `Error processing ${filePath}: does not seem to be a beancount file, it has no entries`,
+      )
+      return false
+    }
 
     // Determine currency column
     const column = currencyColumn ?? parseResult.calculateCurrencyColumn()
@@ -82,6 +97,7 @@ function main(): void {
     const { values, positionals } = parseArgs({
       args: process.argv.slice(2),
       options: {
+        force: { type: 'boolean', short: 'f', default: false },
         write: { type: 'boolean', short: 'w', default: false },
         'currency-column': { type: 'string', short: 'c' },
         help: { type: 'boolean', short: 'h', default: false },
@@ -122,6 +138,7 @@ function main(): void {
         filePath,
         values.write ?? false,
         currencyColumn,
+        values.force,
       )
       if (!success) {
         hadErrors = true

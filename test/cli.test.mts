@@ -175,10 +175,13 @@ describe('CLI format tool', () => {
     fs.copyFileSync('test/fixtures/cli-test-unformatted.beancount', tmpFile)
 
     try {
-      execSync(`npx tsx ${CLI_PATH} --write non-existent.beancount ${tmpFile}`, {
-        encoding: 'utf-8',
-        stdio: 'pipe',
-      })
+      execSync(
+        `npx tsx ${CLI_PATH} --write non-existent.beancount ${tmpFile}`,
+        {
+          encoding: 'utf-8',
+          stdio: 'pipe',
+        },
+      )
       // Should not reach here (should exit 1 due to first file error)
       expect(true).toBe(false)
     } catch (error: unknown) {
@@ -273,6 +276,28 @@ describe('CLI format tool', () => {
       if (error && typeof error === 'object' && 'stderr' in error) {
         const stderr = String(error.stderr)
         expect(stderr).toContain('Invalid currency column')
+      }
+    }
+  })
+
+  test('exits with error for file with only comments', () => {
+    try {
+      execSync(
+        `npx tsx ${CLI_PATH} test/fixtures/cli-test-not-beancount.beancount`,
+        { encoding: 'utf-8', stdio: 'pipe' },
+      )
+      // Should not reach here
+      expect(true).toBe(false)
+    } catch (error: unknown) {
+      // Should exit with error code 1
+      if (error && typeof error === 'object' && 'status' in error) {
+        expect(error.status).toBe(1)
+      }
+
+      // Error message should mention not a beancount file
+      if (error && typeof error === 'object' && 'stderr' in error) {
+        const stderr = String(error.stderr)
+        expect(stderr).toContain('does not seem to be a beancount file')
       }
     }
   })

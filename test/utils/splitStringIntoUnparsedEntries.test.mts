@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { splitStringIntoUnparsedEntries } from '../../src/parse.mjs'
+import { splitStringIntoUnparsedEntries } from '../../src/utils/splitStringIntoUnparsedEntries.js'
 
 test('Split simple entries', () => {
   // Simple split, with new line
@@ -67,5 +67,15 @@ test('Split transactions with a comment not part of transaction', () => {
   const unparsedEntries = splitStringIntoUnparsedEntries(entries)
   expect(unparsedEntries).toHaveLength(2)
   expect(unparsedEntries[0]).toHaveLength(3)
+  expect(unparsedEntries[1]).toHaveLength(1)
+})
+
+test('Split blank line followed by indented content', () => {
+  const entries = `
+  Assets:US:BofA:Checking                        -2400.00 USD`
+
+  const unparsedEntries = splitStringIntoUnparsedEntries(entries)
+  expect(unparsedEntries).toHaveLength(2)
+  expect(unparsedEntries[0]).toEqual([''])
   expect(unparsedEntries[1]).toHaveLength(1)
 })

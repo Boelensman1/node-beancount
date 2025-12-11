@@ -55,7 +55,6 @@ export class Posting {
 
     const matches = RegExp(pattern).exec(unparsedline)
 
-    console.log(pattern)
     if (!matches) {
       throw new Error(`Could not parse posting: ${unparsedline}`)
     }

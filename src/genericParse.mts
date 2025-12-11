@@ -128,7 +128,12 @@ export const genericParse = (
   }
   if (!beanCountEntryRegex.test(firstLine)) {
     // not a valid beancount entry, return it as a comment
-    return { type: 'comment', header: firstLine, props: {}, fake: true }
+    return {
+      type: 'comment',
+      header: unparsedEntry.join('\n'),
+      props: {},
+      fake: true,
+    }
   }
 
   const splitFirstLine = firstLine.split(' ')
@@ -182,7 +187,6 @@ export const genericParse = (
     header: header.trim(),
     props: {
       metadata: parseMetadata(rest),
-
       comment: comment.length > 0 ? comment.join(';').trim() : undefined,
     },
   } as GenericParseResult
