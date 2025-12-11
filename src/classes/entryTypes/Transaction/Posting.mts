@@ -1,3 +1,4 @@
+import { currencyPattern } from '../../../patterns.mjs'
 import { formatPrice } from '../../../utils/formatPrice.mjs'
 import { defaultFormatOptions, FormatOptions } from '../../ParseResult.mjs'
 
@@ -45,7 +46,6 @@ export class Posting {
     const accountPattern = `([^ ]*)`
 
     const amountPattern = `([^A-Z;]*)`
-    const currencyPattern = `(\\w+)`
     const costPattern = `{(.*)}`
     const pricePattern = `+@ +(?:(\\d+\\.?\\d*) (\\w+))`
     const amountCurrenyCostPattern = `${amountPattern}(?: +${currencyPattern})?(?: +${costPattern})?(?: ${pricePattern})?`
@@ -55,8 +55,9 @@ export class Posting {
 
     const matches = RegExp(pattern).exec(unparsedline)
 
+    console.log(pattern)
     if (!matches) {
-      throw new Error('Could not parse posting')
+      throw new Error(`Could not parse posting: ${unparsedline}`)
     }
     const [
       ,
