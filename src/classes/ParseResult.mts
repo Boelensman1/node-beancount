@@ -1,6 +1,25 @@
 import { EntryType, entryTypeToClass } from '../entryTypeToClass.mjs'
 import { Entry } from './Entry.mjs'
 import { Posting } from './entryTypes/Transaction/Posting.mjs'
+import type { Transaction } from './entryTypes/Transaction/index.mjs'
+import type { Balance } from './entryTypes/Balance.mjs'
+import type { Close } from './entryTypes/Close.mjs'
+import type { Commodity } from './entryTypes/Commodity.mjs'
+import type { Custom } from './entryTypes/Custom.mjs'
+import type { Document } from './entryTypes/Document.mjs'
+import type { Event } from './entryTypes/Event.mjs'
+import type { Include } from './entryTypes/Include.mjs'
+import type { Note } from './entryTypes/Note.mjs'
+import type { Open } from './entryTypes/Open.mjs'
+import type { Option } from './entryTypes/Option.mjs'
+import type { Pad } from './entryTypes/Pad.mjs'
+import type { Plugin } from './entryTypes/Plugin.mjs'
+import type { Poptag } from './entryTypes/Poptag.mjs'
+import type { Price } from './entryTypes/Price.mjs'
+import type { Pushtag } from './entryTypes/Pushtag.mjs'
+import type { Query } from './entryTypes/Query.mjs'
+import type { Comment } from './entryTypes/Comment.mjs'
+import type { Blankline } from './entryTypes/Blankline.mjs'
 
 export interface ParseResultObj {
   entries: { type: EntryType }[]
@@ -45,152 +64,184 @@ export class ParseResult {
    * Gets all transaction entries from the parsed entries.
    * @returns Array of entries that are transactions
    */
-  get transactions() {
-    return this.entries.filter((entry) => entry.type === 'transaction')
+  get transactions(): Transaction[] {
+    return this.entries.filter(
+      (entry): entry is Transaction => entry.type === 'transaction',
+    )
   }
 
   /**
    * Gets all balance entries from the parsed entries.
    * @returns Array of entries that are balance directives
    */
-  get balance() {
-    return this.entries.filter((entry) => entry.type === 'balance')
+  get balance(): Balance[] {
+    return this.entries.filter(
+      (entry): entry is Balance => entry.type === 'balance',
+    )
   }
 
   /**
    * Gets all close entries from the parsed entries.
    * @returns Array of entries that are close directives
    */
-  get close() {
-    return this.entries.filter((entry) => entry.type === 'close')
+  get close(): Close[] {
+    return this.entries.filter(
+      (entry): entry is Close => entry.type === 'close',
+    )
   }
 
   /**
    * Gets all commodity entries from the parsed entries.
    * @returns Array of entries that are commodity directives
    */
-  get commodity() {
-    return this.entries.filter((entry) => entry.type === 'commodity')
+  get commodity(): Commodity[] {
+    return this.entries.filter(
+      (entry): entry is Commodity => entry.type === 'commodity',
+    )
   }
 
   /**
    * Gets all custom entries from the parsed entries.
    * @returns Array of entries that are custom directives
    */
-  get custom() {
-    return this.entries.filter((entry) => entry.type === 'custom')
+  get custom(): Custom[] {
+    return this.entries.filter(
+      (entry): entry is Custom => entry.type === 'custom',
+    )
   }
 
   /**
    * Gets all document entries from the parsed entries.
    * @returns Array of entries that are document directives
    */
-  get document() {
-    return this.entries.filter((entry) => entry.type === 'document')
+  get document(): Document[] {
+    return this.entries.filter(
+      (entry): entry is Document => entry.type === 'document',
+    )
   }
 
   /**
    * Gets all event entries from the parsed entries.
    * @returns Array of entries that are event directives
    */
-  get event() {
-    return this.entries.filter((entry) => entry.type === 'event')
+  get event(): Event[] {
+    return this.entries.filter(
+      (entry): entry is Event => entry.type === 'event',
+    )
   }
 
   /**
    * Gets all include entries from the parsed entries.
    * @returns Array of entries that are include directives
    */
-  get include() {
-    return this.entries.filter((entry) => entry.type === 'include')
+  get include(): Include[] {
+    return this.entries.filter(
+      (entry): entry is Include => entry.type === 'include',
+    )
   }
 
   /**
    * Gets all note entries from the parsed entries.
    * @returns Array of entries that are note directives
    */
-  get note() {
-    return this.entries.filter((entry) => entry.type === 'note')
+  get note(): Note[] {
+    return this.entries.filter((entry): entry is Note => entry.type === 'note')
   }
 
   /**
    * Gets all open entries from the parsed entries.
    * @returns Array of entries that are open directives
    */
-  get open() {
-    return this.entries.filter((entry) => entry.type === 'open')
+  get open(): Open[] {
+    return this.entries.filter((entry): entry is Open => entry.type === 'open')
   }
 
   /**
    * Gets all option entries from the parsed entries.
    * @returns Array of entries that are option directives
    */
-  get option() {
-    return this.entries.filter((entry) => entry.type === 'option')
+  get option(): Option[] {
+    return this.entries.filter(
+      (entry): entry is Option => entry.type === 'option',
+    )
   }
 
   /**
    * Gets all pad entries from the parsed entries.
    * @returns Array of entries that are pad directives
    */
-  get pad() {
-    return this.entries.filter((entry) => entry.type === 'pad')
+  get pad(): Pad[] {
+    return this.entries.filter((entry): entry is Pad => entry.type === 'pad')
   }
 
   /**
    * Gets all plugin entries from the parsed entries.
    * @returns Array of entries that are plugin directives
    */
-  get plugin() {
-    return this.entries.filter((entry) => entry.type === 'plugin')
+  get plugin(): Plugin[] {
+    return this.entries.filter(
+      (entry): entry is Plugin => entry.type === 'plugin',
+    )
   }
 
   /**
    * Gets all poptag entries from the parsed entries.
    * @returns Array of entries that are poptag directives
    */
-  get poptag() {
-    return this.entries.filter((entry) => entry.type === 'poptag')
+  get poptag(): Poptag[] {
+    return this.entries.filter(
+      (entry): entry is Poptag => entry.type === 'poptag',
+    )
   }
 
   /**
    * Gets all price entries from the parsed entries.
    * @returns Array of entries that are price directives
    */
-  get price() {
-    return this.entries.filter((entry) => entry.type === 'price')
+  get price(): Price[] {
+    return this.entries.filter(
+      (entry): entry is Price => entry.type === 'price',
+    )
   }
 
   /**
    * Gets all pushtag entries from the parsed entries.
    * @returns Array of entries that are pushtag directives
    */
-  get pushtag() {
-    return this.entries.filter((entry) => entry.type === 'pushtag')
+  get pushtag(): Pushtag[] {
+    return this.entries.filter(
+      (entry): entry is Pushtag => entry.type === 'pushtag',
+    )
   }
 
   /**
    * Gets all query entries from the parsed entries.
    * @returns Array of entries that are query directives
    */
-  get query() {
-    return this.entries.filter((entry) => entry.type === 'query')
+  get query(): Query[] {
+    return this.entries.filter(
+      (entry): entry is Query => entry.type === 'query',
+    )
   }
 
   /**
    * Gets all comment entries from the parsed entries.
    * @returns Array of entries that are comments
    */
-  get comment() {
-    return this.entries.filter((entry) => entry.type === 'comment')
+  get comment(): Comment[] {
+    return this.entries.filter(
+      (entry): entry is Comment => entry.type === 'comment',
+    )
   }
 
   /**
    * Gets all blankline entries from the parsed entries.
    * @returns Array of entries that are blank lines
    */
-  get blankline() {
-    return this.entries.filter((entry) => entry.type === 'blankline')
+  get blankline(): Blankline[] {
+    return this.entries.filter(
+      (entry): entry is Blankline => entry.type === 'blankline',
+    )
   }
 
   /**
@@ -301,9 +352,7 @@ export class ParseResult {
     // Extract all postings
     const allPostings: Posting[] = []
     for (const entry of transactions) {
-      if ('postings' in entry && Array.isArray(entry.postings)) {
-        allPostings.push(...(entry.postings as Posting[]))
-      }
+      allPostings.push(...entry.postings)
     }
 
     // Edge case: No postings

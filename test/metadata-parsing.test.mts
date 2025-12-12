@@ -7,7 +7,7 @@ test('DateEntry types: Parse with metadata', () => {
   const directive = `
 2014-12-26 balance Liabilities:US:CreditCard -3492.02 USD
   name: "Credit Card Balance"
-  statement: "December 2014"`
+  statement: "December 2014"`.trim()
   const { entries } = parse(directive)
   expect(entries).toHaveLength(1)
 
@@ -26,7 +26,7 @@ test('Correcly parse metadata in multiline entries', () => {
   SELECT account, sum(position) WHERE 'trip-france-2014' in tags"
   description: "Query to find all cash positions"
   frequency: "monthly"
-`
+`.trim()
   const { entries } = parse(directive)
   expect(entries).toHaveLength(1)
 
@@ -55,7 +55,7 @@ test('DateEntry types: Parse without metadata should return undefined', () => {
 2014-07-09 price HOOL 579.18 USD
 2014-07-09 query "cash" "SELECT account, sum(position) WHERE currency = 'USD'"
 2014-07-09 * "Coffee"
-`
+`.trim()
   const { entries } = parse(directives)
   expect(entries).toHaveLength(12)
 
@@ -69,7 +69,7 @@ test('DateEntry types: Parse without metadata should return undefined', () => {
 test('Correctly parse values with :', () => {
   const directive = `1900-01-01 commodity VMMXX
   export: "MUTF:VMMXX (MONEY:USD)"
-`
+`.trim()
   const { entries } = parse(directive)
   expect(entries).toHaveLength(1)
 

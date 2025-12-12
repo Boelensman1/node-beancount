@@ -24,10 +24,10 @@ test('Parse with metadata', () => {
   metadata-test: "value"
   metadata-test-boolean: TRUE
 `
-  const { entries } = parse(directive)
-  expect(entries).toHaveLength(1)
+  const output = parse(directive)
+  expect(output.document).toHaveLength(1)
 
-  const entry = entries[0] as Document
+  const entry = output.document[0]
   expect(entry.type).toBe('document')
   expect(entry.date.toJSON()).toBe('2013-11-03')
   expect(entry.account).toBe('Liabilities:CreditCard')

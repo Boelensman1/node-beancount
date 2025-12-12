@@ -22,10 +22,10 @@ test('Parse with metadata', () => {
 2012-01-01 commodity HOOL
   name: "Hooli Corporation Class C Shares"
   asset-class: "stock"`
-  const { entries } = parse(directive)
-  expect(entries).toHaveLength(1)
+  const output = parse(directive)
+  expect(output.commodity).toHaveLength(1)
 
-  const entry = entries[0] as Commodity
+  const entry = output.commodity[0]
   expect(entry.type).toBe('commodity')
   expect(entry.date.toJSON()).toBe('2012-01-01')
   expect(entry.currency).toBe('HOOL')

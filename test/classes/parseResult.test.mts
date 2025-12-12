@@ -73,7 +73,7 @@ describe('ParseResult class', () => {
   Assets:Checking 100.00 USD
   Income:Salary -100.00 USD`
 
-      const parsed = parse(input, { skipBlanklines: false })
+      const parsed = parse(input)
       const output = parsed.toString()
 
       // Count blank line entries
@@ -105,7 +105,7 @@ describe('ParseResult class', () => {
 
 2023-12-31 close Assets:Checking`
 
-      const parsed = parse(input, { skipBlanklines: false })
+      const parsed = parse(input)
       const output = parsed.toString()
       expect(output).toEqual(input)
     })
@@ -247,9 +247,8 @@ describe('ParseResult class', () => {
   Income:Salary -100.00 USD`
 
       const result = parse(input)
-      expect(result.entries).toHaveLength(2)
-      expect(result.entries[0].type).toBe('open')
-      expect(result.entries[1].type).toBe('transaction')
+      expect(result.open).toHaveLength(1)
+      expect(result.transactions).toHaveLength(1)
     })
 
     test('can manipulate ParseResult entries array', () => {

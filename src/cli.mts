@@ -61,7 +61,7 @@ function formatFile(
     const content = fs.readFileSync(filePath, 'utf-8')
 
     // Parse the beancount file
-    const parseResult = parse(content, { skipBlanklines: false })
+    const parseResult = parse(content)
 
     // check if we have any non-comment non-blankline entries
     if (

@@ -21,18 +21,14 @@ import { splitStringIntoUnparsedEntries } from './utils/splitStringIntoUnparsedE
  * - Handles special cases for comments and blank lines
  *
  * @param unparsedEntry - Array of string tokens representing a single entry
- * @param skipBlanklines - If true, returns undefined for blank lines; if false, returns Blankline instances
- * @returns An Entry instance, or undefined if the entry is blank and skipBlanklines is true
+ * @returns An Entry instance
  */
-export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
+export const parseEntry = (unparsedEntry: string[]) => {
   const genericParseResult = genericParse(unparsedEntry)
   const { type } = genericParseResult
 
   if (genericParseResult.fake) {
     if (type === 'blankline') {
-      if (skipBlanklines) {
-        return
-      }
       return Blankline.fromGenericParseResult(
         genericParseResult as unknown as GenericParseResult,
       )
@@ -52,18 +48,6 @@ export const parseEntry = (unparsedEntry: string[], skipBlanklines = true) => {
   } else {
     throw Error(`Could not parse ${unparsedEntry.toString()}`)
   }
-}
-
-/**
- * Options for configuring the parse function behavior.
- */
-export interface ParseOptions {
-  /**
-   * If true, blank lines in the input are skipped and not included in the result.
-   * If false, blank lines are preserved as Blankline entries.
-   * Defaults to true.
-   */
-  skipBlanklines?: boolean
 }
 
 /**
@@ -95,29 +79,17 @@ export interface ParseOptions {
  * // result.entries contains parsed Entry objects
  * ```
  *
- * @example
- * With options:
- * ```typescript
- * // Preserve blank lines in output
- * const result = parse(content, { skipBlanklines: false })
- * ```
- *
  * @param input - The complete Beancount file content as a string
- * @param options - Optional parsing configuration
- * @param options.skipBlanklines - If true, skips blank lines; defaults to true
  * @returns A ParseResult instance containing all parsed entries
  */
-export const parse = (
-  input: string,
-  { skipBlanklines = true }: ParseOptions = {},
-) => {
+export const parse = (input: string) => {
   const unparsedEntries = splitStringIntoUnparsedEntries(input)
 
   const parsedEntries = []
   const tagStack: Tag[] = []
 
   for (const unparsedEntry of unparsedEntries) {
-    const parsedEntry = parseEntry(unparsedEntry, skipBlanklines)
+    const parsedEntry = parseEntry(unparsedEntry)
     if (parsedEntry) {
       if (parsedEntry.type === 'pushtag') {
         tagStack.push(parsedEntry.tag)

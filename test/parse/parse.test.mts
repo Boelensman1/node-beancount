@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest'
 import { parse } from '../../src/parse.mjs'
-import type { Transaction } from '../../src/classes/entryTypes/index.mjs'
 import { Tag } from '../../src/classes/entryTypes/Transaction/Tag.mjs'
 
 describe('The Tag Stack works', () => {
@@ -15,9 +14,8 @@ pushtag #berlin-trip-2014
 poptag #berlin-trip-2014`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(3)
-    expect(output.entries[1].type).toBe('transaction')
-    const transaction = output.entries[1] as Transaction
+    expect(output.transactions).toHaveLength(1)
+    const transaction = output.transactions[0]
 
     expect(transaction.tags).toEqual([
       new Tag({ content: 'berlin-trip-2014', fromStack: true }),
@@ -43,11 +41,11 @@ pushtag #vacation
 poptag #vacation`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(5)
+    expect(output.transactions).toHaveLength(3)
 
-    const transaction1 = output.entries[1] as Transaction
-    const transaction2 = output.entries[2] as Transaction
-    const transaction3 = output.entries[3] as Transaction
+    const transaction1 = output.transactions[0]
+    const transaction2 = output.transactions[1]
+    const transaction3 = output.transactions[2]
 
     expect(transaction1.tags).toEqual([
       new Tag({ content: 'vacation', fromStack: true }),
@@ -73,9 +71,9 @@ poptag #europe
 poptag #vacation`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(5)
+    expect(output.transactions).toHaveLength(1)
 
-    const transaction = output.entries[2] as Transaction
+    const transaction = output.transactions[0]
     expect(transaction.tags).toEqual([
       new Tag({ content: 'vacation', fromStack: true }),
       new Tag({ content: 'europe', fromStack: true }),
@@ -105,11 +103,11 @@ poptag #business-expenses
 poptag #vacation`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(7)
+    expect(output.transactions).toHaveLength(3)
 
-    const transaction1 = output.entries[1] as Transaction
-    const transaction2 = output.entries[3] as Transaction
-    const transaction3 = output.entries[5] as Transaction
+    const transaction1 = output.transactions[0]
+    const transaction2 = output.transactions[1]
+    const transaction3 = output.transactions[2]
 
     expect(transaction1.tags).toEqual([
       new Tag({ content: 'vacation', fromStack: true }),
@@ -134,9 +132,9 @@ pushtag #vacation
 poptag #vacation`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(3)
+    expect(output.transactions).toHaveLength(1)
 
-    const transaction = output.entries[1] as Transaction
+    const transaction = output.transactions[0]
     expect(transaction.tags).toEqual([
       new Tag({ content: 'reimbursable', fromStack: false }),
       new Tag({ content: 'vacation', fromStack: true }),
@@ -153,9 +151,9 @@ poptag #trip
   Liabilities:CreditCard`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(3)
+    expect(output.transactions).toHaveLength(1)
 
-    const transaction = output.entries[2] as Transaction
+    const transaction = output.transactions[0]
     expect(transaction.tags).toEqual([])
   })
 
@@ -178,10 +176,10 @@ pushtag #q2-2014
 poptag #q2-2014`
 
     const output = parse(input)
-    expect(output.entries).toHaveLength(6)
+    expect(output.transactions).toHaveLength(2)
 
-    const transaction1 = output.entries[1] as Transaction
-    const transaction2 = output.entries[4] as Transaction
+    const transaction1 = output.transactions[0]
+    const transaction2 = output.transactions[1]
 
     expect(transaction1.tags).toEqual([
       new Tag({ content: 'q1-2014', fromStack: true }),
@@ -207,7 +205,7 @@ test('Newlines', () => {
 
 `
 
-  const output = parse(input, { skipBlanklines: false })
+  const output = parse(input)
   expect(output.entries).toHaveLength(9)
   expect(output.entries.map((e) => e.type)).toEqual([
     'blankline',
@@ -228,6 +226,5 @@ test('Commented out transaction', () => {
 ;  Assets:Checking  -8.99 USD`
 
   const output = parse(input)
-  expect(output.entries).toHaveLength(2)
-  expect(output.entries.map((e) => e.type)).toEqual(['comment', 'comment'])
+  expect(output.comment).toHaveLength(2)
 })
