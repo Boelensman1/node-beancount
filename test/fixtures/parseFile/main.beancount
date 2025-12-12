@@ -1,0 +1,7 @@
+option "title" "Main Ledger"
+
+include "accounts.beancount"
+
+2024-01-05 * "Grocery Store" "Weekly shopping"
+  Assets:Checking  -50.00 USD
+  Expenses:Food     50.00 USD

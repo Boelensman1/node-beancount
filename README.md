@@ -50,6 +50,22 @@ console.log(ParseResult.fromJSON(result))
 console.log(result.toFormattedString())
 ```
 
+## Parsing Files
+
+Use `parseFile` to parse a Beancount file directly from the filesystem:
+
+```typescript
+import { parseFile } from 'beancount'
+
+// Parse a single file
+const result = await parseFile('/path/to/ledger.beancount')
+
+// Parse with recursive includes - follows all `include` directives
+const result = await parseFile('/path/to/main.beancount', { recurse: true })
+```
+
+When `recurse: true`, the parser follows all `include` directives and merges the entries from included files into the result. Circular includes are handled gracefully (each file is only parsed once).
+
 ## CLI Usage
 
 The package includes a `beancount-format` command-line tool for formatting Beancount files with aligned currency columns.

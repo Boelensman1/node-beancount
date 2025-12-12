@@ -25,6 +25,7 @@
 
 // Primary parsing functionality
 export { parse, parseEntry } from './parse.mjs'
+export { parseFile, type ParseFileOptions } from './parseFile.mjs'
 
 // Generic parse result types
 export type {

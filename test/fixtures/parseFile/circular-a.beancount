@@ -1,0 +1,5 @@
+option "title" "Circular A"
+
+include "circular-b.beancount"
+
+2024-01-01 open Assets:A

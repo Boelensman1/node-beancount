@@ -1,0 +1,5 @@
+option "title" "Has Missing Include"
+
+include "nonexistent.beancount"
+
+2024-01-01 open Assets:Test

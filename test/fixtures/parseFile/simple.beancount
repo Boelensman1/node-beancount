@@ -1,0 +1,7 @@
+option "title" "Simple Ledger"
+
+2024-01-01 open Assets:Checking
+
+2024-01-05 * "Test" "Transaction"
+  Assets:Checking  100.00 USD
+  Income:Salary   -100.00 USD
