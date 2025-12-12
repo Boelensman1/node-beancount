@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill'
 import { describe, expect, test } from 'vitest'
 import { ParseResult } from '../../src/classes/ParseResult.mjs'
 import { parse } from '../../src/parse.mjs'
@@ -283,5 +284,171 @@ describe('ParseResult class', () => {
 
     expect(parsed2.entries).toHaveLength(parsed1.entries.length)
     expect(parsed2.toString()).toBe(parsed1.toString())
+  })
+
+  describe('accounts getter', () => {
+    test('returns empty set for empty entries', () => {
+      const result = new ParseResult([])
+      expect(result.accounts).toEqual(new Set())
+    })
+
+    test('extracts accounts from transactions', () => {
+      const input = `2023-04-05 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Groceries 100.00 USD`
+      const result = parse(input)
+      expect(result.accounts).toEqual(
+        new Set(['Assets:Checking', 'Expenses:Groceries']),
+      )
+    })
+
+    test('extracts accounts from open entries', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-01-01 open Assets:Savings USD`
+      const result = parse(input)
+      expect(result.accounts).toEqual(
+        new Set(['Assets:Checking', 'Assets:Savings']),
+      )
+    })
+
+    test('extracts accounts from close entries', () => {
+      const input = `2023-12-31 close Assets:Checking`
+      const result = parse(input)
+      expect(result.accounts).toEqual(new Set(['Assets:Checking']))
+    })
+
+    test('extracts accounts from balance entries', () => {
+      const input = `2023-06-15 balance Assets:Checking 1000.00 USD`
+      const result = parse(input)
+      expect(result.accounts).toEqual(new Set(['Assets:Checking']))
+    })
+
+    test('extracts accounts from note entries', () => {
+      const input = `2023-06-15 note Assets:Checking "Some note"`
+      const result = parse(input)
+      expect(result.accounts).toEqual(new Set(['Assets:Checking']))
+    })
+
+    test('extracts accounts from document entries', () => {
+      const input = `2023-06-15 document Assets:Checking "/path/to/doc.pdf"`
+      const result = parse(input)
+      expect(result.accounts).toEqual(new Set(['Assets:Checking']))
+    })
+
+    test('extracts both accounts from pad entries', () => {
+      const input = `2023-06-15 pad Assets:Checking Equity:Opening-Balances`
+      const result = parse(input)
+      expect(result.accounts).toEqual(
+        new Set(['Assets:Checking', 'Equity:Opening-Balances']),
+      )
+    })
+
+    test('returns unique accounts across multiple entry types', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-01-01 open Expenses:Groceries USD
+
+2023-04-05 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Groceries 100.00 USD
+
+2023-06-15 balance Assets:Checking 900.00 USD
+
+2023-12-31 close Assets:Checking`
+      const result = parse(input)
+      expect(result.accounts).toEqual(
+        new Set(['Assets:Checking', 'Expenses:Groceries']),
+      )
+    })
+
+    test('ignores entry types without accounts', () => {
+      const input = `option "title" "Test Ledger"
+plugin "beancount.plugins.auto"
+2023-01-01 event "location" "Home"
+2023-01-01 commodity USD
+2023-01-01 price USD 1.00 EUR`
+      const result = parse(input)
+      expect(result.accounts).toEqual(new Set())
+    })
+  })
+
+  describe('activeAccounts', () => {
+    test('returns empty set for empty entries', () => {
+      const result = new ParseResult([])
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(new Set())
+    })
+
+    test('returns account opened before date', () => {
+      const input = `2023-01-01 open Assets:Checking USD`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(
+        new Set(['Assets:Checking']),
+      )
+    })
+
+    test('returns account opened on exact date', () => {
+      const input = `2023-06-15 open Assets:Checking USD`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(
+        new Set(['Assets:Checking']),
+      )
+    })
+
+    test('does not return account opened after date', () => {
+      const input = `2023-12-01 open Assets:Checking USD`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(new Set())
+    })
+
+    test('does not return account closed before date', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-03-01 close Assets:Checking`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(new Set())
+    })
+
+    test('does not return account closed on exact date', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-06-15 close Assets:Checking`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(new Set())
+    })
+
+    test('returns account closed after date', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-12-31 close Assets:Checking`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(
+        new Set(['Assets:Checking']),
+      )
+    })
+
+    test('handles multiple accounts with various states', () => {
+      const input = `2023-01-01 open Assets:Checking USD
+2023-01-01 open Assets:Savings USD
+2023-01-01 open Assets:OldAccount USD
+2023-07-01 open Assets:NewAccount USD
+2023-03-01 close Assets:OldAccount`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(
+        new Set(['Assets:Checking', 'Assets:Savings']),
+      )
+    })
+
+    test('returns empty set when no open entries exist', () => {
+      const input = `2023-04-05 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Groceries 100.00 USD`
+      const result = parse(input)
+      const date = Temporal.PlainDate.from('2023-06-15')
+      expect(result.accountsActiveAt(date)).toEqual(new Set())
+    })
   })
 })

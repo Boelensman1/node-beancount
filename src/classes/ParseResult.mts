@@ -1,3 +1,4 @@
+import { Temporal } from '@js-temporal/polyfill'
 import { EntryType, entryTypeToClass } from '../entryTypeToClass.mjs'
 import { Entry } from './Entry.mjs'
 import { Posting } from './entryTypes/Transaction/Posting.mjs'
@@ -242,6 +243,80 @@ export class ParseResult {
     return this.entries.filter(
       (entry): entry is Blankline => entry.type === 'blankline',
     )
+  }
+
+  /**
+   * Gets all unique account names used across all entries.
+   * Extracts accounts from transactions (via postings), open, close,
+   * balance, pad, note, and document entries.
+   * @returns Set of unique account names
+   */
+  get accounts(): Set<string> {
+    const accountSet = new Set<string>()
+
+    for (const entry of this.entries) {
+      switch (entry.type) {
+        case 'transaction':
+          for (const posting of (entry as Transaction).postings) {
+            accountSet.add(posting.account)
+          }
+          break
+        case 'open':
+        case 'close':
+        case 'balance':
+        case 'note':
+        case 'document':
+          accountSet.add(
+            (entry as Open | Close | Balance | Note | Document).account,
+          )
+          break
+        case 'pad': {
+          const pad = entry as Pad
+          accountSet.add(pad.account)
+          accountSet.add(pad.accountPad)
+          break
+        }
+      }
+    }
+
+    return accountSet
+  }
+
+  /**
+   * Gets all accounts that are active (open and not yet closed) at a given date.
+   * An account is considered active if:
+   * - It has an open directive with date <= the given date
+   * - It either has no close directive, or the close directive date > the given date
+   *
+   * @param date - The date to check account status for
+   * @returns Set of account names that are active on the given date
+   */
+  accountsActiveAt(date: Temporal.PlainDate): Set<string> {
+    const openedAccounts = new Map<string, Temporal.PlainDate>()
+    const closedAccounts = new Map<string, Temporal.PlainDate>()
+
+    for (const entry of this.entries) {
+      if (entry.type === 'open') {
+        const open = entry as Open
+        openedAccounts.set(open.account, open.date)
+      } else if (entry.type === 'close') {
+        const close = entry as Close
+        closedAccounts.set(close.account, close.date)
+      }
+    }
+
+    const activeSet = new Set<string>()
+
+    for (const [account, openDate] of openedAccounts) {
+      if (Temporal.PlainDate.compare(openDate, date) <= 0) {
+        const closeDate = closedAccounts.get(account)
+        if (!closeDate || Temporal.PlainDate.compare(closeDate, date) > 0) {
+          activeSet.add(account)
+        }
+      }
+    }
+
+    return activeSet
   }
 
   /**
