@@ -6,7 +6,7 @@
 
 import fs from 'node:fs'
 import { parseArgs } from 'node:util'
-import { parse } from './parse.mjs'
+import { parseFile } from './parseFile.mjs'
 
 /**
  * Display help message
@@ -41,14 +41,14 @@ Examples:
  * @param write Whether to write the formatted content back to the file
  * @param currencyColumn Currency column number, or null to auto-calculate
  * @param force Wether to also format files with 0 entries, defaults to false
- * @returns true if successful, false if an error occurred
+ * @returns Resolves to true if successful, false if an error occurred
  */
-function formatFile(
+async function formatFile(
   filePath: string,
   write: boolean,
   currencyColumn: number | null,
   force = false,
-): boolean {
+): Promise<boolean> {
   try {
     // Check if path is a directory
     const stats = fs.statSync(filePath)
@@ -57,11 +57,8 @@ function formatFile(
       return false
     }
 
-    // Read file content
-    const content = fs.readFileSync(filePath, 'utf-8')
-
-    // Parse the beancount file
-    const parseResult = parse(content)
+    // Read and parse the beancount file
+    const parseResult = await parseFile(filePath)
 
     // check if we have any non-comment non-blankline entries
     if (
@@ -99,7 +96,7 @@ function formatFile(
 /**
  * Main CLI entry point
  */
-function main(): void {
+async function main(): Promise<void> {
   try {
     const { values, positionals } = parseArgs({
       args: process.argv.slice(2),
@@ -141,7 +138,7 @@ function main(): void {
     // Process each file
     let hadErrors = false
     for (const filePath of positionals) {
-      const success = formatFile(
+      const success = await formatFile(
         filePath,
         values.write ?? false,
         currencyColumn,
@@ -162,4 +159,6 @@ function main(): void {
 }
 
 // Run the CLI
-main()
+main().catch((err) => {
+  throw err
+})
