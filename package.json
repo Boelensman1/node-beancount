@@ -3,6 +3,7 @@
   "version": "0.0.29",
   "description": "Parse and work with Beancount accounting files in TypeScript with full type safety",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "import": "./build/src/main.mjs",
