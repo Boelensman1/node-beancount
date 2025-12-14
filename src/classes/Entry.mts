@@ -130,6 +130,16 @@ export abstract class Entry {
   ): Record<string, unknown> {
     return json
   }
+
+  /**
+   * Converts an entry to a JSON-serializable object.
+   * @returns A JSON-serializable representation of this entry
+   */
+  toJSON() {
+    return {
+      ...this,
+    }
+  }
 }
 
 /**

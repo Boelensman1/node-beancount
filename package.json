@@ -1,6 +1,6 @@
 {
   "name": "beancount",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Parse and work with Beancount accounting files in TypeScript with full type safety",
   "type": "module",
   "exports": {
