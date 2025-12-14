@@ -1,9 +1,11 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
 import { parse } from './parse.mjs'
 import { ParseResult } from './classes/ParseResult.mjs'
 import type { Entry } from './classes/Entry.mjs'
 import type { Include } from './classes/entryTypes/Include.mjs'
+import {
+  getDefaultFileSystemHelpers,
+  type FileSystemHelpers,
+} from './fileSystemHelpers.mjs'
 
 /**
  * Options for parsing a Beancount file.
@@ -11,7 +13,15 @@ import type { Include } from './classes/entryTypes/Include.mjs'
 export interface ParseFileOptions {
   /** When true, recursively parse files referenced by include directives */
   recurse?: boolean
+
+  /**
+   * File system helpers for reading files and handling paths.
+   * Auto-detected in Node.js environments. Required for browser/edge runtimes.
+   */
+  fs?: FileSystemHelpers
 }
+
+export type { FileSystemHelpers }
 
 /**
  * Parses a Beancount file from the filesystem.
@@ -21,7 +31,7 @@ export interface ParseFileOptions {
  * @returns A ParseResult containing all parsed entries
  *
  * @example
- * Basic usage:
+ * Basic usage (Node.js):
  * ```typescript
  * import { parseFile } from 'beancount'
  *
@@ -29,23 +39,76 @@ export interface ParseFileOptions {
  * ```
  *
  * @example
- * With recursive parsing of includes:
+ * With recursive parsing of includes (Node.js):
  * ```typescript
  * const result = await parseFile('/path/to/main.beancount', { recurse: true })
  * // All entries from included files are merged into the result
+ * ```
+ *
+ * @example
+ * Browser usage with fetch:
+ * ```typescript
+ * import { parseFile, type FileSystemHelpers } from 'beancount'
+ *
+ * const browserFS: FileSystemHelpers = {
+ *   readFile: async (path) => {
+ *     const response = await fetch(path)
+ *     return response.text()
+ *   },
+ *   resolvePath: (path) => new URL(path, window.location.origin).pathname,
+ *   resolveRelative: (base, rel) => {
+ *     const baseDir = base.substring(0, base.lastIndexOf('/') + 1)
+ *     return new URL(rel, window.location.origin + baseDir).pathname
+ *   },
+ *   dirname: (path) => path.substring(0, path.lastIndexOf('/')),
+ * }
+ *
+ * const result = await parseFile('/api/ledger.beancount', {
+ *   recurse: true,
+ *   fs: browserFS,
+ * })
+ * ```
+ *
+ * @example
+ * Deno usage:
+ * ```typescript
+ * import { parseFile, type FileSystemHelpers } from 'npm:beancount'
+ *
+ * const denoFS: FileSystemHelpers = {
+ *   readFile: async (path) => await Deno.readTextFile(path),
+ *   resolvePath: (path) => new URL(path, import.meta.url).pathname,
+ *   resolveRelative: (base, rel) => {
+ *     const baseDir = base.substring(0, base.lastIndexOf('/') + 1)
+ *     return baseDir + rel
+ *   },
+ *   dirname: (path) => path.substring(0, path.lastIndexOf('/')),
+ * }
+ *
+ * const result = await parseFile('./ledger.beancount', {
+ *   recurse: true,
+ *   fs: denoFS,
+ * })
  * ```
  */
 export const parseFile = async (
   filepath: string,
   options: ParseFileOptions = {},
 ): Promise<ParseResult> => {
-  const { recurse = false } = options
+  const { recurse = false, fs: customFS } = options
 
-  if (recurse) {
-    return parseFileRecursive(filepath, new Set())
+  // Get file system helpers (custom or default)
+  const fsHelpers = customFS ?? (await getDefaultFileSystemHelpers())
+  if (!fsHelpers) {
+    throw new Error(
+      'File system helpers are required. In non-Node.js environments, provide the "fs" option with readFile, resolvePath, resolveRelative, and dirname functions.',
+    )
   }
 
-  const content = await fs.readFile(filepath, 'utf-8')
+  if (recurse) {
+    return parseFileRecursive(filepath, new Set(), fsHelpers)
+  }
+
+  const content = await fsHelpers.readFile(filepath)
   return parse(content)
 }
 
@@ -53,13 +116,15 @@ export const parseFile = async (
  * Internal recursive parser that tracks visited files to prevent circular includes.
  * @param filepath - Path to the Beancount file to parse
  * @param visited - Set of already visited file paths (absolute)
+ * @param fsHelpers - File system helpers for reading files and handling paths
  * @returns A ParseResult containing all parsed entries
  */
 const parseFileRecursive = async (
   filepath: string,
   visited: Set<string>,
+  fsHelpers: FileSystemHelpers,
 ): Promise<ParseResult> => {
-  const absolutePath = path.resolve(filepath)
+  const absolutePath = fsHelpers.resolvePath(filepath)
 
   // Skip already visited files (circular include protection)
   if (visited.has(absolutePath)) {
@@ -68,17 +133,24 @@ const parseFileRecursive = async (
 
   visited.add(absolutePath)
 
-  const content = await fs.readFile(absolutePath, 'utf-8')
+  const content = await fsHelpers.readFile(absolutePath)
   const result = parse(content)
 
   const allEntries: Entry[] = []
-  const baseDir = path.dirname(absolutePath)
+  const baseDir = fsHelpers.dirname(absolutePath)
 
   for (const entry of result.entries) {
     if (entry.type === 'include') {
       const includeEntry = entry as Include
-      const includePath = path.resolve(baseDir, includeEntry.filename)
-      const includeResult = await parseFileRecursive(includePath, visited)
+      const includePath = fsHelpers.resolveRelative(
+        baseDir,
+        includeEntry.filename,
+      )
+      const includeResult = await parseFileRecursive(
+        includePath,
+        visited,
+        fsHelpers,
+      )
       allEntries.push(...includeResult.entries)
     } else {
       allEntries.push(entry)
