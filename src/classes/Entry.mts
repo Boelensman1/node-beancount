@@ -138,7 +138,7 @@ export abstract class Entry {
   toJSON() {
     return {
       ...this,
-    }
+    } as Record<string, unknown>
   }
 }
 

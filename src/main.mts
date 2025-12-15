@@ -26,6 +26,12 @@
 // Primary parsing functionality
 export { parse, parseEntry } from './parse.mjs'
 export {
+  deserializeEntry,
+  deserializeEntryFromString,
+  deserializeEntries,
+  deserializeEntriesFromString,
+} from './deserialize.mjs'
+export {
   parseFile,
   type ParseFileOptions,
   type FileSystemHelpers,

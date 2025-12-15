@@ -209,7 +209,7 @@ export class Transaction extends DateEntry {
     return {
       ...this,
       links: Array.from(this.links),
-    }
+    } as unknown as Record<string, unknown>
   }
 
   /**
