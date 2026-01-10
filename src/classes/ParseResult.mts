@@ -1,29 +1,29 @@
 import { Temporal } from '@js-temporal/polyfill'
-import { EntryType, entryTypeToClass } from '../entryTypeToClass.mjs'
-import { Entry } from './Entry.mjs'
-import { Posting } from './entryTypes/Transaction/Posting.mjs'
-import type { Transaction } from './entryTypes/Transaction/index.mjs'
-import type { Balance } from './entryTypes/Balance.mjs'
-import type { Close } from './entryTypes/Close.mjs'
-import type { Commodity } from './entryTypes/Commodity.mjs'
-import type { Custom } from './entryTypes/Custom.mjs'
-import type { Document } from './entryTypes/Document.mjs'
-import type { Event } from './entryTypes/Event.mjs'
-import type { Include } from './entryTypes/Include.mjs'
-import type { Note } from './entryTypes/Note.mjs'
-import type { Open } from './entryTypes/Open.mjs'
-import type { Option } from './entryTypes/Option.mjs'
-import type { Pad } from './entryTypes/Pad.mjs'
-import type { Plugin } from './entryTypes/Plugin.mjs'
-import type { Poptag } from './entryTypes/Poptag.mjs'
-import type { Price } from './entryTypes/Price.mjs'
-import type { Pushtag } from './entryTypes/Pushtag.mjs'
-import type { Query } from './entryTypes/Query.mjs'
-import type { Comment } from './entryTypes/Comment.mjs'
-import type { Blankline } from './entryTypes/Blankline.mjs'
+import { NodeType, nodeTypeToClass } from '../nodeTypeToClass.mjs'
+import { Node } from './Node.mjs'
+import { Posting } from './nodes/Transaction/Posting.mjs'
+import type { Transaction } from './nodes/Transaction/index.mjs'
+import type { Balance } from './nodes/Balance.mjs'
+import type { Close } from './nodes/Close.mjs'
+import type { Commodity } from './nodes/Commodity.mjs'
+import type { Custom } from './nodes/Custom.mjs'
+import type { Document } from './nodes/Document.mjs'
+import type { Event } from './nodes/Event.mjs'
+import type { Include } from './nodes/Include.mjs'
+import type { Note } from './nodes/Note.mjs'
+import type { Open } from './nodes/Open.mjs'
+import type { Option } from './nodes/Option.mjs'
+import type { Pad } from './nodes/Pad.mjs'
+import type { Plugin } from './nodes/Plugin.mjs'
+import type { Poptag } from './nodes/Poptag.mjs'
+import type { Price } from './nodes/Price.mjs'
+import type { Pushtag } from './nodes/Pushtag.mjs'
+import type { Query } from './nodes/Query.mjs'
+import type { Comment } from './nodes/Comment.mjs'
+import type { Blankline } from './nodes/Blankline.mjs'
 
 export interface ParseResultObj {
-  entries: { type: EntryType }[]
+  nodes: { type: NodeType }[]
 }
 
 /**
@@ -51,213 +51,189 @@ export interface CalculateCurrencyColumnOptions {
 }
 
 /**
- * Container class for parsed Beancount entries.
- * Provides methods for converting entries back to string format.
+ * Container class for the result of a parse.
+ * Provides methods for converting node back to string format.
  */
 export class ParseResult {
   /**
    * Creates a new ParseResult instance.
-   * @param entries - Array of parsed Entry objects
+   * @param nodes - Array of parsed nodes
    */
-  constructor(public entries: Entry[]) {}
+  constructor(public nodes: Node[]) {}
 
   /**
-   * Gets all transaction entries from the parsed entries.
-   * @returns Array of entries that are transactions
+   * Gets all transaction nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to transaction directives
    */
   get transactions(): Transaction[] {
-    return this.entries.filter(
-      (entry): entry is Transaction => entry.type === 'transaction',
+    return this.nodes.filter(
+      (node): node is Transaction => node.type === 'transaction',
     )
   }
 
   /**
-   * Gets all balance entries from the parsed entries.
-   * @returns Array of entries that are balance directives
+   * Gets all balance nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to balance directives
    */
   get balance(): Balance[] {
-    return this.entries.filter(
-      (entry): entry is Balance => entry.type === 'balance',
-    )
+    return this.nodes.filter((node): node is Balance => node.type === 'balance')
   }
 
   /**
-   * Gets all close entries from the parsed entries.
-   * @returns Array of entries that are close directives
+   * Gets all close nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to close directives
    */
   get close(): Close[] {
-    return this.entries.filter(
-      (entry): entry is Close => entry.type === 'close',
-    )
+    return this.nodes.filter((node): node is Close => node.type === 'close')
   }
 
   /**
-   * Gets all commodity entries from the parsed entries.
-   * @returns Array of entries that are commodity directives
+   * Gets all commodity nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to commodity directives
    */
   get commodity(): Commodity[] {
-    return this.entries.filter(
-      (entry): entry is Commodity => entry.type === 'commodity',
+    return this.nodes.filter(
+      (node): node is Commodity => node.type === 'commodity',
     )
   }
 
   /**
-   * Gets all custom entries from the parsed entries.
-   * @returns Array of entries that are custom directives
+   * Gets all custom nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to custom directives
    */
   get custom(): Custom[] {
-    return this.entries.filter(
-      (entry): entry is Custom => entry.type === 'custom',
-    )
+    return this.nodes.filter((node): node is Custom => node.type === 'custom')
   }
 
   /**
-   * Gets all document entries from the parsed entries.
-   * @returns Array of entries that are document directives
+   * Gets all document nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to document directives
    */
   get document(): Document[] {
-    return this.entries.filter(
-      (entry): entry is Document => entry.type === 'document',
+    return this.nodes.filter(
+      (node): node is Document => node.type === 'document',
     )
   }
 
   /**
-   * Gets all event entries from the parsed entries.
-   * @returns Array of entries that are event directives
+   * Gets all event nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to event directives
    */
   get event(): Event[] {
-    return this.entries.filter(
-      (entry): entry is Event => entry.type === 'event',
-    )
+    return this.nodes.filter((node): node is Event => node.type === 'event')
   }
 
   /**
-   * Gets all include entries from the parsed entries.
-   * @returns Array of entries that are include directives
+   * Gets all include nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to include directives
    */
   get include(): Include[] {
-    return this.entries.filter(
-      (entry): entry is Include => entry.type === 'include',
-    )
+    return this.nodes.filter((node): node is Include => node.type === 'include')
   }
 
   /**
-   * Gets all note entries from the parsed entries.
-   * @returns Array of entries that are note directives
+   * Gets all note nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to note directives
    */
   get note(): Note[] {
-    return this.entries.filter((entry): entry is Note => entry.type === 'note')
+    return this.nodes.filter((node): node is Note => node.type === 'note')
   }
 
   /**
-   * Gets all open entries from the parsed entries.
-   * @returns Array of entries that are open directives
+   * Gets all open nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to open directives
    */
   get open(): Open[] {
-    return this.entries.filter((entry): entry is Open => entry.type === 'open')
+    return this.nodes.filter((node): node is Open => node.type === 'open')
   }
 
   /**
-   * Gets all option entries from the parsed entries.
-   * @returns Array of entries that are option directives
+   * Gets all option nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to option directives
    */
   get option(): Option[] {
-    return this.entries.filter(
-      (entry): entry is Option => entry.type === 'option',
-    )
+    return this.nodes.filter((node): node is Option => node.type === 'option')
   }
 
   /**
-   * Gets all pad entries from the parsed entries.
-   * @returns Array of entries that are pad directives
+   * Gets all pad nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to pad directives
    */
   get pad(): Pad[] {
-    return this.entries.filter((entry): entry is Pad => entry.type === 'pad')
+    return this.nodes.filter((node): node is Pad => node.type === 'pad')
   }
 
   /**
-   * Gets all plugin entries from the parsed entries.
-   * @returns Array of entries that are plugin directives
+   * Gets all plugin nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to plugin directives
    */
   get plugin(): Plugin[] {
-    return this.entries.filter(
-      (entry): entry is Plugin => entry.type === 'plugin',
-    )
+    return this.nodes.filter((node): node is Plugin => node.type === 'plugin')
   }
 
   /**
-   * Gets all poptag entries from the parsed entries.
-   * @returns Array of entries that are poptag directives
+   * Gets all poptag nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to poptag directives
    */
   get poptag(): Poptag[] {
-    return this.entries.filter(
-      (entry): entry is Poptag => entry.type === 'poptag',
-    )
+    return this.nodes.filter((node): node is Poptag => node.type === 'poptag')
   }
 
   /**
-   * Gets all price entries from the parsed entries.
-   * @returns Array of entries that are price directives
+   * Gets all price nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to price directives
    */
   get price(): Price[] {
-    return this.entries.filter(
-      (entry): entry is Price => entry.type === 'price',
-    )
+    return this.nodes.filter((node): node is Price => node.type === 'price')
   }
 
   /**
-   * Gets all pushtag entries from the parsed entries.
-   * @returns Array of entries that are pushtag directives
+   * Gets all pushtag nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to pushtag directives
    */
   get pushtag(): Pushtag[] {
-    return this.entries.filter(
-      (entry): entry is Pushtag => entry.type === 'pushtag',
-    )
+    return this.nodes.filter((node): node is Pushtag => node.type === 'pushtag')
   }
 
   /**
-   * Gets all query entries from the parsed entries.
-   * @returns Array of entries that are query directives
+   * Gets all query nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to query directives
    */
   get query(): Query[] {
-    return this.entries.filter(
-      (entry): entry is Query => entry.type === 'query',
-    )
+    return this.nodes.filter((node): node is Query => node.type === 'query')
   }
 
   /**
-   * Gets all comment entries from the parsed entries.
-   * @returns Array of entries that are comments
+   * Gets all comment nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to a comments
    */
   get comment(): Comment[] {
-    return this.entries.filter(
-      (entry): entry is Comment => entry.type === 'comment',
-    )
+    return this.nodes.filter((node): node is Comment => node.type === 'comment')
   }
 
   /**
-   * Gets all blankline entries from the parsed entries.
-   * @returns Array of entries that are blank lines
+   * Gets all blankline nodes from the parsed nodes.
+   * @returns Array of nodes that correspond to a blank line
    */
   get blankline(): Blankline[] {
-    return this.entries.filter(
-      (entry): entry is Blankline => entry.type === 'blankline',
+    return this.nodes.filter(
+      (node): node is Blankline => node.type === 'blankline',
     )
   }
 
   /**
-   * Gets all unique account names used across all entries.
+   * Gets all unique account names used across all directives.
    * Extracts accounts from transactions (via postings), open, close,
-   * balance, pad, note, and document entries.
+   * balance, pad, note, and document nodes.
    * @returns Set of unique account names
    */
   get accounts(): Set<string> {
     const accountSet = new Set<string>()
 
-    for (const entry of this.entries) {
-      switch (entry.type) {
+    for (const node of this.nodes) {
+      switch (node.type) {
         case 'transaction':
-          for (const posting of (entry as Transaction).postings) {
+          for (const posting of (node as Transaction).postings) {
             accountSet.add(posting.account)
           }
           break
@@ -267,11 +243,11 @@ export class ParseResult {
         case 'note':
         case 'document':
           accountSet.add(
-            (entry as Open | Close | Balance | Note | Document).account,
+            (node as Open | Close | Balance | Note | Document).account,
           )
           break
         case 'pad': {
-          const pad = entry as Pad
+          const pad = node as Pad
           accountSet.add(pad.account)
           accountSet.add(pad.accountPad)
           break
@@ -295,12 +271,12 @@ export class ParseResult {
     const openedAccounts = new Map<string, Temporal.PlainDate>()
     const closedAccounts = new Map<string, Temporal.PlainDate>()
 
-    for (const entry of this.entries) {
-      if (entry.type === 'open') {
-        const open = entry as Open
+    for (const node of this.nodes) {
+      if (node.type === 'open') {
+        const open = node as Open
         openedAccounts.set(open.account, open.date)
-      } else if (entry.type === 'close') {
-        const close = entry as Close
+      } else if (node.type === 'close') {
+        const close = node as Close
         closedAccounts.set(close.account, close.date)
       }
     }
@@ -320,26 +296,24 @@ export class ParseResult {
   }
 
   /**
-   * Converts all entries to their string representation.
-   * Each entry is converted using its toString() method and joined with newlines.
+   * Converts all nodes to their string representation.
+   * Each node is converted using its toString() method and joined with newlines.
    * @returns The complete Beancount file content as a string
    */
   toString() {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    return this.entries.map((e) => e.toString()).join('\n')
+    return this.nodes.map((e) => e.toString()).join('\n')
   }
 
   /**
-   * Converts all entries to a formatted string with aligned columns.
-   * Uses each entry's toFormattedString() method for consistent formatting.
+   * Converts all nodes to a formatted string with aligned columns.
+   * Uses each node's toFormattedString() method for consistent formatting.
    * @param formatOptions - Formatting options
    *
    * @returns The formatted Beancount file content as a string
    */
   toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
-    return this.entries
-      .map((e) => e.toFormattedString(formatOptions))
-      .join('\n')
+    return this.nodes.map((e) => e.toFormattedString(formatOptions)).join('\n')
   }
 
   /**
@@ -356,28 +330,28 @@ export class ParseResult {
 
   /**
    * Creates a ParseResult instance from a plain JavaScript object.
-   * Deserializes each entry by mapping it to the appropriate Entry class based on its type.
+   * Deserializes each node by mapping it to the appropriate Node class based on its type.
    *
    * @param obj - Plain object representation of a ParseResult
-   * @returns A new ParseResult instance with deserialized entries
-   * @throws {Error} If an entry has an unknown type with no corresponding entry class
+   * @returns A new ParseResult instance with deserialized nodes
+   * @throws {Error} If an node has an unknown type with no corresponding node class
    * @remarks **Warning:** No validation is performed on the input object. We assume the object is valid and well-formed.
    */
   static fromJSONData(obj: ParseResultObj) {
-    const objEntries = obj.entries
-    const entries = objEntries.map((objEntry) => {
-      const { type } = objEntry
-      const EntryClass = entryTypeToClass[type]
-      if (!EntryClass) {
-        throw new Error(`No entryclass found for type ${type}`)
+    const nodeObjects = obj.nodes
+    const nodes = nodeObjects.map((nodeObj) => {
+      const { type } = nodeObj
+      const NodeClass = nodeTypeToClass[type]
+      if (!NodeClass) {
+        throw new Error(`No class found for type ${type} while creating nodes`)
       }
-      // Type assertion needed because TypeScript can't verify that all entry classes
+      // Type assertion needed because TypeScript can't verify that all node classes
       // in the union type have compatible constructor signatures
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return (EntryClass as any).fromJSONData(objEntry) as Entry
+      return (NodeClass as any).fromJSONData(nodeObj) as Node
     })
 
-    return new ParseResult(entries)
+    return new ParseResult(nodes)
   }
 
   /**
@@ -424,10 +398,10 @@ export class ParseResult {
       return defaultFormatOptions.currencyColumn
     }
 
-    // Extract all postings
+    // Extract all postings from the transactions
     const allPostings: Posting[] = []
-    for (const entry of transactions) {
-      allPostings.push(...entry.postings)
+    for (const transaction of transactions) {
+      allPostings.push(...transaction.postings)
     }
 
     // Edge case: No postings

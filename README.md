@@ -14,7 +14,7 @@ npm install beancount
 
 - **Full Beancount Support** - All directives supported: transactions, open/close, balance, pad, note, document, price, event, query, custom, commodity, include, option, plugin, pushtag/poptag
 - **Full Transaction Support** - Tags, links, metadata, costs, price annotations, and postings
-- **Type-Safe** - Complete TypeScript types for all entries and components
+- **Type-Safe** - Complete TypeScript types
 - **Platform Agnostic** - Works in Node.js, browsers, Deno, and other JavaScript runtimes
 - **Round-Trip Parsing** - Parse to objects and serialize back to text
 - **Recursive File Parsing** - Option to automatically follow and merge `include` directives with circular reference protection
@@ -68,7 +68,7 @@ const result = await parseFile('/path/to/ledger.beancount')
 const result = await parseFile('/path/to/main.beancount', { recurse: true })
 ```
 
-When `recurse: true`, the parser follows all `include` directives and merges the entries from included files into the result. Circular includes are handled gracefully (each file is only parsed once).
+When `recurse: true`, the parser follows all `include` directives and merges the directives from included files into the result. Circular includes are handled gracefully (each file is only parsed once).
 
 ## Browser Usage
 

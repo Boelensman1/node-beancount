@@ -2,28 +2,24 @@ import { Temporal } from '@js-temporal/polyfill'
 import { describe, expect, test } from 'vitest'
 import { ParseResult } from '../../src/classes/ParseResult.mjs'
 import { parse } from '../../src/parse.mjs'
-import {
-  Transaction,
-  Open,
-  Close,
-} from '../../src/classes/entryTypes/index.mjs'
+import { Transaction, Open, Close } from '../../src/classes/nodes/index.mjs'
 
 describe('ParseResult class', () => {
   describe('constructor', () => {
     test('creates ParseResult with empty array', () => {
       const result = new ParseResult([])
-      expect(result.entries).toEqual([])
-      expect(result.entries).toHaveLength(0)
+      expect(result.nodes).toEqual([])
+      expect(result.nodes).toHaveLength(0)
     })
   })
 
   describe('toString()', () => {
-    test('returns empty string for empty entries', () => {
+    test('returns empty string when no nodes', () => {
       const result = new ParseResult([])
       expect(result.toString()).toBe('')
     })
 
-    test('converts single entry to string', () => {
+    test('converts single node to string', () => {
       const transactionStr = `2023-04-05 * "Test Payee" "Test Narration"
   Assets:Checking -100.00 USD
   Expenses:Groceries 100.00 USD`
@@ -32,7 +28,7 @@ describe('ParseResult class', () => {
       expect(result.toString()).toBe(transactionStr)
     })
 
-    test('converts multiple entries to string with newline separation', () => {
+    test('converts multiple nodes to string with newline separation', () => {
       const openStr = '2023-01-01 open Assets:Checking'
       const transactionStr = `2023-04-05 * "Test" "Transaction"
   Assets:Checking 100.00 USD
@@ -61,11 +57,11 @@ describe('ParseResult class', () => {
       const stringified = parsed1.toString()
       const parsed2 = parse(stringified)
 
-      expect(parsed2.entries).toHaveLength(parsed1.entries.length)
+      expect(parsed2.nodes).toHaveLength(parsed1.nodes.length)
       expect(parsed2.toString()).toBe(parsed1.toString())
     })
 
-    test('preserves blank lines when included in entries', () => {
+    test('preserves blank lines when included in source', () => {
       const input = `2023-01-01 open Assets:Checking
 
 
@@ -77,11 +73,11 @@ describe('ParseResult class', () => {
       const parsed = parse(input)
       const output = parsed.toString()
 
-      // Count blank line entries
-      const blanklineCount = parsed.entries.filter(
+      // Count blank line nodes
+      const blanklineCount = parsed.nodes.filter(
         (e) => e.type === 'blankline',
       ).length
-      expect(blanklineCount).toBe(3) // Three blank lines between entries
+      expect(blanklineCount).toBe(3) // Three blank lines between nodes
 
       // Verify toString preserves structure
       expect(output.split('\n').filter((line) => line === '')).toHaveLength(
@@ -113,12 +109,12 @@ describe('ParseResult class', () => {
   })
 
   describe('toFormattedString()', () => {
-    test('returns empty string for empty entries', () => {
+    test('returns empty string when no nodes', () => {
       const result = new ParseResult([])
       expect(result.toFormattedString()).toBe('')
     })
 
-    test('formats single entry with currency column alignment', () => {
+    test('formats single node with currency column alignment', () => {
       const transactionStr = `2023-04-05 * "Test"
   Assets:Checking 100.00 USD`
       const transaction = Transaction.fromString(transactionStr)
@@ -130,8 +126,8 @@ describe('ParseResult class', () => {
       expect(formatted).toContain('100.00 USD')
     })
 
-    test('formats multiple entries with newline separation', () => {
-      const entries = [
+    test('formats multiple nodes with newline separation', () => {
+      const nodes = [
         Open.fromString('2023-01-01 open Assets:Checking USD'),
         Transaction.fromString(
           `2023-04-05 * "Test"
@@ -141,7 +137,7 @@ describe('ParseResult class', () => {
         Close.fromString('2023-12-31 close Assets:Checking'),
       ]
 
-      const result = new ParseResult(entries)
+      const result = new ParseResult(nodes)
       const formatted = result.toFormattedString()
 
       const lines = formatted.split('\n')
@@ -218,7 +214,7 @@ describe('ParseResult class', () => {
       expect(formatted).toContain('2023-12-31 close Assets:Checking')
     })
 
-    test('handles entries with comments', () => {
+    test('handles nodes with comments', () => {
       const input = `2023-04-05 * "Test" "Transaction" ; inline comment
   Assets:Checking 100.00 USD ; posting comment
   Income:Salary -100.00 USD`
@@ -240,7 +236,7 @@ describe('ParseResult class', () => {
       expect(result).toBeInstanceOf(ParseResult)
     })
 
-    test('ParseResult from parse() has correct entries', () => {
+    test('ParseResult from parse() has correct nodes', () => {
       const input = `2023-01-01 open Assets:Checking USD
 
 2023-04-05 * "Test"
@@ -252,19 +248,19 @@ describe('ParseResult class', () => {
       expect(result.transactions).toHaveLength(1)
     })
 
-    test('can manipulate ParseResult entries array', () => {
+    test('can manipulate ParseResult nodes array', () => {
       const input = `2023-01-01 open Assets:Checking`
       const result = parse(input)
 
-      // Add an entry
+      // Add a node
       const newTransaction = Transaction.fromString(
         `2023-04-05 * "New"
   Assets:Checking 100.00 USD
   Income:Salary -100.00 USD`,
       )
-      result.entries.push(newTransaction)
+      result.nodes.push(newTransaction)
 
-      expect(result.entries).toHaveLength(2)
+      expect(result.nodes).toHaveLength(2)
       expect(result.toString()).toContain('2023-01-01 open Assets:Checking')
       expect(result.toString()).toContain('2023-04-05 * "New"')
     })
@@ -282,12 +278,12 @@ describe('ParseResult class', () => {
     const parsed1 = parse(input)
     const parsed2 = ParseResult.fromJSON(JSON.stringify(parsed1))
 
-    expect(parsed2.entries).toHaveLength(parsed1.entries.length)
+    expect(parsed2.nodes).toHaveLength(parsed1.nodes.length)
     expect(parsed2.toString()).toBe(parsed1.toString())
   })
 
   describe('accounts getter', () => {
-    test('returns empty set for empty entries', () => {
+    test('returns empty set for empty nodes', () => {
       const result = new ParseResult([])
       expect(result.accounts).toEqual(new Set())
     })
@@ -302,7 +298,7 @@ describe('ParseResult class', () => {
       )
     })
 
-    test('extracts accounts from open entries', () => {
+    test('extracts accounts from open nodes', () => {
       const input = `2023-01-01 open Assets:Checking USD
 2023-01-01 open Assets:Savings USD`
       const result = parse(input)
@@ -311,31 +307,31 @@ describe('ParseResult class', () => {
       )
     })
 
-    test('extracts accounts from close entries', () => {
+    test('extracts accounts from close nodes', () => {
       const input = `2023-12-31 close Assets:Checking`
       const result = parse(input)
       expect(result.accounts).toEqual(new Set(['Assets:Checking']))
     })
 
-    test('extracts accounts from balance entries', () => {
+    test('extracts accounts from balance nodes', () => {
       const input = `2023-06-15 balance Assets:Checking 1000.00 USD`
       const result = parse(input)
       expect(result.accounts).toEqual(new Set(['Assets:Checking']))
     })
 
-    test('extracts accounts from note entries', () => {
+    test('extracts accounts from note nodes', () => {
       const input = `2023-06-15 note Assets:Checking "Some note"`
       const result = parse(input)
       expect(result.accounts).toEqual(new Set(['Assets:Checking']))
     })
 
-    test('extracts accounts from document entries', () => {
+    test('extracts accounts from document nodes', () => {
       const input = `2023-06-15 document Assets:Checking "/path/to/doc.pdf"`
       const result = parse(input)
       expect(result.accounts).toEqual(new Set(['Assets:Checking']))
     })
 
-    test('extracts both accounts from pad entries', () => {
+    test('extracts both accounts from pad nodes', () => {
       const input = `2023-06-15 pad Assets:Checking Equity:Opening-Balances`
       const result = parse(input)
       expect(result.accounts).toEqual(
@@ -343,7 +339,7 @@ describe('ParseResult class', () => {
       )
     })
 
-    test('returns unique accounts across multiple entry types', () => {
+    test('returns unique accounts across multiple node types', () => {
       const input = `2023-01-01 open Assets:Checking USD
 2023-01-01 open Expenses:Groceries USD
 
@@ -360,7 +356,7 @@ describe('ParseResult class', () => {
       )
     })
 
-    test('ignores entry types without accounts', () => {
+    test('ignores nodes without accounts', () => {
       const input = `option "title" "Test Ledger"
 plugin "beancount.plugins.auto"
 2023-01-01 event "location" "Home"
@@ -372,7 +368,7 @@ plugin "beancount.plugins.auto"
   })
 
   describe('activeAccounts', () => {
-    test('returns empty set for empty entries', () => {
+    test('returns empty set when no nodes', () => {
       const result = new ParseResult([])
       const date = Temporal.PlainDate.from('2023-06-15')
       expect(result.accountsActiveAt(date)).toEqual(new Set())
@@ -442,7 +438,7 @@ plugin "beancount.plugins.auto"
       )
     })
 
-    test('returns empty set when no open entries exist', () => {
+    test('returns empty set when no open nodes exist', () => {
       const input = `2023-04-05 * "Test"
   Assets:Checking -100.00 USD
   Expenses:Groceries 100.00 USD`

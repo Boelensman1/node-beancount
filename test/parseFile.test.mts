@@ -11,7 +11,7 @@ describe('parseFile', () => {
     test('parses a simple file', async () => {
       const result = await parseFile(path.join(fixturesDir, 'simple.beancount'))
 
-      expect(result.entries.length).toBeGreaterThan(0)
+      expect(result.nodes.length).toBeGreaterThan(0)
       expect(result.option).toHaveLength(1)
       expect(result.open).toHaveLength(1)
       expect(result.transactions).toHaveLength(1)
@@ -20,12 +20,12 @@ describe('parseFile', () => {
     test('parses a file with include directive but does not follow it', async () => {
       const result = await parseFile(path.join(fixturesDir, 'main.beancount'))
 
-      // Should contain the include entry but not its contents
+      // Should contain the include directive but not its contents
       expect(result.include).toHaveLength(1)
-      const includeEntry = result.include[0]
-      expect(includeEntry.filename).toBe('accounts.beancount')
+      const includeNode = result.include[0]
+      expect(includeNode.filename).toBe('accounts.beancount')
 
-      // Should only have entries from main.beancount, not accounts.beancount
+      // Should only have nodes from main.beancount, not accounts.beancount
       expect(result.option).toHaveLength(1)
       expect(result.open).toHaveLength(0) // open directives are in accounts.beancount
       expect(result.transactions).toHaveLength(1)
@@ -55,17 +55,17 @@ describe('parseFile', () => {
   })
 
   describe('with recurse: true', () => {
-    test('follows include directives and merges entries', async () => {
+    test('follows include directives and merges nodes', async () => {
       const result = await parseFile(path.join(fixturesDir, 'main.beancount'), {
         recurse: true,
       })
 
-      // Should have merged entries from both files
+      // Should have merged nodes from both files
       expect(result.option).toHaveLength(1) // from main.beancount
       expect(result.open).toHaveLength(4) // from accounts.beancount
       expect(result.transactions).toHaveLength(1) // from main.beancount
 
-      // Include entry itself should not be in the result (replaced by its contents)
+      // Include directive itself should not be in the result (replaced by its contents)
       expect(result.include).toHaveLength(0)
     })
 
@@ -86,7 +86,7 @@ describe('parseFile', () => {
         { recurse: true },
       )
 
-      // Should have entries from both files, but each file only once
+      // Should have nodes from both files, but each file only once
       expect(result.option).toHaveLength(2) // one from each file
       expect(result.open).toHaveLength(2) // Assets:A and Assets:B
     })

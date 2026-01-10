@@ -13,14 +13,14 @@ const t = (
     case 1:
       expect(genericParse(splitInput).type).toEqual(expected[0])
       return
-    // checking type and header
+    // only checking type and header
     case 2: {
       const result = genericParse(splitInput)
       expect(result.type).toEqual(expected[0])
       expect(result.header).toEqual(expected[1])
       return
     }
-    // non transaction entries
+    // non transaction nodes
     case 3:
       expect(genericParse(splitInput)).toEqual({
         type: expected[0],
@@ -29,7 +29,7 @@ const t = (
       })
       return
     case 4:
-      // transaction
+      // transaction node
       expect(genericParse(splitInput)).toEqual({
         type: expected[0],
         header: expected[1],
@@ -42,7 +42,7 @@ const t = (
   }
 }
 
-test('Entry types with dates', () => {
+test('Node types with dates', () => {
   t('2014-05-01 close Liabilities:CreditCard:CapitalOne', [
     'close',
     'Liabilities:CreditCard:CapitalOne',
@@ -56,7 +56,7 @@ test('Entry types with dates', () => {
   ])
 })
 
-test('Entry types without dates', () => {
+test('Node types without dates', () => {
   t('option "operating_currency" "USD"', [
     'option',
     '"operating_currency" "USD"',
@@ -70,7 +70,7 @@ test('Entry types without dates', () => {
   ])
 })
 
-test('Entry type without date, with comment', () => {
+test('Node type without date, with comment', () => {
   t('option "operating_currency" "USD" ;test', [
     'option',
     '"operating_currency" "USD"',
@@ -78,7 +78,7 @@ test('Entry type without date, with comment', () => {
   ])
 })
 
-test('Transaction entries', () => {
+test('Transaction nodes', () => {
   t(
     `2014-05-05 txn "Cafe Mogador" "Lamb tagine with wine"
   BODY`,
@@ -125,7 +125,7 @@ test('Transaction entries', () => {
   )
 })
 
-test('Entry with metadata', () => {
+test('Node with metadata', () => {
   t(
     `
 2014-12-26 balance Liabilities:US:CreditCard -3492.02 USD
@@ -146,7 +146,7 @@ test('Entry with metadata', () => {
   )
 })
 
-test('Entry with multiline first line', () => {
+test('Node with multiline first line', () => {
   t(
     `
 2014-07-09 query "france-balances" "
@@ -165,7 +165,7 @@ test('Entry with multiline first line', () => {
   )
 })
 
-test('Entry with multiline first line and metadata', () => {
+test('Node with multiline first line and metadata', () => {
   t(
     `2014-07-09 query "france-balances" "
 
@@ -210,25 +210,25 @@ test('Comment line with embedded date and space', () => {
   t(';;2024-04-10.import 2.csv', ['comment', ';;2024-04-10.import 2.csv'])
 })
 
-test('Rejects invalid entry type with date', () => {
-  // Invalid entry types should be treated as comments
+test('Rejects invalid node type with date', () => {
+  // Invalid node types should be treated as comments
   const result1 = genericParse(
     stringAwareSplitLine('2024-01-01 invalid_type "data"'),
   )
   expect(result1.type).toBe('comment')
   expect(result1.header).toBe('2024-01-01 invalid_type "data"')
-  expect(result1.fake).toBe(true)
+  expect(result1.synthetic).toBe(true)
 
   const result2 = genericParse(
     stringAwareSplitLine('2024-01-01 balanc "typo in balance"'),
   )
   expect(result2.type).toBe('comment')
   expect(result2.header).toBe('2024-01-01 balanc "typo in balance"')
-  expect(result2.fake).toBe(true)
+  expect(result2.synthetic).toBe(true)
 })
 
-test('Accepts all valid dated entry types', () => {
-  const validDatedEntries = [
+test('Accepts all valid dated node types', () => {
+  const validDatedNodes = [
     '2024-01-01 balance Assets:Checking 100 USD',
     '2024-01-01 close Assets:Checking',
     '2024-01-01 commodity USD',
@@ -243,26 +243,26 @@ test('Accepts all valid dated entry types', () => {
     '2024-01-01 * "Payee" "Narration"',
   ]
 
-  for (const entry of validDatedEntries) {
-    const result = genericParse(stringAwareSplitLine(entry))
-    // Should not be a fake entry (comment or blankline)
-    expect(result.fake).toBeUndefined()
+  for (const node of validDatedNodes) {
+    const result = genericParse(stringAwareSplitLine(node))
+    // Should not be a synthetic node
+    expect(result.synthetic).toBeUndefined()
   }
 })
 
-test('Rejects entry type as prefix of another word', () => {
+test('Rejects node type as prefix of another word', () => {
   // Word boundary should prevent partial matches
   const result1 = genericParse(
     stringAwareSplitLine('2024-01-01 option-test "value"'),
   )
   expect(result1.type).toBe('comment')
-  expect(result1.fake).toBe(true)
+  expect(result1.synthetic).toBe(true)
 
   const result2 = genericParse(
     stringAwareSplitLine('2024-01-01 balance_old Assets:Checking'),
   )
   expect(result2.type).toBe('comment')
-  expect(result2.fake).toBe(true)
+  expect(result2.synthetic).toBe(true)
 })
 
 test('Accepts transaction variations', () => {
@@ -273,9 +273,9 @@ test('Accepts transaction variations', () => {
     '2024-01-01 txn "payee" "narration"',
   ]
 
-  for (const entry of txnVariations) {
-    const result = genericParse(stringAwareSplitLine(entry))
+  for (const node of txnVariations) {
+    const result = genericParse(stringAwareSplitLine(node))
     expect(result.type).toBe('transaction')
-    expect(result.fake).toBeUndefined()
+    expect(result.synthetic).toBeUndefined()
   }
 })

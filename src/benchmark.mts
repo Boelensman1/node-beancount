@@ -37,4 +37,4 @@ console.log(
   `Average throughput: ${(fileSizeKB / avgDurationSeconds / 1000).toFixed(2)} MB/s`,
 )
 console.log('---')
-console.log(`Parsed ${lastResult.entries.length} items`)
+console.log(`Parsed ${lastResult.nodes.length} items`)

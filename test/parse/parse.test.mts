@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { parse } from '../../src/parse.mjs'
-import { Tag } from '../../src/classes/entryTypes/Transaction/Tag.mjs'
+import { Tag } from '../../src/classes/nodes/Transaction/Tag.mjs'
 
 describe('The Tag Stack works', () => {
-  test('Single entry, single stack', () => {
+  test('Single node, single stack', () => {
     const input = `
 pushtag #berlin-trip-2014
 
@@ -22,7 +22,7 @@ poptag #berlin-trip-2014`
     ])
   })
 
-  test('Multiple entries with same tag', () => {
+  test('Multiple nodes with same tag', () => {
     const input = `
 pushtag #vacation
 
@@ -206,8 +206,8 @@ test('Newlines', () => {
 `
 
   const output = parse(input)
-  expect(output.entries).toHaveLength(9)
-  expect(output.entries.map((e) => e.type)).toEqual([
+  expect(output.nodes).toHaveLength(9)
+  expect(output.nodes.map((e) => e.type)).toEqual([
     'blankline',
     'transaction',
     'blankline',

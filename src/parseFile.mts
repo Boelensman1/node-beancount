@@ -1,7 +1,7 @@
 import { parse } from './parse.mjs'
 import { ParseResult } from './classes/ParseResult.mjs'
-import type { Entry } from './classes/Entry.mjs'
-import type { Include } from './classes/entryTypes/Include.mjs'
+import type { Node } from './classes/Node.mjs'
+import type { Include } from './classes/nodes/Include.mjs'
 import {
   getDefaultFileSystemHelpers,
   type FileSystemHelpers,
@@ -28,7 +28,7 @@ export type { FileSystemHelpers }
  *
  * @param filepath - Path to the Beancount file to parse
  * @param options - Parsing options
- * @returns A ParseResult containing all parsed entries
+ * @returns A ParseResult containing all parsed nodes
  *
  * @example
  * Basic usage (Node.js):
@@ -42,7 +42,7 @@ export type { FileSystemHelpers }
  * With recursive parsing of includes (Node.js):
  * ```typescript
  * const result = await parseFile('/path/to/main.beancount', { recurse: true })
- * // All entries from included files are merged into the result
+ * // All nodes from included files are merged into the result
  * ```
  *
  * @example
@@ -117,7 +117,7 @@ export const parseFile = async (
  * @param filepath - Path to the Beancount file to parse
  * @param visited - Set of already visited file paths (absolute)
  * @param fsHelpers - File system helpers for reading files and handling paths
- * @returns A ParseResult containing all parsed entries
+ * @returns A ParseResult containing all parsed nodes
  */
 const parseFileRecursive = async (
   filepath: string,
@@ -136,26 +136,26 @@ const parseFileRecursive = async (
   const content = await fsHelpers.readFile(absolutePath)
   const result = parse(content)
 
-  const allEntries: Entry[] = []
+  const allNodes: Node[] = []
   const baseDir = fsHelpers.dirname(absolutePath)
 
-  for (const entry of result.entries) {
-    if (entry.type === 'include') {
-      const includeEntry = entry as Include
+  for (const node of result.nodes) {
+    if (node.type === 'include') {
+      const includeNode = node as Include
       const includePath = fsHelpers.resolveRelative(
         baseDir,
-        includeEntry.filename,
+        includeNode.filename,
       )
       const includeResult = await parseFileRecursive(
         includePath,
         visited,
         fsHelpers,
       )
-      allEntries.push(...includeResult.entries)
+      allNodes.push(...includeResult.nodes)
     } else {
-      allEntries.push(entry)
+      allNodes.push(node)
     }
   }
 
-  return new ParseResult(allEntries)
+  return new ParseResult(allNodes)
 }

@@ -1,105 +1,105 @@
-import { Entry } from './classes/Entry.mjs'
-import { entryTypeToClass, type EntryType } from './entryTypeToClass.mjs'
+import { Node } from './classes/Node.mjs'
+import { nodeTypeToClass, type NodeType } from './nodeTypeToClass.mjs'
 
 /**
- * Deserializes a single entry from its JSON representation.
+ * Deserializes a single node from its JSON representation.
  *
  * This function takes a plain JavaScript object (typically from JSON.parse)
- * and reconstructs the appropriate Entry subclass instance. It validates
+ * and reconstructs the appropriate Node subclass instance. It validates
  * the input and provides helpful error messages for common issues.
  *
- * @param entryData - Plain object containing entry data with a 'type' field
- * @returns An Entry instance of the appropriate subclass
- * @throws {Error} If the entry data is invalid:
+ * @param nodeData - Plain object containing node data with a 'type' field
+ * @returns An Node instance of the appropriate subclass
+ * @throws {Error} If the node data is invalid:
  *   - Missing or invalid 'type' field
- *   - Unknown entry type
- *   - Invalid entry structure (errors from Entry.fromJSONData)
+ *   - Unknown node type
+ *   - Invalid node structure (errors from Node.fromJSONData)
  *
  * @example
- * Deserializing a simple entry:
+ * Deserializing a simple node:
  * ```typescript
- * const entryData = {
+ * const nodeData = {
  *   type: 'open',
  *   date: '2024-01-01',
  *   account: 'Assets:Checking'
  * }
- * const entry = deserializeEntry(entryData)
- * console.log(entry.type) // 'open'
+ * const node = deserializeNode(nodeData)
+ * console.log(node.type) // 'open'
  * ```
  *
  * @example
  * Deserializing from JSON.parse:
  * ```typescript
  * const json = '{"type":"balance","date":"2024-01-02","account":"Assets:Checking","amount":"100","currency":"USD"}'
- * const entryData = JSON.parse(json)
- * const entry = deserializeEntry(entryData)
+ * const nodeData = JSON.parse(json)
+ * const node = deserializeNode(nodeData)
  * ```
  */
-export function deserializeEntry(entryData: Record<string, unknown>): Entry {
+export function deserializeNode(nodeData: Record<string, unknown>): Node {
   // Validate input is an object
-  if (!entryData || typeof entryData !== 'object') {
+  if (!nodeData || typeof nodeData !== 'object') {
     throw new Error(
-      `Invalid entry data: expected an object but received ${typeof entryData}`,
+      `Invalid node data: expected an object but received ${typeof nodeData}`,
     )
   }
 
   // Validate 'type' field exists
-  if (!('type' in entryData)) {
+  if (!('type' in nodeData)) {
     throw new Error(
-      'Invalid entry data: missing required "type" field. ' +
-        'Entry data must include a "type" property indicating the entry type.',
+      'Invalid node data: missing required "type" field. ' +
+        'Node data must include a "type" property indicating the node type.',
     )
   }
 
   // Validate 'type' is a string
-  if (typeof entryData.type !== 'string') {
+  if (typeof nodeData.type !== 'string') {
     throw new Error(
-      `Invalid entry data: "type" field must be a string, but received ${typeof entryData.type}`,
+      `Invalid node data: "type" field must be a string, but received ${typeof nodeData.type}`,
     )
   }
 
-  const entryType = entryData.type as EntryType
+  const nodeType = nodeData.type as NodeType
 
-  // Validate entry type is recognized
-  const EntryClass = entryTypeToClass[entryType]
-  if (!EntryClass) {
+  // Validate node type is recognized
+  const NodeClass = nodeTypeToClass[nodeType]
+  if (!NodeClass) {
     throw new Error(
-      `Unknown entry type: "${entryType}". ` +
-        `Valid entry types are: ${Object.keys(entryTypeToClass).join(', ')}`,
+      `Unknown node type: "${nodeType}". ` +
+        `Valid node types are: ${Object.keys(nodeTypeToClass).join(', ')}`,
     )
   }
 
-  // Attempt to deserialize the entry
+  // Attempt to deserialize the node
   try {
     return (
-      EntryClass as { fromJSONData: (data: Record<string, unknown>) => Entry }
-    ).fromJSONData(entryData)
+      NodeClass as { fromJSONData: (data: Record<string, unknown>) => Node }
+    ).fromJSONData(nodeData)
   } catch (error) {
     // Wrap errors from fromJSONData with additional context
     const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new Error(`Failed to deserialize ${entryType} entry: ${errorMessage}`)
+    throw new Error(`Failed to deserialize ${nodeType} node: ${errorMessage}`)
   }
 }
 
 /**
- * Deserializes a single entry from a JSON string.
+ * Deserializes a single node from a JSON string.
  *
- * This function parses a JSON string containing an entry object
- * and reconstructs the appropriate Entry subclass instance.
+ * This function parses a JSON string containing an node object
+ * and reconstructs the appropriate Node subclass instance.
  *
- * @param jsonString - JSON string containing an entry object
- * @returns An Entry instance of the appropriate subclass
- * @throws {Error} If the JSON is invalid or entry cannot be deserialized:
+ * @param jsonString - JSON string containing an node object
+ * @returns An Node instance of the appropriate subclass
+ * @throws {Error} If the JSON is invalid or node cannot be deserialized:
  *   - Invalid JSON syntax
  *   - JSON does not contain an object
- *   - Entry validation errors (see deserializeEntry)
+ *   - Node validation errors (see deserializeNode)
  *
  * @example
  * Deserializing from a JSON string:
  * ```typescript
  * const json = '{"type":"open","date":"2024-01-01","account":"Assets:Checking"}'
- * const entry = deserializeEntryFromString(json)
- * console.log(entry.type) // 'open'
+ * const node = deserializeNodeFromString(json)
+ * console.log(node.type) // 'open'
  * ```
  *
  * @example
@@ -107,11 +107,11 @@ export function deserializeEntry(entryData: Record<string, unknown>): Entry {
  * ```typescript
  * const original = Open.fromString('2024-01-01 open Assets:Checking')
  * const json = JSON.stringify(original.toJSON())
- * const deserialized = deserializeEntryFromString(json)
+ * const deserialized = deserializeNodeFromString(json)
  * // deserialized equals original
  * ```
  */
-export function deserializeEntryFromString(jsonString: string): Entry {
+export function deserializeNodeFromString(jsonString: string): Node {
   // Validate input
   if (typeof jsonString !== 'string') {
     throw new Error(
@@ -120,53 +120,53 @@ export function deserializeEntryFromString(jsonString: string): Entry {
   }
 
   // Parse JSON with error handling
-  let entryData: unknown
+  let nodeData: unknown
   try {
-    entryData = JSON.parse(jsonString)
+    nodeData = JSON.parse(jsonString)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     throw new Error(`Failed to parse JSON: ${errorMessage}`)
   }
 
   // Validate parsed data is an object (not array or null)
-  if (entryData === null || typeof entryData !== 'object') {
+  if (nodeData === null || typeof nodeData !== 'object') {
     throw new Error(
-      `Invalid JSON structure: expected an object but received ${entryData === null ? 'null' : typeof entryData}`,
+      `Invalid JSON structure: expected an object but received ${nodeData === null ? 'null' : typeof nodeData}`,
     )
   }
 
-  if (Array.isArray(entryData)) {
+  if (Array.isArray(nodeData)) {
     throw new Error(
       'Invalid JSON structure: expected an object but received an array',
     )
   }
 
-  return deserializeEntry(entryData as Record<string, unknown>)
+  return deserializeNode(nodeData as Record<string, unknown>)
 }
 
 /**
- * Deserializes an array of entries from their JSON representations.
+ * Deserializes an array of nodes from their JSON representations.
  *
  * This function takes an array of plain JavaScript objects (typically from JSON.parse)
- * and reconstructs each as the appropriate Entry subclass instance. It validates
- * the input and provides helpful error messages, including the index of any entry
+ * and reconstructs each as the appropriate Node subclass instance. It validates
+ * the input and provides helpful error messages, including the index of any node
  * that fails to deserialize.
  *
- * @param entriesData - Array of plain objects containing entry data
- * @returns Array of Entry instances
- * @throws {Error} If the input is invalid or entries cannot be deserialized:
+ * @param nodesData - Array of plain objects containing node data
+ * @returns Array of Node instances
+ * @throws {Error} If the input is invalid or nodes cannot be deserialized:
  *   - Input is not an array
- *   - Any entry fails validation (see deserializeEntry)
+ *   - Any node fails validation (see deserializeNode)
  *
  * @example
- * Deserializing an array of entries:
+ * Deserializing an array of nodes:
  * ```typescript
- * const entriesData = [
+ * const nodesData = [
  *   { type: 'open', date: '2024-01-01', account: 'Assets:Checking' },
  *   { type: 'balance', date: '2024-01-02', account: 'Assets:Checking', amount: '100', currency: 'USD' }
  * ]
- * const entries = deserializeEntries(entriesData)
- * console.log(entries.length) // 2
+ * const nodes = deserializeNodes(nodesData)
+ * console.log(nodes.length) // 2
  * ```
  *
  * @example
@@ -175,61 +175,59 @@ export function deserializeEntryFromString(jsonString: string): Entry {
  * const original = [Open.fromString('2024-01-01 open Assets:Checking')]
  * const json = JSON.stringify(original.map(e => e.toJSON()))
  * const parsed = JSON.parse(json)
- * const deserialized = deserializeEntries(parsed)
+ * const deserialized = deserializeNodes(parsed)
  * // deserialized equals original
  * ```
  */
-export function deserializeEntries(
-  entriesData: Record<string, unknown>[],
-): Entry[] {
+export function deserializeNodes(nodesData: Record<string, unknown>[]): Node[] {
   // Validate input is an array
-  if (!Array.isArray(entriesData)) {
+  if (!Array.isArray(nodesData)) {
     throw new Error(
-      `Invalid input: expected an array but received ${typeof entriesData}`,
+      `Invalid input: expected an array but received ${typeof nodesData}`,
     )
   }
 
-  // Deserialize each entry with error context
-  const entries: Entry[] = []
-  for (let i = 0; i < entriesData.length; i++) {
+  // Deserialize each node with error context
+  const nodes: Node[] = []
+  for (let i = 0; i < nodesData.length; i++) {
     try {
-      entries.push(deserializeEntry(entriesData[i]))
+      nodes.push(deserializeNode(nodesData[i]))
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       throw new Error(
-        `Failed to deserialize entry at index ${i}: ${errorMessage}`,
+        `Failed to deserialize node at index ${i}: ${errorMessage}`,
       )
     }
   }
 
-  return entries
+  return nodes
 }
 
 /**
- * Deserializes an array of entries from a JSON string.
+ * Deserializes an array of nodes from a JSON string.
  *
- * This function parses a JSON string containing an array of entry objects
- * and reconstructs each entry as the appropriate Entry subclass instance.
+ * This function parses a JSON string containing an array of node objects
+ * and reconstructs each node as the appropriate Node subclass instance.
  * It validates the input and provides helpful error messages, including
- * the index of any entry that fails to deserialize.
+ * the index of any node that fails to deserialize.
  *
- * @param jsonString - JSON string containing an array of entry objects
- * @returns Array of Entry instances
- * @throws {Error} If the JSON is invalid or entries cannot be deserialized:
+ * @param jsonString - JSON string containing an array of node objects
+ * @returns Array of Node instances
+ * @throws {Error} If the JSON is invalid or nodes cannot be deserialized:
  *   - Invalid JSON syntax
  *   - JSON does not contain an array
- *   - Any entry fails validation (see deserializeEntry)
+ *   - Any node fails validation (see deserializeNode)
  *
  * @example
- * Deserializing multiple entries:
+ * Deserializing multiple nodes:
  * ```typescript
  * const json = '[
  *   {"type": "open", "date": "2024-01-01", "account": "Assets:Checking"},
  *   {"type": "balance", "date": "2024-01-02", "account": "Assets:Checking", "amount": "100", "currency": "USD"}
  * ]'
- * const entries = deserializeEntries(json)
- * console.log(entries.length) // 2
+ * const nodes = deserializeNodes(json)
+ * console.log(nodes.length) // 2
  * ```
  *
  * @example
@@ -238,12 +236,12 @@ export function deserializeEntries(
  * import { parse } from 'beancount'
  *
  * const original = parse('2024-01-01 open Assets:Checking')
- * const json = JSON.stringify(original.entries.map(e => e.toJSON()))
- * const deserialized = deserializeEntries(json)
- * // deserialized equals original.entries
+ * const json = JSON.stringify(original.nodes.map(e => e.toJSON()))
+ * const deserialized = deserializeNodes(json)
+ * // deserialized equals original.nodes
  * ```
  */
-export function deserializeEntriesFromString(jsonString: string): Entry[] {
+export function deserializeNodesFromString(jsonString: string): Node[] {
   // Validate input
   if (typeof jsonString !== 'string') {
     throw new Error(
@@ -252,20 +250,20 @@ export function deserializeEntriesFromString(jsonString: string): Entry[] {
   }
 
   // Parse JSON with error handling
-  let entriesData: unknown
+  let nodesData: unknown
   try {
-    entriesData = JSON.parse(jsonString)
+    nodesData = JSON.parse(jsonString)
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     throw new Error(`Failed to parse JSON: ${errorMessage}`)
   }
 
   // Validate parsed data is an array
-  if (!Array.isArray(entriesData)) {
+  if (!Array.isArray(nodesData)) {
     throw new Error(
-      `Invalid JSON structure: expected an array but received ${typeof entriesData}`,
+      `Invalid JSON structure: expected an array but received ${typeof nodesData}`,
     )
   }
 
-  return deserializeEntries(entriesData as Record<string, unknown>[])
+  return deserializeNodes(nodesData as Record<string, unknown>[])
 }

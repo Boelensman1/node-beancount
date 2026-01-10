@@ -1,33 +1,33 @@
 import { ParseResult } from './classes/ParseResult.mjs'
-import { Comment, Blankline } from './classes/entryTypes/index.mjs'
+import { Comment, Blankline } from './classes/nodes/index.mjs'
 import {
   genericParse,
   GenericParseResult,
   GenericParseResultTransaction,
 } from './genericParse.mjs'
-import { Tag } from './classes/entryTypes/Transaction/Tag.mjs'
+import { Tag } from './classes/nodes/Transaction/Tag.mjs'
 import {
-  beancountEntryToClass,
-  BeancountEntryType,
-} from './entryTypeToClass.mjs'
-import { splitStringIntoUnparsedEntries } from './utils/splitStringIntoUnparsedEntries.js'
+  beancountDirectiveNodeTypeToClass,
+  BeancountDirectiveNodeType,
+} from './nodeTypeToClass.mjs'
+import { splitStringIntoSourceFragments } from './utils/splitStringIntoSourceFragments.js'
 
 /**
- * Parses a single unparsed entry into its corresponding Entry class instance.
+ * Parses a single source fragment into its corresponding Node class instance.
  *
  * This function:
- * - Performs generic parsing to determine entry type
- * - Instantiates the appropriate Entry subclass
+ * - Performs generic parsing to determine node type
+ * - Instantiates the appropriate Node subclass
  * - Handles special cases for comments and blank lines
  *
- * @param unparsedEntry - Array of string tokens representing a single entry
- * @returns An Entry instance
+ * @param sourceFragment - Array of string tokens that should be parsed to a single node
+ * @returns A Node instance
  */
-export const parseEntry = (unparsedEntry: string[]) => {
-  const genericParseResult = genericParse(unparsedEntry)
+export const parseSourceFragment = (sourceFragment: string[]) => {
+  const genericParseResult = genericParse(sourceFragment)
   const { type } = genericParseResult
 
-  if (genericParseResult.fake) {
+  if (genericParseResult.synthetic) {
     if (type === 'blankline') {
       return Blankline.fromGenericParseResult(
         genericParseResult as unknown as GenericParseResult,
@@ -39,29 +39,30 @@ export const parseEntry = (unparsedEntry: string[]) => {
     }
   }
 
-  const EntryClass = beancountEntryToClass[type as BeancountEntryType]
+  const NodeClass =
+    beancountDirectiveNodeTypeToClass[type as BeancountDirectiveNodeType]
 
-  if (EntryClass) {
-    return EntryClass.fromGenericParseResult(
+  if (NodeClass) {
+    return NodeClass.fromGenericParseResult(
       genericParseResult as GenericParseResultTransaction,
     )
   } else {
-    throw Error(`Could not parse ${unparsedEntry.toString()}`)
+    throw Error(`Could not parse ${sourceFragment.toString()}`)
   }
 }
 
 /**
- * Parses a complete Beancount file string into a ParseResult containing Entry objects.
+ * Parses a complete Beancount file string into a ParseResult containing Node objects.
  *
  * This is the main entry point for parsing Beancount files. It handles:
- * - Splitting the input into individual entries
- * - Parsing each entry into its appropriate type
- * - Managing the tag stack for pushtag/poptag directives
+ * - Splitting the source into source fragment
+ * - Parsing each source fragment into its appropriate node
+ * - Managing the tag stack for pushtag/poptag nodes
  * - Applying tags from the stack to transactions
  *
  * @remarks
  * This is the primary function you'll use from this library. It takes a Beancount file
- * as a string and returns a structured ParseResult object containing all parsed entries.
+ * as a string and returns a structured ParseResult object containing the resulting parsed nodes.
  *
  * @example
  * Basic usage:
@@ -76,26 +77,26 @@ export const parseEntry = (unparsedEntry: string[]) => {
  * `
  *
  * const result = parse(content)
- * // result.entries contains parsed Entry objects
+ * // result.nodes contains parsed Node objects
  * ```
  *
- * @param input - The complete Beancount file content as a string
- * @returns A ParseResult instance containing all parsed entries
+ * @param source - The complete Beancount file content as a string
+ * @returns A ParseResult instance containing all parsed nodes
  */
-export const parse = (input: string) => {
-  const unparsedEntries = splitStringIntoUnparsedEntries(input)
+export const parse = (source: string) => {
+  const sourceFragments = splitStringIntoSourceFragments(source)
 
-  const parsedEntries = []
+  const nodes = []
   const tagStack: Tag[] = []
 
-  for (const unparsedEntry of unparsedEntries) {
-    const parsedEntry = parseEntry(unparsedEntry)
-    if (parsedEntry) {
-      if (parsedEntry.type === 'pushtag') {
-        tagStack.push(parsedEntry.tag)
-      } else if (parsedEntry.type === 'poptag') {
+  for (const sourceFragment of sourceFragments) {
+    const node = parseSourceFragment(sourceFragment)
+    if (node) {
+      if (node.type === 'pushtag') {
+        tagStack.push(node.tag)
+      } else if (node.type === 'poptag') {
         // Find and remove the most recent matching tag from the stack
-        const tagToRemove = parsedEntry.tag.content
+        const tagToRemove = node.tag.content
         for (let i = tagStack.length - 1; i >= 0; i--) {
           if (tagStack[i].content === tagToRemove) {
             tagStack.splice(i, 1)
@@ -104,13 +105,13 @@ export const parse = (input: string) => {
         }
       }
 
-      if (parsedEntry.type === 'transaction') {
-        parsedEntry.tags.push(...tagStack)
+      if (node.type === 'transaction') {
+        node.tags.push(...tagStack)
       }
 
-      parsedEntries.push(parsedEntry)
+      nodes.push(node)
     }
   }
 
-  return new ParseResult(parsedEntries)
+  return new ParseResult(nodes)
 }

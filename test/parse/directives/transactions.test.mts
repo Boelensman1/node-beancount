@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 import { parse } from '../../../src/parse.mjs'
-import { Tag } from '../../../src/classes/entryTypes/Transaction/Tag.mjs'
+import { Tag } from '../../../src/classes/nodes/Transaction/Tag.mjs'
 import { Value } from '../../../src/classes/Value.mjs'
 
 test('Parse basic', () => {
@@ -12,28 +12,28 @@ test('Parse basic', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2023-04-05')
-  expect(entry.payee).toBe('RiverBank Properties')
-  expect(entry.narration).toBe('Paying the rent')
-  expect(entry.flag).toBe('*')
-  //expect(entry.comment).toBeUndefined()
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2023-04-05')
+  expect(node.payee).toBe('RiverBank Properties')
+  expect(node.narration).toBe('Paying the rent')
+  expect(node.flag).toBe('*')
+  //expect(node.comment).toBeUndefined()
 
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.postings[0].account).toBe('Assets:US:BofA:Checking')
-  expect(entry.postings[0].amount).toBe('-2400.00')
-  expect(entry.postings[0].currency).toBe('USD')
-  expect(entry.postings[0].price).toBe('-2400.00 USD')
-  expect(entry.postings[0].flag).toBeUndefined()
-  expect(entry.postings[0].comment).toBeUndefined()
+  expect(node.postings).toHaveLength(2)
+  expect(node.postings[0].account).toBe('Assets:US:BofA:Checking')
+  expect(node.postings[0].amount).toBe('-2400.00')
+  expect(node.postings[0].currency).toBe('USD')
+  expect(node.postings[0].price).toBe('-2400.00 USD')
+  expect(node.postings[0].flag).toBeUndefined()
+  expect(node.postings[0].comment).toBeUndefined()
 
-  expect(entry.postings[1].account).toBe('Expenses:Home:Rent')
-  expect(entry.postings[1].amount).toBe('2400.00')
-  expect(entry.postings[1].currency).toBe('USD')
-  expect(entry.postings[1].price).toBe('2400.00 USD')
-  expect(entry.postings[1].flag).toBeUndefined()
-  expect(entry.postings[1].comment).toBeUndefined()
+  expect(node.postings[1].account).toBe('Expenses:Home:Rent')
+  expect(node.postings[1].amount).toBe('2400.00')
+  expect(node.postings[1].currency).toBe('USD')
+  expect(node.postings[1].price).toBe('2400.00 USD')
+  expect(node.postings[1].flag).toBeUndefined()
+  expect(node.postings[1].comment).toBeUndefined()
 })
 
 test('Parse without narration', () => {
@@ -45,13 +45,13 @@ test('Parse without narration', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2023-04-04')
-  expect(entry.payee).toBe('RiverBank Properties')
-  expect(entry.narration).toBeUndefined()
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.flag).toBe('*')
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2023-04-04')
+  expect(node.payee).toBe('RiverBank Properties')
+  expect(node.narration).toBeUndefined()
+  expect(node.postings).toHaveLength(2)
+  expect(node.flag).toBe('*')
 })
 
 test('Parse with different flag', () => {
@@ -63,11 +63,11 @@ test('Parse with different flag', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.flag).toBe('!')
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.postings[0].flag).toBeUndefined()
-  expect(entry.postings[1].flag).toBeUndefined()
+  const node = output.transactions[0]
+  expect(node.flag).toBe('!')
+  expect(node.postings).toHaveLength(2)
+  expect(node.postings[0].flag).toBeUndefined()
+  expect(node.postings[1].flag).toBeUndefined()
 })
 
 test('Parse without flag', () => {
@@ -79,9 +79,9 @@ test('Parse without flag', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.flag).toBeUndefined()
-  expect(entry.postings).toHaveLength(2)
+  const node = output.transactions[0]
+  expect(node.flag).toBeUndefined()
+  expect(node.postings).toHaveLength(2)
 })
 
 test('Parse with comments', () => {
@@ -93,28 +93,28 @@ test('Parse with comments', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2023-04-05')
-  expect(entry.payee).toBe('RiverBank Properties')
-  expect(entry.narration).toBe('Paying the rent')
-  // expect(entry.comment).toBe('comment')
-  expect(entry.flag).toBe('*')
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2023-04-05')
+  expect(node.payee).toBe('RiverBank Properties')
+  expect(node.narration).toBe('Paying the rent')
+  // expect(node.comment).toBe('comment')
+  expect(node.flag).toBe('*')
 
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.postings[0].account).toBe('Assets:US:BofA:Checking')
-  expect(entry.postings[0].amount).toBe('-2400.00')
-  expect(entry.postings[0].currency).toBe('USD')
-  expect(entry.postings[0].price).toBe('-2400.00 USD')
-  expect(entry.postings[0].flag).toBeUndefined()
-  expect(entry.postings[0].comment).toBe('comment2')
+  expect(node.postings).toHaveLength(2)
+  expect(node.postings[0].account).toBe('Assets:US:BofA:Checking')
+  expect(node.postings[0].amount).toBe('-2400.00')
+  expect(node.postings[0].currency).toBe('USD')
+  expect(node.postings[0].price).toBe('-2400.00 USD')
+  expect(node.postings[0].flag).toBeUndefined()
+  expect(node.postings[0].comment).toBe('comment2')
 
-  expect(entry.postings[1].account).toBe('Expenses:Home:Rent')
-  expect(entry.postings[1].amount).toBe('2400.00')
-  expect(entry.postings[1].currency).toBe('USD')
-  expect(entry.postings[1].price).toBe('2400.00 USD')
-  expect(entry.postings[1].flag).toBeUndefined()
-  expect(entry.postings[1].comment).toBe('comment3')
+  expect(node.postings[1].account).toBe('Expenses:Home:Rent')
+  expect(node.postings[1].amount).toBe('2400.00')
+  expect(node.postings[1].currency).toBe('USD')
+  expect(node.postings[1].price).toBe('2400.00 USD')
+  expect(node.postings[1].flag).toBeUndefined()
+  expect(node.postings[1].comment).toBe('comment3')
 })
 
 test('Parse with posting having a flag', () => {
@@ -126,25 +126,25 @@ test('Parse with posting having a flag', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2023-04-05')
-  expect(entry.payee).toBe('RiverBank Properties')
-  expect(entry.narration).toBe('Paying the rent')
-  expect(entry.flag).toBe('*')
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2023-04-05')
+  expect(node.payee).toBe('RiverBank Properties')
+  expect(node.narration).toBe('Paying the rent')
+  expect(node.flag).toBe('*')
 
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.postings[0].account).toBe('Assets:US:BofA:Checking')
-  expect(entry.postings[0].amount).toBe('-2400.00')
-  expect(entry.postings[0].currency).toBe('USD')
-  expect(entry.postings[0].price).toBe('-2400.00 USD')
-  expect(entry.postings[0].flag).toBe('!')
+  expect(node.postings).toHaveLength(2)
+  expect(node.postings[0].account).toBe('Assets:US:BofA:Checking')
+  expect(node.postings[0].amount).toBe('-2400.00')
+  expect(node.postings[0].currency).toBe('USD')
+  expect(node.postings[0].price).toBe('-2400.00 USD')
+  expect(node.postings[0].flag).toBe('!')
 
-  expect(entry.postings[1].account).toBe('Expenses:Home:Rent')
-  expect(entry.postings[1].amount).toBe('2400.00')
-  expect(entry.postings[1].currency).toBe('USD')
-  expect(entry.postings[1].price).toBe('2400.00 USD')
-  expect(entry.postings[1].flag).toBeUndefined()
+  expect(node.postings[1].account).toBe('Expenses:Home:Rent')
+  expect(node.postings[1].amount).toBe('2400.00')
+  expect(node.postings[1].currency).toBe('USD')
+  expect(node.postings[1].price).toBe('2400.00 USD')
+  expect(node.postings[1].flag).toBeUndefined()
 })
 
 test('Parse with calculations in posting', () => {
@@ -158,37 +158,37 @@ test('Parse with calculations in posting', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2014-10-05')
-  expect(entry.payee).toBe('Costco')
-  expect(entry.narration).toBe('Shopping for birthday')
-  expect(entry.flag).toBe('*')
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2014-10-05')
+  expect(node.payee).toBe('Costco')
+  expect(node.narration).toBe('Shopping for birthday')
+  expect(node.flag).toBe('*')
 
-  expect(entry.postings).toHaveLength(4)
-  expect(entry.postings[0].account).toBe('Liabilities:CreditCard:CapitalOne')
-  expect(entry.postings[0].amount).toBe('-45.00')
-  expect(entry.postings[0].currency).toBe('USD')
-  expect(entry.postings[0].price).toBe('-45.00 USD')
-  expect(entry.postings[0].flag).toBeUndefined()
+  expect(node.postings).toHaveLength(4)
+  expect(node.postings[0].account).toBe('Liabilities:CreditCard:CapitalOne')
+  expect(node.postings[0].amount).toBe('-45.00')
+  expect(node.postings[0].currency).toBe('USD')
+  expect(node.postings[0].price).toBe('-45.00 USD')
+  expect(node.postings[0].flag).toBeUndefined()
 
-  expect(entry.postings[1].account).toBe('Assets:AccountsReceivable:John')
-  expect(entry.postings[1].amount).toBe('((40.00/3) + 5)')
-  expect(entry.postings[1].currency).toBe('USD')
-  expect(entry.postings[1].price).toBe('((40.00/3) + 5) USD')
-  expect(entry.postings[1].flag).toBeUndefined()
+  expect(node.postings[1].account).toBe('Assets:AccountsReceivable:John')
+  expect(node.postings[1].amount).toBe('((40.00/3) + 5)')
+  expect(node.postings[1].currency).toBe('USD')
+  expect(node.postings[1].price).toBe('((40.00/3) + 5) USD')
+  expect(node.postings[1].flag).toBeUndefined()
 
-  expect(entry.postings[2].account).toBe('Assets:AccountsReceivable:Michael')
-  expect(entry.postings[2].amount).toBe('40.00/3')
-  expect(entry.postings[2].currency).toBe('USD')
-  expect(entry.postings[2].price).toBe('40.00/3 USD')
-  expect(entry.postings[2].flag).toBeUndefined()
+  expect(node.postings[2].account).toBe('Assets:AccountsReceivable:Michael')
+  expect(node.postings[2].amount).toBe('40.00/3')
+  expect(node.postings[2].currency).toBe('USD')
+  expect(node.postings[2].price).toBe('40.00/3 USD')
+  expect(node.postings[2].flag).toBeUndefined()
 
-  expect(entry.postings[3].account).toBe('Expenses:Shopping')
-  expect(entry.postings[3].amount).toBeUndefined()
-  expect(entry.postings[3].currency).toBeUndefined()
-  expect(entry.postings[3].price).toBeUndefined()
-  expect(entry.postings[3].flag).toBeUndefined()
+  expect(node.postings[3].account).toBe('Expenses:Shopping')
+  expect(node.postings[3].amount).toBeUndefined()
+  expect(node.postings[3].currency).toBeUndefined()
+  expect(node.postings[3].price).toBeUndefined()
+  expect(node.postings[3].flag).toBeUndefined()
 })
 
 test('Parse with metadata', () => {
@@ -202,13 +202,13 @@ test('Parse with metadata', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry).toHaveProperty('metadata')
-  expect(entry.metadata!.note).toEqual(
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node).toHaveProperty('metadata')
+  expect(node.metadata!.note).toEqual(
     new Value({ type: 'string', value: 'test' }),
   )
-  expect(entry.metadata!.booleanval).toEqual(
+  expect(node.metadata!.booleanval).toEqual(
     new Value({ type: 'boolean', value: true }),
   )
 })
@@ -222,10 +222,10 @@ test('Parse with link (space before link)', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(new Set(['link-to-transaction']))
-  expect(entry.tags).toEqual([])
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.links).toEqual(new Set(['link-to-transaction']))
+  expect(node.tags).toEqual([])
 })
 
 test('Parse with link (no space before link)', () => {
@@ -237,9 +237,9 @@ test('Parse with link (no space before link)', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(new Set(['link-to-transaction']))
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.links).toEqual(new Set(['link-to-transaction']))
 })
 
 test('Parse with multiple links', () => {
@@ -251,9 +251,9 @@ test('Parse with multiple links', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.links).toEqual(new Set(['transaction1', 'transaction2']))
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.links).toEqual(new Set(['transaction1', 'transaction2']))
 })
 
 test('Parse without narration but with link (without space)', () => {
@@ -265,14 +265,14 @@ test('Parse without narration but with link (without space)', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.type).toBe('transaction')
-  expect(entry.date.toJSON()).toBe('2023-04-04')
-  expect(entry.payee).toBe('RiverBank Properties')
-  expect(entry.narration).toBeUndefined()
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.flag).toBe('*')
-  expect(entry.links).toEqual(new Set(['link']))
+  const node = output.transactions[0]
+  expect(node.type).toBe('transaction')
+  expect(node.date.toJSON()).toBe('2023-04-04')
+  expect(node.payee).toBe('RiverBank Properties')
+  expect(node.narration).toBeUndefined()
+  expect(node.postings).toHaveLength(2)
+  expect(node.flag).toBe('*')
+  expect(node.links).toEqual(new Set(['link']))
 })
 
 test('Parse without narration but with link (with space)', () => {
@@ -284,8 +284,8 @@ test('Parse without narration but with link (with space)', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.links).toEqual(new Set(['link']))
+  const node = output.transactions[0]
+  expect(node.links).toEqual(new Set(['link']))
 })
 
 test('Parse with tag', () => {
@@ -297,11 +297,11 @@ test('Parse with tag', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.links.size).toEqual(0)
-  expect(entry.tags).toHaveLength(1)
-  expect(entry.tags).toEqual([
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.links.size).toEqual(0)
+  expect(node.tags).toHaveLength(1)
+  expect(node.tags).toEqual([
     new Tag({
       content: 'tag',
       fromStack: false,
@@ -318,10 +318,10 @@ test('Parse with multiple tags', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.tags).toHaveLength(3)
-  expect(entry.tags).toEqual([
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.tags).toHaveLength(3)
+  expect(node.tags).toEqual([
     new Tag({
       content: 'tag1',
       fromStack: false,
@@ -346,13 +346,13 @@ test('Parse with multiple tags and links', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
 
-  expect(entry.links.size).toBe(3)
-  expect(entry.links).toEqual(new Set(['link1', 'link2', 'link3']))
-  expect(entry.tags).toHaveLength(3)
-  expect(entry.tags).toEqual([
+  expect(node.links.size).toBe(3)
+  expect(node.links).toEqual(new Set(['link1', 'link2', 'link3']))
+  expect(node.tags).toHaveLength(3)
+  expect(node.tags).toEqual([
     new Tag({
       content: 'tag1',
       fromStack: false,
@@ -377,13 +377,13 @@ test('Parse with cost', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(2)
-  expect(entry.postings[0].account).toBe('Assets:US:Vanguard:RGAGX')
-  expect(entry.postings[0].amount).toBe('6.805')
-  expect(entry.postings[0].currency).toBe('RGAGX')
-  expect(entry.postings[0].cost).toBe('52.90 USD, 2024-04-15')
-  expect(entry.postings[0].price).toBe('6.805 RGAGX {52.90 USD, 2024-04-15}')
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+  expect(node.postings[0].account).toBe('Assets:US:Vanguard:RGAGX')
+  expect(node.postings[0].amount).toBe('6.805')
+  expect(node.postings[0].currency).toBe('RGAGX')
+  expect(node.postings[0].cost).toBe('52.90 USD, 2024-04-15')
+  expect(node.postings[0].price).toBe('6.805 RGAGX {52.90 USD, 2024-04-15}')
 })
 
 test('Parse with cost and posting price', () => {
@@ -397,15 +397,15 @@ test('Parse with cost and posting price', () => {
   const output = parse(directive)
   expect(output.transactions).toHaveLength(1)
 
-  const entry = output.transactions[0]
-  expect(entry.postings).toHaveLength(4)
-  expect(entry.postings[0].account).toBe('Assets:US:ETrade:ITOT')
-  expect(entry.postings[0].amount).toBe('-11')
-  expect(entry.postings[0].currency).toBe('ITOT')
-  expect(entry.postings[0].cost).toBe('125.87 USD, 2023-10-02')
-  expect(entry.postings[0].priceAmount).toBe('121.11')
-  expect(entry.postings[0].priceCurrency).toBe('USD')
-  expect(entry.postings[0].price).toBe(
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(4)
+  expect(node.postings[0].account).toBe('Assets:US:ETrade:ITOT')
+  expect(node.postings[0].amount).toBe('-11')
+  expect(node.postings[0].currency).toBe('ITOT')
+  expect(node.postings[0].cost).toBe('125.87 USD, 2023-10-02')
+  expect(node.postings[0].priceAmount).toBe('121.11')
+  expect(node.postings[0].priceCurrency).toBe('USD')
+  expect(node.postings[0].price).toBe(
     '-11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD',
   )
 })

@@ -13,5 +13,5 @@
     "includeGroups": true
   },
   "categorizeByGroup": false,
-  "intentionallyNotExported": ["EntryConstructor"]
+  "intentionallyNotExported": ["NodeConstructor"]
 }

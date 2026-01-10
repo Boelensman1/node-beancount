@@ -40,7 +40,7 @@ Examples:
  * @param filePath Path to the file to format
  * @param write Whether to write the formatted content back to the file
  * @param currencyColumn Currency column number, or null to auto-calculate
- * @param force Wether to also format files with 0 entries, defaults to false
+ * @param force Wether to also format files without any Beancount directives, defaults to false
  * @returns Resolves to true if successful, false if an error occurred
  */
 async function formatFile(
@@ -60,14 +60,14 @@ async function formatFile(
     // Read and parse the beancount file
     const parseResult = await parseFile(filePath)
 
-    // check if we have any non-comment non-blankline entries
+    // check if we have any Beancount directives
     if (
       !force &&
-      parseResult.entries.length ===
+      parseResult.nodes.length ===
         parseResult.blankline.length + parseResult.comment.length
     ) {
       console.error(
-        `Error processing ${filePath}: does not seem to be a beancount file, it has no entries`,
+        `Error processing ${filePath}: does not seem to be a beancount file, it has no Beancount directives`,
       )
       return false
     }

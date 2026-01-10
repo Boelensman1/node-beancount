@@ -8,11 +8,11 @@ test('Parse simple', () => {
   const output = parse(directive)
   expect(output.query).toHaveLength(1)
 
-  const entry = output.query[0]
-  expect(entry.type).toBe('query')
-  expect(entry.date.toJSON()).toBe('2014-07-09')
-  expect(entry.name).toBe('france-balances')
-  expect(entry.sqlContents).toBe(
+  const node = output.query[0]
+  expect(node.type).toBe('query')
+  expect(node.date.toJSON()).toBe('2014-07-09')
+  expect(node.name).toBe('france-balances')
+  expect(node.sqlContents).toBe(
     'SELECT account, sum(position) WHERE ‘trip-france-2014’ in tags',
   )
 })
@@ -28,11 +28,11 @@ test('Parse with newline', () => {
   const output = parse(directive)
   expect(output.query).toHaveLength(1)
 
-  const entry = output.query[0]
-  expect(entry.type).toBe('query')
-  expect(entry.date.toJSON()).toBe('2014-07-09')
-  expect(entry.name).toBe('france-balances')
-  expect(entry.sqlContents).toBe(
+  const node = output.query[0]
+  expect(node.type).toBe('query')
+  expect(node.date.toJSON()).toBe('2014-07-09')
+  expect(node.name).toBe('france-balances')
+  expect(node.sqlContents).toBe(
     'SELECT account, sum(position) WHERE ‘trip-france-2014’ in tags',
   )
 })
