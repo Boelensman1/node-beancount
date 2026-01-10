@@ -34,7 +34,7 @@ benchmark: $(INSTALL_DEPS) build
 docs: $(INSTALL_DEPS)
 	npx --no-install typedoc
 
-publish: $(INSTALL_DEPS) build test
+publish: $(INSTALL_DEPS) lint test build
 	npm publish
 
 .PHONY: dev install clean lint test benchmark docs
