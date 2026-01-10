@@ -19,8 +19,10 @@ export interface GenericParseResult {
   fake?: false
 }
 
-export interface GenericParseResultFakeEntry
-  extends Omit<GenericParseResult, 'fake' | 'type'> {
+export interface GenericParseResultFakeEntry extends Omit<
+  GenericParseResult,
+  'fake' | 'type'
+> {
   type: FakeEntryType
   fake: true
 }
@@ -43,8 +45,10 @@ export interface GenericParseResultWithDate extends GenericParseResult {
  * Generic parse result specifically for transaction entries.
  * Extends the dated result with transaction-specific fields like body lines and flags.
  */
-export interface GenericParseResultTransaction
-  extends Omit<GenericParseResultWithDate, 'metadata'> {
+export interface GenericParseResultTransaction extends Omit<
+  GenericParseResultWithDate,
+  'metadata'
+> {
   /** The body lines of the transaction (posting lines) */
   body: string[]
   /** Optional transaction flag character (e.g., '*', '!') */
