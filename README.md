@@ -1,5 +1,7 @@
 # beancount
 
+[![CI](https://github.com/Boelensman1/node-beancount/actions/workflows/ci.yml/badge.svg)](https://github.com/Boelensman1/node-beancount/actions/workflows/ci.yml)
+
 A parser and editor for Beancount accounting files with full type safety.
 
 ## Installation
