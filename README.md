@@ -66,6 +66,10 @@ const result = await parseFile('/path/to/main.beancount', { recurse: true })
 
 When `recurse: true`, the parser follows all `include` directives and merges the entries from included files into the result. Circular includes are handled gracefully (each file is only parsed once).
 
+## Documentation
+
+Full API documentation is available at https://Boelensman1.github.io/node-beancount/
+
 ## CLI Usage
 
 The package includes a `beancount-format` command-line tool for formatting Beancount files with aligned currency columns.
@@ -101,10 +105,6 @@ beancount-format -w income.beancount expenses.beancount
 # Use custom currency column alignment
 beancount-format --currency-column 60 ledger.beancount
 ```
-
-## Documentation
-
-Full API documentation is available at https://Boelensman1.github.io/node-beancount/
 
 ## Contributing
 
