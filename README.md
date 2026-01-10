@@ -24,7 +24,7 @@ npm install beancount
 ## Quick Start
 
 ```typescript
-import { parse, ParseResult } from 'beancount'
+import { parse } from './main.mjs'
 
 const beancountContent = `
 2024-01-01 open Assets:Checking USD
@@ -36,22 +36,21 @@ const beancountContent = `
 
 const result = parse(beancountContent)
 
-// Access parsed entries
-console.log(result.entries.length) // 2
+// Access parsed directives
+console.log(result.nodes.length) // 5
+console.log(result.nodes)
 
-// Convert back to string
-console.log(result.toString())
+// Edit parsed directives
+result.transactions[0].narration = 'Trip to the supermarket'
+result.transactions[0].postings.forEach((p) => (p.currency = 'EUR'))
 
-// Convert to JSON
-const resultJSON = JSON.stringify(result)
-console.log(resultJSON)
-
-// Convert back to parsed entries
-console.log(ParseResult.fromJSON(result))
-
-// Or with formatted output (aligned columns)
-// only partially implemented at this point
+// Output formatted
 console.log(result.toFormattedString())
+/* outputs:
+2024-01-15 * "Grocery Store" "Trip to the supermarket"
+  Assets:Checking                                  -50.00 EUR
+  Expenses:Food                                     50.00 EUR
+*/
 ```
 
 ## Parsing Files
