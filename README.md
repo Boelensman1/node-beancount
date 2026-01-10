@@ -13,10 +13,12 @@ npm install beancount
 ## Features
 
 - **Full Beancount Support** - All directives supported: transactions, open/close, balance, pad, note, document, price, event, query, custom, commodity, include, option, plugin, pushtag/poptag
+- **Full Transaction Support** - Tags, links, metadata, costs, price annotations, and postings
 - **Type-Safe** - Complete TypeScript types for all entries and components
-- **Rich Transaction Support** - Tags, links, metadata, costs, price annotations, and postings
+- **Platform Agnostic** - Works in Node.js, browsers, Deno, and other JavaScript runtimes
 - **Round-Trip Parsing** - Parse to objects and serialize back to text
-- **Formatted Output** - Column-aligned output with `toFormattedString()` and CLI formatter
+- **Recursive File Parsing** - Option to automatically follow and merge `include` directives with circular reference protection
+- **Formatted Output** - Column-aligned output with `toFormattedString()`
 - **CLI Formatter** - Command-line tool `beancount-format` for formatting files with auto-aligned columns
 
 ## Quick Start
@@ -67,6 +69,32 @@ const result = await parseFile('/path/to/main.beancount', { recurse: true })
 ```
 
 When `recurse: true`, the parser follows all `include` directives and merges the entries from included files into the result. Circular includes are handled gracefully (each file is only parsed once).
+
+## Browser Usage
+
+The library works in browsers and other non-Node.js environments. The core `parse()` function works everywhere. For `parseFile()`, provide custom file system helpers:
+
+```typescript
+import { parseFile, type FileSystemHelpers } from 'beancount'
+
+const browserFS: FileSystemHelpers = {
+  readFile: async (path) => {
+    const response = await fetch(path)
+    return response.text()
+  },
+  resolvePath: (path) => new URL(path, window.location.origin).pathname,
+  resolveRelative: (base, rel) => {
+    const baseDir = base.substring(0, base.lastIndexOf('/') + 1)
+    return new URL(rel, window.location.origin + baseDir).pathname
+  },
+  dirname: (path) => path.substring(0, path.lastIndexOf('/')),
+}
+
+const result = await parseFile('/api/ledger.beancount', {
+  recurse: true,
+  fs: browserFS,
+})
+```
 
 ## Documentation
 
