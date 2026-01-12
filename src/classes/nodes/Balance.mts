@@ -29,7 +29,7 @@ export class Balance extends DatedNode {
 
   /**
    * Creates a Balance instance from a generic parse result.
-   * @param genericParseResult - The parsed balance entry data
+   * @param genericParseResult - The parsed balance node data
    * @returns A new Balance instance
    */
   static fromGenericParseResult(
