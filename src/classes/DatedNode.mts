@@ -70,12 +70,14 @@ export abstract class DatedNode extends Node {
    */
   getMetaDataString() {
     const comment = this.comment ? ` ; ${this.comment}` : ''
-    if (!this.metadata) {
+
+    const metadataEntries = this.metadata ? Object.entries(this.metadata) : []
+    if (metadataEntries.length === 0) {
       return comment
     }
     return (
       `${comment}\n` +
-      Object.entries(this.metadata)
+      metadataEntries
         .map(([key, val]) => `  ${key}: ${val.toString()}`)
         .join('\n')
     )

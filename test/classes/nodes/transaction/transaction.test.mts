@@ -110,6 +110,15 @@ describe('toString', () => {
     expect(transaction.toString()).toEqual(input)
   })
 
+  test('with empty metadata', () => {
+    const input = `2023-04-05 * "RiverBank Properties" "Paying the rent"
+  Assets:US:BofA:Checking -2400.00 USD
+  Expenses:Home:Rent 2400.00 USD`
+    const transaction = Transaction.fromString(input)
+    transaction.metadata = {}
+    expect(transaction.toString()).toEqual(input)
+  })
+
   test('with link (space before link)', () => {
     const input = `2023-04-05 * "RiverBank Properties" "Paying the rent" ^link-to-transaction
   Assets:US:BofA:Checking -2400.00 USD
