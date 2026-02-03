@@ -259,6 +259,60 @@ export class ParseResult {
   }
 
   /**
+   * Gets all unique flags used across all transactions and postings.
+   * Extracts flags from transaction directives and their individual postings.
+   * @returns Set of unique flag strings
+   */
+  get flags(): Set<string> {
+    const flagSet = new Set<string>()
+
+    for (const node of this.nodes) {
+      if (node.type === 'transaction') {
+        const transaction = node as Transaction
+        // Add transaction-level flag
+        if (transaction.flag !== undefined) {
+          flagSet.add(transaction.flag)
+        }
+        // Add posting-level flags
+        for (const posting of transaction.postings) {
+          if (posting.flag !== undefined) {
+            flagSet.add(posting.flag)
+          }
+        }
+      }
+    }
+
+    return flagSet
+  }
+
+  /**
+   * Gets all unique tag names used across all directives.
+   * Extracts tags from transactions, pushtag, and poptag nodes.
+   * @returns Set of unique tag names (without the '#' prefix)
+   */
+  get tags(): Set<string> {
+    const tagSet = new Set<string>()
+
+    for (const node of this.nodes) {
+      switch (node.type) {
+        case 'transaction':
+          for (const tag of (node as Transaction).tags) {
+            tagSet.add(tag.content)
+          }
+          break
+        case 'pushtag':
+          tagSet.add((node as Pushtag).tag.content)
+          break
+        case 'poptag':
+          tagSet.add((node as Poptag).tag.content)
+          break
+      }
+    }
+
+    return tagSet
+  }
+
+  /**
    * Gets all accounts that are active (open and not yet closed) at a given date.
    * An account is considered active if:
    * - It has an open directive with date <= the given date

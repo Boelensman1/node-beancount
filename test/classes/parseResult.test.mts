@@ -447,4 +447,126 @@ plugin "beancount.plugins.auto"
       expect(result.accountsActiveAt(date)).toEqual(new Set())
     })
   })
+
+  describe('flags getter', () => {
+    test('returns empty set for empty nodes', () => {
+      const result = new ParseResult([])
+      expect(result.flags).toEqual(new Set())
+    })
+
+    test('extracts transaction-level flags', () => {
+      const input = `2024-01-01 * "Completed transaction"
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD
+
+2024-01-02 ! "Pending transaction"
+  Assets:Checking -50.00 USD
+  Expenses:Travel 50.00 USD`
+      const result = parse(input)
+      expect(result.flags).toEqual(new Set(['*', '!']))
+    })
+
+    test('extracts posting-level flags', () => {
+      const input = `2024-01-01 * "Transaction with posting flags"
+  Assets:Checking -100.00 USD
+  ! Expenses:Food 100.00 USD`
+      const result = parse(input)
+      expect(result.flags).toEqual(new Set(['*', '!']))
+    })
+
+    test('extracts both transaction and posting flags', () => {
+      const input = `2024-01-01 * "Transaction"
+  Assets:Checking -100.00 USD
+  ! Expenses:Food 50.00 USD
+  ? Expenses:Travel 50.00 USD`
+      const result = parse(input)
+      expect(result.flags).toEqual(new Set(['*', '!', '?']))
+    })
+
+    test('returns unique flags only', () => {
+      const input = `2024-01-01 * "First"
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD
+
+2024-01-02 * "Second"
+  Assets:Checking -50.00 USD
+  ! Expenses:Travel 50.00 USD`
+      const result = parse(input)
+      expect(result.flags).toEqual(new Set(['*', '!']))
+    })
+
+    test('ignores nodes without flags', () => {
+      const input = `2024-01-01 open Assets:Checking USD
+2024-01-02 balance Assets:Checking 1000.00 USD`
+      const result = parse(input)
+      expect(result.flags).toEqual(new Set())
+    })
+  })
+
+  describe('tags getter', () => {
+    test('returns empty set for empty nodes', () => {
+      const result = new ParseResult([])
+      expect(result.tags).toEqual(new Set())
+    })
+
+    test('extracts tags from transactions', () => {
+      const input = `2024-01-01 * "Test transaction" #trip #business
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set(['trip', 'business']))
+    })
+
+    test('extracts tags from pushtag nodes', () => {
+      const input = `pushtag #project
+
+2024-01-01 * "Transaction"
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set(['project']))
+    })
+
+    test('extracts tags from poptag nodes', () => {
+      const input = `poptag #project`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set(['project']))
+    })
+
+    test('extracts tags from all three node types', () => {
+      const input = `pushtag #project
+
+2024-01-01 * "Test transaction" #trip #business
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD
+
+2024-01-02 * "Another transaction"
+  Assets:Checking -50.00 USD
+  Expenses:Travel 50.00 USD
+
+poptag #project`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set(['project', 'trip', 'business']))
+    })
+
+    test('returns unique tags only', () => {
+      const input = `2024-01-01 * "First" #trip
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD
+
+2024-01-02 * "Second" #trip #business
+  Assets:Checking -50.00 USD
+  Expenses:Travel 50.00 USD`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set(['trip', 'business']))
+    })
+
+    test('ignores nodes without tags', () => {
+      const input = `2024-01-01 * "No tags"
+  Assets:Checking -100.00 USD
+  Expenses:Food 100.00 USD`
+      const result = parse(input)
+      expect(result.tags).toEqual(new Set())
+    })
+  })
 })
