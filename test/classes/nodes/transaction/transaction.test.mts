@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { Transaction } from '../../../../src/classes/nodes/index.mjs'
+import { Value } from '../../../../src/classes/Value.mjs'
 
 describe('toString', () => {
   test('basic', () => {
@@ -199,6 +200,139 @@ describe('toString', () => {
   Income:US:ETrade:PnL 52.36 USD`
     const transaction = Transaction.fromString(input)
     expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with posting-level metadata', () => {
+    const input = `2026-01-16 * "Health Insurance Co" "Monthly premium payment"
+  note: "Health insurance"
+  Assets:NL:ING:Checking -165.50 EUR
+  Expenses:Insurance:Health
+    amortize: "1 Year /Monthly"`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with multiple postings having metadata', () => {
+    const input = `2026-01-16 * "Insurance Co" "Insurance payments"
+  Assets:Checking -300.00 USD
+  Expenses:Insurance:Health 165.50 EUR
+    amortize: "1 Year /Monthly"
+  Expenses:Insurance:Car 134.50 EUR
+    amortize: "1 Year /Monthly"
+    important: TRUE`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with mix of transaction and posting metadata', () => {
+    const input = `2026-01-16 * "Test" "Transaction"
+  note: "Transaction level"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    key: "Posting level"`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('posting without amount can have metadata', () => {
+    const input = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    key: "value"`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('posting with inline comment and metadata', () => {
+    const input = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test ; inline comment
+    key: "value"`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('with posting metadata and standalone comments', () => {
+    const input = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  ; standalone comment
+  Expenses:Test
+    key: "value"
+  ; another comment`
+    const transaction = Transaction.fromString(input)
+    expect(transaction.toString()).toEqual(input)
+  })
+
+  test('editing posting metadata', () => {
+    const input = `2026-01-16 * "Health Insurance Co" "Monthly premium payment"
+  note: "Health insurance"
+  Assets:NL:ING:Checking -165.50 EUR
+  Expenses:Insurance:Health
+    amortize: "1 Year /Monthly"`
+    const transaction = Transaction.fromString(input)
+
+    // Verify initial state
+    expect(transaction.postings[1].metadata).toBeDefined()
+    expect(transaction.postings[1].metadata!.amortize).toBeDefined()
+
+    // Edit the posting metadata
+    transaction.postings[1].metadata!.amortize = new Value({
+      type: 'string',
+      value: '2 Years /Monthly',
+    })
+
+    // Add new metadata field
+    transaction.postings[1].metadata!.category = new Value({
+      type: 'string',
+      value: 'Medical',
+    })
+
+    const expected = `2026-01-16 * "Health Insurance Co" "Monthly premium payment"
+  note: "Health insurance"
+  Assets:NL:ING:Checking -165.50 EUR
+  Expenses:Insurance:Health
+    amortize: "2 Years /Monthly"
+    category: "Medical"`
+
+    expect(transaction.toString()).toEqual(expected)
+  })
+
+  test('removing posting metadata', () => {
+    const input = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    key1: "value1"
+    key2: "value2"`
+    const transaction = Transaction.fromString(input)
+
+    // Remove one metadata field
+    delete transaction.postings[1].metadata!.key1
+
+    const expected = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    key2: "value2"`
+
+    expect(transaction.toString()).toEqual(expected)
+  })
+
+  test('adding metadata to posting without metadata', () => {
+    const input = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test 100.00 USD`
+    const transaction = Transaction.fromString(input)
+
+    // Add metadata to second posting
+    transaction.postings[1].metadata = {
+      category: new Value({ type: 'string', value: 'Food' }),
+    }
+
+    const expected = `2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test 100.00 USD
+    category: "Food"`
+
+    expect(transaction.toString()).toEqual(expected)
   })
 })
 
@@ -445,6 +579,34 @@ describe('toJSON & fromJSON roundtrip', () => {
   Assets:US:ETrade:Cash 1323.26 USD
   Expenses:Financial:Commissions 8.95 USD
   Income:US:ETrade:PnL 52.36 USD`
+    const transaction = Transaction.fromString(input)
+
+    expect(Transaction.fromJSON(JSON.stringify(transaction))).toEqual(
+      transaction,
+    )
+  })
+
+  test('with posting-level metadata', () => {
+    const input = `2026-01-16 * "Health Insurance Co" "Monthly premium payment"
+  note: "Health insurance"
+  Assets:NL:ING:Checking -165.50 EUR
+  Expenses:Insurance:Health
+    amortize: "1 Year /Monthly"`
+    const transaction = Transaction.fromString(input)
+
+    expect(Transaction.fromJSON(JSON.stringify(transaction))).toEqual(
+      transaction,
+    )
+  })
+
+  test('with multiple postings having metadata', () => {
+    const input = `2026-01-16 * "Insurance Co" "Insurance payments"
+  Assets:Checking -300.00 USD
+  Expenses:Insurance:Health 165.50 EUR
+    amortize: "1 Year /Monthly"
+  Expenses:Insurance:Car 134.50 EUR
+    amortize: "1 Year /Monthly"
+    important: TRUE`
     const transaction = Transaction.fromString(input)
 
     expect(Transaction.fromJSON(JSON.stringify(transaction))).toEqual(

@@ -1,6 +1,7 @@
 import { currencyPattern } from '../../../patterns.mjs'
 import { formatPrice } from '../../../utils/formatPrice.mjs'
 import { defaultFormatOptions, FormatOptions } from '../../ParseResult.mjs'
+import { Value } from '../../Value.mjs'
 
 /**
  * Represents a single posting (account movement) within a transaction.
@@ -25,6 +26,8 @@ export class Posting {
   comment?: string
   /** When a cost is given, defines the amount of at signs (1 for unit price, 2 for total price) */
   atSigns?: number
+  /** Optional metadata attached to this posting */
+  metadata?: Record<string, Value>
 
   /**
    * Creates a new Posting instance.
@@ -32,6 +35,31 @@ export class Posting {
    */
   constructor(obj: Record<string, unknown>) {
     Object.assign(this, obj)
+
+    // Convert plain metadata objects to Value instances if needed
+    if (this.metadata) {
+      const convertedMetadata: Record<string, Value> = {}
+      for (const [key, value] of Object.entries(this.metadata)) {
+        if (value instanceof Value) {
+          convertedMetadata[key] = value
+        } else if (
+          typeof value === 'object' &&
+          value !== null &&
+          'type' in value &&
+          'value' in value
+        ) {
+          convertedMetadata[key] = new Value(
+            value as {
+              type: 'string' | 'date' | 'boolean' | 'amount' | 'numbers'
+              value: unknown
+            },
+          )
+        } else {
+          convertedMetadata[key] = value as Value
+        }
+      }
+      this.metadata = convertedMetadata
+    }
   }
 
   /**
@@ -114,9 +142,10 @@ export class Posting {
   /**
    * Converts this posting to a formatted string with aligned currency column.
    * Adds padding before the price to align at the specified column.
+   * If metadata exists, it is output on separate lines with 4-space indentation.
    *
    * @param formatOptions - Formatting options including currency column position
-   * @returns The formatted string representation of this posting
+   * @returns The formatted string representation of this posting (may span multiple lines)
    */
   toFormattedString(formatOptions: FormatOptions = defaultFormatOptions) {
     const parts: string[] = []
@@ -143,6 +172,19 @@ export class Posting {
     if (this.comment !== undefined) {
       parts.push(';', this.comment)
     }
-    return parts.join(' ')
+
+    let result = parts.join(' ')
+
+    // Add metadata lines if present
+    if (this.metadata) {
+      const metadataLines = Object.entries(this.metadata).map(
+        ([key, value]) => `    ${key}: ${value.toString()}`,
+      )
+      if (metadataLines.length > 0) {
+        result += '\n' + metadataLines.join('\n')
+      }
+    }
+
+    return result
   }
 }

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { Posting } from '../../../../src/classes/nodes/Transaction/Posting.mjs'
+import { Value } from '../../../../src/classes/Value.mjs'
 
 test('Parse posting with positive amount', () => {
   const posting = Posting.fromString(
@@ -177,4 +178,74 @@ test('Correctly format postings with auto selected postings', () => {
   const input = 'Assets:MyBank:Checking -400.00 IVV {} @@ 1.09 CAD'
   const posting = Posting.fromString(input)
   expect(posting.toString()).toBe(input)
+})
+
+test('Create posting with metadata via constructor', () => {
+  const posting = new Posting({
+    account: 'Expenses:Insurance:Health',
+    amount: '165.50',
+    currency: 'EUR',
+    metadata: {
+      amortize: new Value({ type: 'string', value: '1 Year /Monthly' }),
+    },
+  })
+
+  expect(posting.account).toBe('Expenses:Insurance:Health')
+  expect(posting.metadata).toBeDefined()
+  expect(posting.metadata!.amortize).toBeInstanceOf(Value)
+  expect(posting.metadata!.amortize.type).toBe('string')
+  expect(posting.metadata!.amortize.value).toBe('1 Year /Monthly')
+})
+
+test('Posting toString includes metadata', () => {
+  const posting = new Posting({
+    account: 'Expenses:Insurance:Health',
+    amount: '165.50',
+    currency: 'EUR',
+    metadata: {
+      amortize: new Value({ type: 'string', value: '1 Year /Monthly' }),
+    },
+  })
+
+  const output = posting.toString()
+  expect(output).toContain('Expenses:Insurance:Health')
+  expect(output).toContain('165.50 EUR')
+  expect(output).toContain('amortize: "1 Year /Monthly"')
+  expect(output).toContain('    amortize:') // Check indentation
+})
+
+test('Posting with multiple metadata fields', () => {
+  const posting = new Posting({
+    account: 'Expenses:Insurance:Health',
+    metadata: {
+      amortize: new Value({ type: 'string', value: '1 Year /Monthly' }),
+      important: new Value({ type: 'boolean', value: true }),
+    },
+  })
+
+  const output = posting.toString()
+  expect(output).toContain('amortize: "1 Year /Monthly"')
+  expect(output).toContain('important: TRUE')
+})
+
+test('Posting JSON roundtrip with metadata', () => {
+  const posting = new Posting({
+    account: 'Expenses:Insurance:Health',
+    amount: '165.50',
+    currency: 'EUR',
+    metadata: {
+      amortize: new Value({ type: 'string', value: '1 Year /Monthly' }),
+    },
+  })
+
+  const json = JSON.parse(JSON.stringify(posting)) as Record<string, unknown>
+  const restored = new Posting(json)
+
+  expect(restored.account).toBe('Expenses:Insurance:Health')
+  expect(restored.amount).toBe('165.50')
+  expect(restored.currency).toBe('EUR')
+  expect(restored.metadata).toBeDefined()
+  expect(restored.metadata!.amortize).toBeInstanceOf(Value)
+  expect(restored.metadata!.amortize.type).toBe('string')
+  expect(restored.metadata!.amortize.value).toBe('1 Year /Monthly')
 })

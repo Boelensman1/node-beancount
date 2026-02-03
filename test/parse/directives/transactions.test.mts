@@ -409,3 +409,149 @@ test('Parse with cost and posting price', () => {
     '-11 ITOT {125.87 USD, 2023-10-02} @ 121.11 USD',
   )
 })
+
+test('Parse with posting-level metadata', () => {
+  const directive = `
+2026-01-16 * "Health Insurance Co" "Monthly premium payment"
+  note: "Health insurance"
+  Assets:NL:ING:Checking -165.50 EUR
+  Expenses:Insurance:Health
+    amortize: "1 Year /Monthly"`
+
+  const output = parse(directive)
+  expect(output.transactions).toHaveLength(1)
+
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(2)
+
+  // Transaction-level metadata
+  expect(node.metadata).toBeDefined()
+  expect(node.metadata!.note).toEqual(
+    new Value({ type: 'string', value: 'Health insurance' }),
+  )
+
+  // First posting has no metadata
+  expect(node.postings[0].account).toBe('Assets:NL:ING:Checking')
+  expect(node.postings[0].amount).toBe('-165.50')
+  expect(node.postings[0].currency).toBe('EUR')
+  expect(node.postings[0].metadata).toBeUndefined()
+
+  // Second posting has metadata
+  expect(node.postings[1].account).toBe('Expenses:Insurance:Health')
+  expect(node.postings[1].amount).toBeUndefined()
+  expect(node.postings[1].metadata).toBeDefined()
+  expect(node.postings[1].metadata!.amortize).toEqual(
+    new Value({ type: 'string', value: '1 Year /Monthly' }),
+  )
+})
+
+test('Parse multiple postings with metadata', () => {
+  const directive = `
+2026-01-16 * "Insurance Co" "Insurance payments"
+  Assets:Checking -300.00 USD
+  Expenses:Insurance:Health 165.50 EUR
+    amortize: "1 Year /Monthly"
+  Expenses:Insurance:Car 134.50 EUR
+    amortize: "1 Year /Monthly"
+    important: TRUE`
+
+  const output = parse(directive)
+  expect(output.transactions).toHaveLength(1)
+
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(3)
+
+  // First posting has no metadata
+  expect(node.postings[0].metadata).toBeUndefined()
+
+  // Second posting has one metadata field
+  expect(node.postings[1].metadata).toBeDefined()
+  expect(node.postings[1].metadata!.amortize).toEqual(
+    new Value({ type: 'string', value: '1 Year /Monthly' }),
+  )
+  expect(node.postings[1].metadata!.important).toBeUndefined()
+
+  // Third posting has two metadata fields
+  expect(node.postings[2].metadata).toBeDefined()
+  expect(node.postings[2].metadata!.amortize).toEqual(
+    new Value({ type: 'string', value: '1 Year /Monthly' }),
+  )
+  expect(node.postings[2].metadata!.important).toEqual(
+    new Value({ type: 'boolean', value: true }),
+  )
+})
+
+test('Parse posting metadata with various value types', () => {
+  const directive = `
+2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    stringval: "test string"
+    boolval: TRUE
+    amountval: 100 USD`
+
+  const output = parse(directive)
+  expect(output.transactions).toHaveLength(1)
+
+  const node = output.transactions[0]
+  expect(node.postings[1].metadata).toBeDefined()
+  expect(node.postings[1].metadata!.stringval).toEqual(
+    new Value({ type: 'string', value: 'test string' }),
+  )
+  expect(node.postings[1].metadata!.boolval).toEqual(
+    new Value({ type: 'boolean', value: true }),
+  )
+  expect(node.postings[1].metadata!.amountval).toEqual(
+    new Value({ type: 'amount', value: '100 USD' }),
+  )
+})
+
+test('Parse transaction and posting metadata separately', () => {
+  const directive = `
+2026-01-16 * "Test" "Transaction"
+  txnkey: "Transaction level"
+  Assets:Checking -100.00 USD
+  Expenses:Test
+    postingkey: "Posting level"`
+
+  const output = parse(directive)
+  expect(output.transactions).toHaveLength(1)
+
+  const node = output.transactions[0]
+
+  // Transaction metadata
+  expect(node.metadata).toBeDefined()
+  expect(node.metadata!.txnkey).toEqual(
+    new Value({ type: 'string', value: 'Transaction level' }),
+  )
+  expect(node.metadata!.postingkey).toBeUndefined()
+
+  // Posting metadata
+  expect(node.postings[1].metadata).toBeDefined()
+  expect(node.postings[1].metadata!.postingkey).toEqual(
+    new Value({ type: 'string', value: 'Posting level' }),
+  )
+  expect(node.postings[1].metadata!.txnkey).toBeUndefined()
+})
+
+test('Parse mix of postings with and without metadata', () => {
+  const directive = `
+2026-01-16 * "Test"
+  Assets:Checking -100.00 USD
+    key1: "value1"
+  Expenses:Test1 50.00 USD
+  Expenses:Test2 50.00 USD
+    key2: "value2"`
+
+  const output = parse(directive)
+  expect(output.transactions).toHaveLength(1)
+
+  const node = output.transactions[0]
+  expect(node.postings).toHaveLength(3)
+
+  expect(node.postings[0].metadata).toBeDefined()
+  expect(node.postings[0].metadata!.key1).toBeDefined()
+  expect(node.postings[1].metadata).toBeUndefined()
+  expect(node.postings[2].metadata).toBeDefined()
+  expect(node.postings[2].metadata!.key2).toBeDefined()
+})

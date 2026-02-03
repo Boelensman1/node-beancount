@@ -132,27 +132,56 @@ export class Transaction extends DatedNode {
       tags = payeeParsed.tags
     }
 
-    const unparsedPostings: string[] = []
     const unparsedMetadata: string[] = []
     const postingComments: PostingComment[] = []
+    const postingsData: { postingLine: string; metadata: string[] }[] = []
+    let currentPosting: { postingLine: string; metadata: string[] } | null =
+      null
+    let seenFirstPosting = false
 
     genericParseResult.body.forEach((line) => {
       //                           V remove flag,       V get account type
       const accountType = line.replace(/^[^ ] /, '').split(':')[0]
 
       if (AccountTypes.includes(accountType)) {
-        unparsedPostings.push(line)
+        // Save previous posting and start new one
+        if (currentPosting) {
+          postingsData.push(currentPosting)
+        }
+        currentPosting = { postingLine: line, metadata: [] }
+        seenFirstPosting = true
       } else if (line.startsWith(';')) {
         postingComments.push({
           comment: line,
-          order: unparsedPostings.length + postingComments.length,
+          order:
+            postingsData.length +
+            (currentPosting ? 1 : 0) +
+            postingComments.length,
         })
       } else {
-        unparsedMetadata.push(line)
+        // Metadata line
+        if (!seenFirstPosting) {
+          unparsedMetadata.push(line) // Transaction metadata
+        } else if (currentPosting) {
+          currentPosting.metadata.push(line) // Posting metadata
+        }
       }
     })
 
-    const postings = unparsedPostings.map((p) => Posting.fromString(p))
+    // Don't forget the last posting
+    if (currentPosting) {
+      postingsData.push(currentPosting)
+    }
+
+    // Parse postings with metadata
+    const postings = postingsData.map((pd) => {
+      const posting = Posting.fromString(pd.postingLine)
+      if (pd.metadata.length > 0) {
+        posting.metadata = parseMetadata(pd.metadata)
+      }
+      return posting
+    })
+
     const metadata = parseMetadata(unparsedMetadata)
 
     return new Transaction({
