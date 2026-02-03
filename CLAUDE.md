@@ -31,6 +31,7 @@ command make install
 # Build the project
 command make build
 # Compiles src/ to build/ using tsconfig.build.json
+# this should only be run when we actually need to build, not for e.g. verification (so it should almost never be run)
 
 # Run benchmark
 command make benchmark
