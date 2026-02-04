@@ -1,6 +1,7 @@
 import type { BeancountDirectiveNodeType } from '../nodeTypeToClass.mjs'
 import { genericParse } from '../genericParse.mjs'
 import { stringAwareSplitLine } from '../utils/stringAwareSplitLine.mjs'
+import { assignWithTrimmedStrings } from '../utils/assignWithTrimmedStrings.mjs'
 import { FormatOptions, defaultFormatOptions } from './ParseResult.mjs'
 
 /**
@@ -39,7 +40,7 @@ export abstract class Node {
    * @param obj - Object containing node properties
    */
   constructor(obj: Record<string, unknown>) {
-    Object.assign(this, obj)
+    assignWithTrimmedStrings(this, obj)
   }
 
   /**

@@ -1,5 +1,6 @@
 import { currencyPattern } from '../../../patterns.mjs'
 import { formatPrice } from '../../../utils/formatPrice.mjs'
+import { assignWithTrimmedStrings } from '../../../utils/assignWithTrimmedStrings.mjs'
 import { defaultFormatOptions, FormatOptions } from '../../ParseResult.mjs'
 import { Value } from '../../Value.mjs'
 
@@ -34,7 +35,7 @@ export class Posting {
    * @param obj - Object containing posting properties
    */
   constructor(obj: Record<string, unknown>) {
-    Object.assign(this, obj)
+    assignWithTrimmedStrings(this, obj)
 
     // Convert plain metadata objects to Value instances if needed
     if (this.metadata) {

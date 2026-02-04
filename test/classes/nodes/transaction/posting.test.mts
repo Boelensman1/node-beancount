@@ -228,6 +228,15 @@ test('Posting with multiple metadata fields', () => {
   expect(output).toContain('important: TRUE')
 })
 
+test('Posting with account that should be trimmed', () => {
+  const posting = new Posting({
+    account: '    Expenses:Insurance:Health    ',
+  })
+
+  const output = posting.toString()
+  expect(output).toEqual('Expenses:Insurance:Health')
+})
+
 test('Posting JSON roundtrip with metadata', () => {
   const posting = new Posting({
     account: 'Expenses:Insurance:Health',
