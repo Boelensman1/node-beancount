@@ -11,6 +11,10 @@ import {
   BeancountDirectiveNodeType,
 } from './nodeTypeToClass.mjs'
 import { splitStringIntoSourceFragments } from './utils/splitStringIntoSourceFragments.js'
+import {
+  BeancountParseError,
+  type SourceFragmentWithLocation,
+} from './utils/SourceLocation.mjs'
 
 /**
  * Parses a single source fragment into its corresponding Node class instance.
@@ -20,34 +24,56 @@ import { splitStringIntoSourceFragments } from './utils/splitStringIntoSourceFra
  * - Instantiates the appropriate Node subclass
  * - Handles special cases for comments and blank lines
  *
- * @param sourceFragment - Array of string tokens that should be parsed to a single node
+ * @param fragmentWithLocation - Source fragment with location metadata
  * @returns A Node instance
  */
-export const parseSourceFragment = (sourceFragment: string[]) => {
-  const genericParseResult = genericParse(sourceFragment)
-  const { type } = genericParseResult
+export const parseSourceFragment = (
+  fragmentWithLocation: SourceFragmentWithLocation,
+) => {
+  const { fragment, location } = fragmentWithLocation
 
-  if (genericParseResult.synthetic) {
-    if (type === 'blankline') {
-      return Blankline.fromGenericParseResult(
-        genericParseResult as unknown as GenericParseResult,
+  let nodeType: string | undefined
+  try {
+    const genericParseResult = genericParse(fragment)
+    const { type } = genericParseResult
+    nodeType = type
+
+    if (genericParseResult.synthetic) {
+      if (type === 'blankline') {
+        return Blankline.fromGenericParseResult(
+          genericParseResult as unknown as GenericParseResult,
+        )
+      } else {
+        return Comment.fromGenericParseResult(
+          genericParseResult as unknown as GenericParseResult,
+        )
+      }
+    }
+
+    const NodeClass =
+      beancountDirectiveNodeTypeToClass[type as BeancountDirectiveNodeType]
+
+    if (NodeClass) {
+      return NodeClass.fromGenericParseResult(
+        genericParseResult as GenericParseResultTransaction,
       )
     } else {
-      return Comment.fromGenericParseResult(
-        genericParseResult as unknown as GenericParseResult,
-      )
+      throw Error(`Could not parse ${fragment.toString()}`)
     }
-  }
+  } catch (error) {
+    // If it's already a BeancountParseError, just re-throw
+    if (error instanceof BeancountParseError) {
+      throw error
+    }
 
-  const NodeClass =
-    beancountDirectiveNodeTypeToClass[type as BeancountDirectiveNodeType]
-
-  if (NodeClass) {
-    return NodeClass.fromGenericParseResult(
-      genericParseResult as GenericParseResultTransaction,
-    )
-  } else {
-    throw Error(`Could not parse ${sourceFragment.toString()}`)
+    // Wrap other errors with location context
+    throw new BeancountParseError({
+      message: error instanceof Error ? error.message : String(error),
+      location,
+      sourceContent: fragment,
+      nodeType,
+      cause: error instanceof Error ? error : undefined,
+    })
   }
 }
 
@@ -81,35 +107,55 @@ export const parseSourceFragment = (sourceFragment: string[]) => {
  * ```
  *
  * @param source - The complete Beancount file content as a string
+ * @param filePath - Optional file path for better error reporting
  * @returns A ParseResult instance containing all parsed nodes
  */
-export const parse = (source: string) => {
+export const parse = (source: string, filePath?: string) => {
   const sourceFragments = splitStringIntoSourceFragments(source)
+
+  // Add filePath to location metadata if provided
+  if (filePath) {
+    sourceFragments.forEach((fragment) => {
+      fragment.location.filePath = filePath
+    })
+  }
 
   const nodes = []
   const tagStack: Tag[] = []
 
-  for (const sourceFragment of sourceFragments) {
-    const node = parseSourceFragment(sourceFragment)
-    if (node) {
-      if (node.type === 'pushtag') {
-        tagStack.push(node.tag)
-      } else if (node.type === 'poptag') {
-        // Find and remove the most recent matching tag from the stack
-        const tagToRemove = node.tag.content
-        for (let i = tagStack.length - 1; i >= 0; i--) {
-          if (tagStack[i].content === tagToRemove) {
-            tagStack.splice(i, 1)
-            break
+  for (const fragmentWithLocation of sourceFragments) {
+    try {
+      const node = parseSourceFragment(fragmentWithLocation)
+      if (node) {
+        if (node.type === 'pushtag') {
+          tagStack.push(node.tag)
+        } else if (node.type === 'poptag') {
+          // Find and remove the most recent matching tag from the stack
+          const tagToRemove = node.tag.content
+          for (let i = tagStack.length - 1; i >= 0; i--) {
+            if (tagStack[i].content === tagToRemove) {
+              tagStack.splice(i, 1)
+              break
+            }
           }
         }
-      }
 
-      if (node.type === 'transaction') {
-        node.tags.push(...tagStack)
-      }
+        if (node.type === 'transaction') {
+          node.tags.push(...tagStack)
+        }
 
-      nodes.push(node)
+        nodes.push(node)
+      }
+    } catch (error) {
+      // Enrich BeancountParseError with file path if not already set
+      if (
+        error instanceof BeancountParseError &&
+        filePath &&
+        !error.location.filePath
+      ) {
+        error.location.filePath = filePath
+      }
+      throw error
     }
   }
 

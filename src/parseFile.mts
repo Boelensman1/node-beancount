@@ -109,7 +109,7 @@ export const parseFile = async (
   }
 
   const content = await fsHelpers.readFile(filepath)
-  return parse(content)
+  return parse(content, filepath)
 }
 
 /**
@@ -134,7 +134,7 @@ const parseFileRecursive = async (
   visited.add(absolutePath)
 
   const content = await fsHelpers.readFile(absolutePath)
-  const result = parse(content)
+  const result = parse(content, absolutePath)
 
   const allNodes: Node[] = []
   const baseDir = fsHelpers.dirname(absolutePath)

@@ -7,6 +7,7 @@
 import fs from 'node:fs'
 import { parseArgs } from 'node:util'
 import { parseFile } from './parseFile.mjs'
+import { BeancountParseError } from './utils/SourceLocation.mjs'
 
 /**
  * Display help message
@@ -87,8 +88,16 @@ async function formatFile(
 
     return true
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    console.error(`Error processing ${filePath}: ${errorMessage}`)
+    // Enhanced error display for BeancountParseError
+    if (error instanceof BeancountParseError) {
+      console.error(`\nError processing ${filePath}:\n`)
+      console.error(error.formatWithContext())
+      console.error('')
+    } else {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      console.error(`Error processing ${filePath}: ${errorMessage}`)
+    }
     return false
   }
 }

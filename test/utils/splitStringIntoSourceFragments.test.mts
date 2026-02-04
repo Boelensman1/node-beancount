@@ -13,9 +13,14 @@ test('Split simple source string', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(3)
-  expect(sourceFragments[0]).toHaveLength(3)
-  expect(sourceFragments[1]).toEqual([''])
-  expect(sourceFragments[2]).toHaveLength(3)
+  expect(sourceFragments[0].fragment).toHaveLength(3)
+  expect(sourceFragments[0].location.startLine).toBe(1)
+  expect(sourceFragments[0].location.endLine).toBe(3)
+  expect(sourceFragments[1].fragment).toEqual([''])
+  expect(sourceFragments[1].location.startLine).toBe(4)
+  expect(sourceFragments[2].fragment).toHaveLength(3)
+  expect(sourceFragments[2].location.startLine).toBe(5)
+  expect(sourceFragments[2].location.endLine).toBe(7)
 })
 
 test('Split transactions without new line', () => {
@@ -28,8 +33,8 @@ test('Split transactions without new line', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(2)
-  expect(sourceFragments[0]).toHaveLength(3)
-  expect(sourceFragments[1]).toHaveLength(3)
+  expect(sourceFragments[0].fragment).toHaveLength(3)
+  expect(sourceFragments[1].fragment).toHaveLength(3)
 })
 
 test('Split source string with multiple newlines in string', () => {
@@ -44,7 +49,7 @@ test('Split source string with multiple newlines in string', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(1)
-  expect(sourceFragments[0]).toHaveLength(1)
+  expect(sourceFragments[0].fragment).toHaveLength(1)
 })
 
 test('Split transactions with a comment part of transaction', () => {
@@ -55,7 +60,7 @@ test('Split transactions with a comment part of transaction', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(1)
-  expect(sourceFragments[0]).toHaveLength(4)
+  expect(sourceFragments[0].fragment).toHaveLength(4)
 })
 
 test('Split transactions with a comment not part of transaction', () => {
@@ -66,8 +71,8 @@ test('Split transactions with a comment not part of transaction', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(2)
-  expect(sourceFragments[0]).toHaveLength(3)
-  expect(sourceFragments[1]).toHaveLength(1)
+  expect(sourceFragments[0].fragment).toHaveLength(3)
+  expect(sourceFragments[1].fragment).toHaveLength(1)
 })
 
 test('Split blank line followed by indented content', () => {
@@ -76,6 +81,6 @@ test('Split blank line followed by indented content', () => {
 
   const sourceFragments = splitStringIntoSourceFragments(source)
   expect(sourceFragments).toHaveLength(2)
-  expect(sourceFragments[0]).toEqual([''])
-  expect(sourceFragments[1]).toHaveLength(1)
+  expect(sourceFragments[0].fragment).toEqual([''])
+  expect(sourceFragments[1].fragment).toHaveLength(1)
 })

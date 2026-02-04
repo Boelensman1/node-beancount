@@ -45,6 +45,13 @@ export type {
 } from './genericParse.mjs'
 export type { Metadata } from './utils/parseMetadata.mjs'
 
+// Error handling
+export {
+  BeancountParseError,
+  type SourceLocation,
+  type SourceFragmentWithLocation,
+} from './utils/SourceLocation.mjs'
+
 // Core classes
 export {
   ParseResult,
