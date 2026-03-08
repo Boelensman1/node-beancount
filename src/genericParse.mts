@@ -116,7 +116,7 @@ function compileDirectivePattern(): RegExp {
  * Regex pattern to identify Beancount directives that start with a date.
  * Generated from {@link NON_DATED_DIRECTIVE_TYPES} and {@link DATED_DIRECTIVE_TYPES} to ensure validation of directive types.
  */
-const beanCountDirectiveRegex = compileDirectivePattern()
+export const beanCountDirectiveRegex = compileDirectivePattern()
 
 /**
  * Performs generic parsing on a source fragment to extract common fields.

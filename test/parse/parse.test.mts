@@ -228,3 +228,16 @@ test('Commented out transaction', () => {
   const output = parse(input)
   expect(output.comment).toHaveLength(2)
 })
+
+test('Does not error on unclosed quotes in comments', () => {
+  const source = `
+;2025-08-08 * "TEST" "UNCLOSED STRING
+`
+
+  let result
+  expect(() => {
+    result = parse(source)
+  }).not.toThrow()
+
+  expect(result).not.toBeUndefined()
+})

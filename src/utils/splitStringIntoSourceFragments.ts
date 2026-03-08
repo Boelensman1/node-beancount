@@ -1,4 +1,5 @@
 import { countChar } from './countChar.mjs'
+import { beanCountDirectiveRegex } from '../genericParse.mjs'
 import { stringAwareSplitLine } from './stringAwareSplitLine.mjs'
 import {
   BeancountParseError,
@@ -27,6 +28,7 @@ export const splitStringIntoSourceFragments = (
   // split up the file into source fragments with line tracking
   let inFragment = false
   let inString = false
+  let isDirectiveFragment = false
 
   interface FragmentWithLines {
     lines: string[]
@@ -51,6 +53,7 @@ export const splitStringIntoSourceFragments = (
         if (!inFragment) {
           acc.push({ lines: [], startLine: lineNumber })
           inFragment = true
+          isDirectiveFragment = beanCountDirectiveRegex.test(line)
         }
       }
 
@@ -62,7 +65,7 @@ export const splitStringIntoSourceFragments = (
       }
 
       // odd number of ", we're in an unclosed string
-      if (countChar(line, '"') % 2 === 1) {
+      if (isDirectiveFragment && countChar(line, '"') % 2 === 1) {
         inString = !inString
       }
 
@@ -77,6 +80,15 @@ export const splitStringIntoSourceFragments = (
       endLine: startLine + lines.length - 1,
     }
 
+    // Comment fragments (non-directives) may contain unbalanced quotes,
+    // so skip string-aware splitting for them.
+    const firstLine = lines[0] ?? ''
+    if (!beanCountDirectiveRegex.test(firstLine)) {
+      return {
+        fragment: lines,
+        location,
+      }
+    }
 
     try {
       const splitLines = stringAwareSplitLine(lines.join('\n'))
