@@ -108,4 +108,64 @@ pushtag
       }
     }
   })
+
+  test('Unclosed quote error includes location context', () => {
+    const source = `2024-01-15 * "Purchase" "Office supplies"
+  Assets:Checking  -100.00 USD
+  Expenses:Office   100.00 USD
+
+2024-01-20 * "Groceries "Weekly shopping"
+  Assets:Checking  -50.00 USD
+  Expenses:Food     50.00 USD`
+
+    expect(() => parse(source)).toThrow(BeancountParseError)
+
+    try {
+      parse(source)
+    } catch (error) {
+      expect(error).toBeInstanceOf(BeancountParseError)
+      if (error instanceof BeancountParseError) {
+        expect(error.location.startLine).toBe(5)
+        expect(error.sourceContent).toContain(
+          '2024-01-20 * "Groceries "Weekly shopping"',
+        )
+        expect(error.message).toContain('Unclosed quote')
+      }
+    }
+  })
+
+  test('Unclosed quote in large file produces narrow sourceContent', () => {
+    const validLines = Array.from(
+      { length: 100 },
+      (
+        _,
+        i,
+      ) => `2024-01-${String(i + 1).padStart(2, '0')} * "Valid ${i}" "Payee"
+  Assets:Checking  -10.00 USD
+  Expenses:Misc     10.00 USD`,
+    ).join('\n\n')
+
+    const source = `${validLines}
+
+2024-06-15 * "Broken "transaction"
+  Assets:Checking  -50.00 USD
+  Expenses:Food     50.00 USD
+
+${validLines}`
+
+    expect(() => parse(source)).toThrow(BeancountParseError)
+
+    try {
+      parse(source)
+    } catch (error) {
+      expect(error).toBeInstanceOf(BeancountParseError)
+      if (error instanceof BeancountParseError) {
+        expect(error.sourceContent.length).toBeLessThanOrEqual(3)
+        expect(error.sourceContent).toContain(
+          '2024-06-15 * "Broken "transaction"',
+        )
+        expect(error.message).toContain('Unclosed quote')
+      }
+    }
+  })
 })

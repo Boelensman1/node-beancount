@@ -1,6 +1,9 @@
 import { countChar } from './countChar.mjs'
 import { stringAwareSplitLine } from './stringAwareSplitLine.mjs'
-import type { SourceFragmentWithLocation } from './SourceLocation.mjs'
+import {
+  BeancountParseError,
+  type SourceFragmentWithLocation,
+} from './SourceLocation.mjs'
 
 /**
  * Splits a Beancount file string into an array of source fragments.
@@ -69,13 +72,31 @@ export const splitStringIntoSourceFragments = (
   )
 
   return fragmentsWithLines.map(({ lines, startLine }) => {
-    const splitLines = stringAwareSplitLine(lines.join('\n'))
-    return {
-      fragment: splitLines,
-      location: {
-        startLine,
-        endLine: startLine + lines.length - 1,
-      },
+    const location = {
+      startLine,
+      endLine: startLine + lines.length - 1,
+    }
+
+
+    try {
+      const splitLines = stringAwareSplitLine(lines.join('\n'))
+      return {
+        fragment: splitLines,
+        location,
+      }
+    } catch (error) {
+      // Cap sourceContent to avoid huge error output when an unclosed quote
+      // causes all remaining lines to be absorbed into a single fragment.
+      const contextLines = lines.slice(0, 3)
+      throw new BeancountParseError({
+        message: error instanceof Error ? error.message : String(error),
+        location: {
+          startLine,
+          endLine: startLine + contextLines.length - 1,
+        },
+        sourceContent: contextLines,
+        cause: error instanceof Error ? error : undefined,
+      })
     }
   })
 }
