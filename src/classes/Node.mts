@@ -1,8 +1,8 @@
 import type { BeancountDirectiveNodeType } from '../nodeTypeToClass.mjs'
 import { genericParse } from '../genericParse.mjs'
-import { stringAwareSplitLine } from '../utils/stringAwareSplitLine.mjs'
 import { assignWithTrimmedStrings } from '../utils/assignWithTrimmedStrings.mjs'
 import { FormatOptions, defaultFormatOptions } from './ParseResult.mjs'
+import { splitStringIntoSourceFragments } from '../utils/splitStringIntoSourceFragments.js'
 
 /**
  * Type helper for Node class constructors that enforce the static factory methods.
@@ -54,8 +54,12 @@ export abstract class Node {
     this: NodeConstructor<T>,
     input: string,
   ): T {
-    const sourceFragment = stringAwareSplitLine(input)
-    const genericParseResult = genericParse(sourceFragment)
+    const sourceFragment = splitStringIntoSourceFragments(input)
+    if (sourceFragment.length !== 1) {
+      throw new Error('Wrong directive count, expected 1')
+    }
+
+    const genericParseResult = genericParse(sourceFragment[0])
     const result = this.fromGenericParseResult(genericParseResult)
     if (result.type !== genericParseResult.type) {
       console.warn(

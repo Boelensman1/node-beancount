@@ -7,6 +7,7 @@ import {
   NON_DATED_DIRECTIVE_TYPES,
 } from './directiveTypes.mjs'
 import { parseMetadata, type Metadata } from './utils/parseMetadata.mjs'
+import { type SourceFragmentWithLocation } from './utils/SourceLocation.mjs'
 
 /**
  * The basic result structure from generic parsing of a Beancount directive.
@@ -105,15 +106,15 @@ function compileDirectivePattern(): RegExp {
     '[^ ]' /* flag */,
   ].join('|')
 
-  const datePattern = `\\d{4}-\\d{2}-\\d{2}`
-  const datedDirectivesPattern = `${datePattern} +(?:${datedDirectivesTypePattern})`
+  const datePattern = `(?<date>\\d{4}-\\d{2}-\\d{2})`
+  const datedDirectivesPattern = `${datePattern} +(?<dated_directive>${datedDirectivesTypePattern})`
 
-  const pattern = `^(?:${nonDatedDirectivesPattern})|(?:^${datedDirectivesPattern}) `
+  const pattern = `^(?<non_dated_directive>${nonDatedDirectivesPattern})|(?:^${datedDirectivesPattern}) `
   return new RegExp(pattern)
 }
 
 /**
- * Regex pattern to identify Beancount directives that start with a date.
+ * Regex pattern to identify Beancount directives
  * Generated from {@link NON_DATED_DIRECTIVE_TYPES} and {@link DATED_DIRECTIVE_TYPES} to ensure validation of directive types.
  */
 export const beanCountDirectiveRegex = compileDirectivePattern()
@@ -128,34 +129,37 @@ export const beanCountDirectiveRegex = compileDirectivePattern()
  * - Handles transaction-specific parsing (flags, body lines)
  * - Parses metadata for dated directives
  *
- * @param sourceFragment - Array of strings that should be parsed to a single node
+ * @param sourceFragment - A single source fragment
  * @returns A generic parse result object appropriate for the node type
  */
 export const genericParse = (
-  sourceFragment: string[],
+  sourceFragment: SourceFragmentWithLocation,
 ):
   | GenericParseResult
   | GenericParseResultTransaction
   | GenericParseResultWithDate
   | GenericParseResultSyntheticNode => {
-  const [firstLine, ...rest] = sourceFragment
+  const { fragment, directiveInfo } = sourceFragment
+  const [firstLine, ...rest] = fragment
 
-  if (firstLine.trim() === '') {
-    return { type: 'blankline', header: '', props: {}, synthetic: true }
-  }
-  if (!beanCountDirectiveRegex.test(firstLine)) {
-    // not a valid beancount directive, return it as a comment
+  if (!directiveInfo) {
+    // not a valid beancount directive, return it as a comment or a newline
+
+    if (firstLine.trim() === '') {
+      return { type: 'blankline', header: '', props: {}, synthetic: true }
+    }
+
     return {
       type: 'comment',
-      header: sourceFragment.join('\n'),
+      header: fragment.join('\n'),
       props: {},
       synthetic: true,
     }
   }
 
   const splitFirstLine = firstLine.split(' ')
-  if (/^\d{4}-\d{2}-\d{2}/.exec(splitFirstLine[0].trim())) {
-    let type = splitFirstLine[1]
+  if (directiveInfo.date) {
+    let type = directiveInfo.directive
 
     let flag
     if (type.length === 1) {
@@ -170,28 +174,26 @@ export const genericParse = (
     }
 
     if (type === 'transaction') {
-      const date = splitFirstLine[0].trim()
       const [header, ...comment] = splitFirstLine.slice(2).join(' ').split(';')
       return {
         type,
         header: header.trim(),
         body: rest.map((r) => r.trim()),
         props: {
-          date,
+          date: directiveInfo.date,
           flag,
           comment: comment.length > 0 ? comment.join(';').trim() : undefined,
         },
       } as GenericParseResultTransaction
     }
 
-    const date = splitFirstLine[0].trim()
     const metadata = parseMetadata(rest)
     const [header, ...comment] = splitFirstLine.slice(2).join(' ').split(';')
     return {
       type,
       header: header.trim(),
       props: {
-        date,
+        date: directiveInfo.date,
         metadata,
         comment: comment.length > 0 ? comment.join(';').trim() : undefined,
       },
@@ -200,7 +202,7 @@ export const genericParse = (
 
   const [header, ...comment] = splitFirstLine.slice(1).join(' ').split(';')
   return {
-    type: splitFirstLine[0].trim(),
+    type: directiveInfo.directive,
     header: header.trim(),
     props: {
       metadata: parseMetadata(rest),

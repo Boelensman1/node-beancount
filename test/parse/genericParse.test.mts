@@ -1,28 +1,28 @@
 import { expect, test } from 'vitest'
 import { genericParse } from '../../src/genericParse.mjs'
-import { stringAwareSplitLine } from '../../src/utils/stringAwareSplitLine.mjs'
+import { splitStringIntoSourceFragments } from '../../src/utils/splitStringIntoSourceFragments.js'
 import { Value } from '../../src/classes/Value.mjs'
 
 const t = (
   input: string,
   expected: (string | string[] | undefined | Record<string, unknown>)[],
 ) => {
-  const splitInput = stringAwareSplitLine(input.trim())
+  const splitInput = splitStringIntoSourceFragments(input.trim())
   switch (expected.length) {
     // only checking type
     case 1:
-      expect(genericParse(splitInput).type).toEqual(expected[0])
+      expect(genericParse(splitInput[0]).type).toEqual(expected[0])
       return
     // only checking type and header
     case 2: {
-      const result = genericParse(splitInput)
+      const result = genericParse(splitInput[0])
       expect(result.type).toEqual(expected[0])
       expect(result.header).toEqual(expected[1])
       return
     }
     // non transaction nodes
     case 3:
-      expect(genericParse(splitInput)).toEqual({
+      expect(genericParse(splitInput[0])).toEqual({
         type: expected[0],
         header: expected[1],
         props: expected[2],
@@ -30,7 +30,7 @@ const t = (
       return
     case 4:
       // transaction node
-      expect(genericParse(splitInput)).toEqual({
+      expect(genericParse(splitInput[0])).toEqual({
         type: expected[0],
         header: expected[1],
         body: expected[2],
@@ -213,14 +213,14 @@ test('Comment line with embedded date and space', () => {
 test('Rejects invalid node type with date', () => {
   // Invalid node types should be treated as comments
   const result1 = genericParse(
-    stringAwareSplitLine('2024-01-01 invalid_type "data"'),
+    splitStringIntoSourceFragments('2024-01-01 invalid_type "data"')[0],
   )
   expect(result1.type).toBe('comment')
   expect(result1.header).toBe('2024-01-01 invalid_type "data"')
   expect(result1.synthetic).toBe(true)
 
   const result2 = genericParse(
-    stringAwareSplitLine('2024-01-01 balanc "typo in balance"'),
+    splitStringIntoSourceFragments('2024-01-01 balanc "typo in balance"')[0],
   )
   expect(result2.type).toBe('comment')
   expect(result2.header).toBe('2024-01-01 balanc "typo in balance"')
@@ -244,7 +244,7 @@ test('Accepts all valid dated node types', () => {
   ]
 
   for (const node of validDatedNodes) {
-    const result = genericParse(stringAwareSplitLine(node))
+    const result = genericParse(splitStringIntoSourceFragments(node)[0])
     // Should not be a synthetic node
     expect(result.synthetic).toBeUndefined()
   }
@@ -253,13 +253,13 @@ test('Accepts all valid dated node types', () => {
 test('Rejects node type as prefix of another word', () => {
   // Word boundary should prevent partial matches
   const result1 = genericParse(
-    stringAwareSplitLine('2024-01-01 option-test "value"'),
+    splitStringIntoSourceFragments('2024-01-01 option-test "value"')[0],
   )
   expect(result1.type).toBe('comment')
   expect(result1.synthetic).toBe(true)
 
   const result2 = genericParse(
-    stringAwareSplitLine('2024-01-01 balance_old Assets:Checking'),
+    splitStringIntoSourceFragments('2024-01-01 balance_old Assets:Checking')[0],
   )
   expect(result2.type).toBe('comment')
   expect(result2.synthetic).toBe(true)
@@ -274,7 +274,7 @@ test('Accepts transaction variations', () => {
   ]
 
   for (const node of txnVariations) {
-    const result = genericParse(stringAwareSplitLine(node))
+    const result = genericParse(splitStringIntoSourceFragments(node)[0])
     expect(result.type).toBe('transaction')
     expect(result.synthetic).toBeUndefined()
   }

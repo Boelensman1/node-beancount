@@ -34,7 +34,7 @@ export const parseSourceFragment = (
 
   let nodeType: string | undefined
   try {
-    const genericParseResult = genericParse(fragment)
+    const genericParseResult = genericParse(fragmentWithLocation)
     const { type } = genericParseResult
     nodeType = type
 

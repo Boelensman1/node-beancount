@@ -3,8 +3,27 @@ import { beanCountDirectiveRegex } from '../genericParse.mjs'
 import { stringAwareSplitLine } from './stringAwareSplitLine.mjs'
 import {
   BeancountParseError,
+  type DirectiveInfo,
   type SourceFragmentWithLocation,
 } from './SourceLocation.mjs'
+
+interface FragmentWithLinesNonDirective {
+  lines: string[]
+  startLine: number
+  isDirective: false
+  directiveInfo: undefined
+}
+
+interface FragmentWithLinesDirective {
+  lines: string[]
+  startLine: number
+  isDirective: true
+  directiveInfo: DirectiveInfo
+}
+
+type FragmentWithLines =
+  | FragmentWithLinesNonDirective
+  | FragmentWithLinesDirective
 
 /**
  * Splits a Beancount file string into an array of source fragments.
@@ -28,12 +47,6 @@ export const splitStringIntoSourceFragments = (
   // split up the file into source fragments with line tracking
   let inFragment = false
   let inString = false
-  let isDirectiveFragment = false
-
-  interface FragmentWithLines {
-    lines: string[]
-    startLine: number
-  }
 
   const fragmentsWithLines = lines.reduce<FragmentWithLines[]>(
     (acc, line, index) => {
@@ -51,13 +64,34 @@ export const splitStringIntoSourceFragments = (
         }
 
         if (!inFragment) {
-          acc.push({ lines: [], startLine: lineNumber })
           inFragment = true
-          isDirectiveFragment = beanCountDirectiveRegex.test(line)
+          const fragmentInfo = beanCountDirectiveRegex.exec(line)
+
+          if (!fragmentInfo) {
+            acc.push({
+              lines: [],
+              startLine: lineNumber,
+              isDirective: false,
+              directiveInfo: undefined,
+            })
+          } else {
+            acc.push({
+              lines: [],
+              startLine: lineNumber,
+              isDirective: true,
+              directiveInfo: {
+                date: fragmentInfo.groups!.date,
+                directive:
+                  fragmentInfo.groups!.dated_directive ??
+                  fragmentInfo.groups!.non_dated_directive,
+              },
+            })
+          }
         }
       }
 
-      acc[acc.length - 1].lines.push(line)
+      const currentFragment = acc[acc.length - 1]
+      currentFragment.lines.push(line)
 
       // After a blank line, ensure next line starts a new fragment
       if (!inString && line.trim() === '') {
@@ -65,7 +99,7 @@ export const splitStringIntoSourceFragments = (
       }
 
       // odd number of ", we're in an unclosed string
-      if (isDirectiveFragment && countChar(line, '"') % 2 === 1) {
+      if (currentFragment.isDirective && countChar(line, '"') % 2 === 1) {
         inString = !inString
       }
 
@@ -74,41 +108,46 @@ export const splitStringIntoSourceFragments = (
     [],
   )
 
-  return fragmentsWithLines.map(({ lines, startLine }) => {
-    const location = {
-      startLine,
-      endLine: startLine + lines.length - 1,
-    }
-
-    // Comment fragments (non-directives) may contain unbalanced quotes,
-    // so skip string-aware splitting for them.
-    const firstLine = lines[0] ?? ''
-    if (!beanCountDirectiveRegex.test(firstLine)) {
-      return {
-        fragment: lines,
-        location,
+  return fragmentsWithLines.map(
+    ({ lines, startLine, isDirective, directiveInfo }) => {
+      const location = {
+        startLine,
+        endLine: startLine + lines.length - 1,
       }
-    }
 
-    try {
-      const splitLines = stringAwareSplitLine(lines.join('\n'))
-      return {
-        fragment: splitLines,
-        location,
+      // Comment fragments (non-directives) may contain unbalanced quotes,
+      // so skip string-aware splitting for them.
+      if (!isDirective) {
+        return {
+          fragment: lines,
+          location,
+          isDirective: false,
+          directiveInfo: undefined,
+        }
       }
-    } catch (error) {
-      // Cap sourceContent to avoid huge error output when an unclosed quote
-      // causes all remaining lines to be absorbed into a single fragment.
-      const contextLines = lines.slice(0, 3)
-      throw new BeancountParseError({
-        message: error instanceof Error ? error.message : String(error),
-        location: {
-          startLine,
-          endLine: startLine + contextLines.length - 1,
-        },
-        sourceContent: contextLines,
-        cause: error instanceof Error ? error : undefined,
-      })
-    }
-  })
+
+      try {
+        const splitLines = stringAwareSplitLine(lines.join('\n'))
+        return {
+          fragment: splitLines,
+          location,
+          isDirective: true,
+          directiveInfo,
+        }
+      } catch (error) {
+        // Cap sourceContent to avoid huge error output when an unclosed quote
+        // causes all remaining lines to be absorbed into a single fragment.
+        const contextLines = lines.slice(0, 3)
+        throw new BeancountParseError({
+          message: error instanceof Error ? error.message : String(error),
+          location: {
+            startLine,
+            endLine: startLine + contextLines.length - 1,
+          },
+          sourceContent: contextLines,
+          cause: error instanceof Error ? error : undefined,
+        })
+      }
+    },
+  )
 }

@@ -1,4 +1,12 @@
 /**
+ * Information about a parsed directive
+ */
+export interface DirectiveInfo {
+  date?: string
+  directive: string
+}
+
+/**
  * Location information for a fragment of source code
  */
 export interface SourceLocation {
@@ -10,15 +18,35 @@ export interface SourceLocation {
   filePath?: string
 }
 
-/**
- * A source fragment with associated location metadata
- */
-export interface SourceFragmentWithLocation {
+interface SourceFragmentWithLocationBase {
   /** The lines of source code */
   fragment: string[]
   /** Location information */
   location: SourceLocation
 }
+
+/**
+ * A source fragment identified as a directive
+ */
+export interface SourceFragmentWithLocationDirective extends SourceFragmentWithLocationBase {
+  isDirective: true
+  directiveInfo: DirectiveInfo
+}
+
+/**
+ * A source fragment that is not a directive (e.g. a comment)
+ */
+export interface SourceFragmentWithLocationNonDirective extends SourceFragmentWithLocationBase {
+  isDirective: false
+  directiveInfo: undefined
+}
+
+/**
+ * A source fragment with associated location metadata
+ */
+export type SourceFragmentWithLocation =
+  | SourceFragmentWithLocationDirective
+  | SourceFragmentWithLocationNonDirective
 
 /**
  * Custom error class for beancount parsing errors with location context

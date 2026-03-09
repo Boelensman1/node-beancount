@@ -48,8 +48,11 @@ export type { Metadata } from './utils/parseMetadata.mjs'
 // Error handling
 export {
   BeancountParseError,
+  type DirectiveInfo,
   type SourceLocation,
   type SourceFragmentWithLocation,
+  type SourceFragmentWithLocationDirective,
+  type SourceFragmentWithLocationNonDirective,
 } from './utils/SourceLocation.mjs'
 
 // Core classes
