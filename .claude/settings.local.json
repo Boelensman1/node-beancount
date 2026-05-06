@@ -2,8 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npx prettier:*)",
-      "Bash(command make lint)",
-      "Bash(command make test:*)",
+      "Bash(make lint)",
+      "Bash(make test:*)",
       "Bash(npx vitest:*)"
     ],
     "deny": [],

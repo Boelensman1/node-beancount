@@ -26,32 +26,30 @@ The project uses Make for task orchestration and TypeScript for compilation:
 
 ```bash
 # Install dependencies
-command make install
+make install
 
 # Build the project
-command make build
+make build
 # Compiles src/ to build/ using tsconfig.build.json
 # this should only be run when we actually need to build, not for e.g. verification (so it should almost never be run)
 
 # Run benchmark
-command make benchmark
+make benchmark
 
 # Run tests
-command make test
+make test
 # Uses vitest
 
 # Run linting (includes prettier, tsc type-check, eslint, and typedoc check)
-command make lint
+make lint
 
 # Generate docs
-command make docs
+make docs
 # Uses typedoc
 
 # Clean dependencies
-command make clean
+make clean
 ```
-
-For all the make commands, it's extremely important to use the command binary before make! So e.g. run `command make lint` and not just `make lint`
 
 ### Running Individual Tests
 
