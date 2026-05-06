@@ -56,13 +56,13 @@ make clean
 For running a single test file with vitest:
 
 ```bash
-npx vitest test/main.test.mts
+pnpm exec vitest test/main.test.mts
 ```
 
 For watch mode on a specific test:
 
 ```bash
-npx vitest test/main.test.mts --watch
+pnpm exec vitest test/main.test.mts --watch
 ```
 
 ## Project Structure

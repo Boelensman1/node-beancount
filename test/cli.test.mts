@@ -9,7 +9,7 @@ const CLI_PATH = './src/cli.mts'
 describe('CLI format tool', () => {
   test('formats single file to stdout by default', () => {
     const output = execSync(
-      `npx tsx ${CLI_PATH} test/fixtures/cli-test-unformatted.beancount`,
+      `pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-unformatted.beancount`,
       { encoding: 'utf-8' },
     )
 
@@ -31,7 +31,7 @@ describe('CLI format tool', () => {
 
     try {
       // Run CLI with --write flag
-      execSync(`npx tsx ${CLI_PATH} --write ${tmpFile}`)
+      execSync(`pnpm exec tsx ${CLI_PATH} --write ${tmpFile}`)
 
       // Read the modified file
       const content = fs.readFileSync(tmpFile, 'utf-8')
@@ -55,7 +55,7 @@ describe('CLI format tool', () => {
 
     try {
       // Run CLI with -w flag (short form)
-      execSync(`npx tsx ${CLI_PATH} -w ${tmpFile}`)
+      execSync(`pnpm exec tsx ${CLI_PATH} -w ${tmpFile}`)
 
       // Read the modified file
       const content = fs.readFileSync(tmpFile, 'utf-8')
@@ -78,7 +78,7 @@ describe('CLI format tool', () => {
 
     try {
       // Run CLI with multiple files and --write
-      execSync(`npx tsx ${CLI_PATH} --write ${tmpFile1} ${tmpFile2}`)
+      execSync(`pnpm exec tsx ${CLI_PATH} --write ${tmpFile1} ${tmpFile2}`)
 
       // Verify both files were formatted
       const content1 = fs.readFileSync(tmpFile1, 'utf-8')
@@ -95,7 +95,7 @@ describe('CLI format tool', () => {
 
   test('uses custom currency column when specified', () => {
     const output = execSync(
-      `npx tsx ${CLI_PATH} --currency-column 40 test/fixtures/cli-test-unformatted.beancount`,
+      `pnpm exec tsx ${CLI_PATH} --currency-column 40 test/fixtures/cli-test-unformatted.beancount`,
       { encoding: 'utf-8' },
     )
 
@@ -120,7 +120,7 @@ describe('CLI format tool', () => {
 
   test('uses custom currency column with -c flag', () => {
     const output = execSync(
-      `npx tsx ${CLI_PATH} -c 50 test/fixtures/cli-test-unformatted.beancount`,
+      `pnpm exec tsx ${CLI_PATH} -c 50 test/fixtures/cli-test-unformatted.beancount`,
       { encoding: 'utf-8' },
     )
 
@@ -130,7 +130,7 @@ describe('CLI format tool', () => {
 
   test('handles non-existent file gracefully', () => {
     try {
-      execSync(`npx tsx ${CLI_PATH} non-existent-file.beancount`, {
+      execSync(`pnpm exec tsx ${CLI_PATH} non-existent-file.beancount`, {
         encoding: 'utf-8',
         stdio: 'pipe',
       })
@@ -151,7 +151,7 @@ describe('CLI format tool', () => {
 
   test('handles directory input gracefully', () => {
     try {
-      execSync(`npx tsx ${CLI_PATH} test/fixtures`, {
+      execSync(`pnpm exec tsx ${CLI_PATH} test/fixtures`, {
         encoding: 'utf-8',
         stdio: 'pipe',
       })
@@ -172,7 +172,7 @@ describe('CLI format tool', () => {
 
   test('handles invalid beancount syntax gracefully', () => {
     try {
-      execSync(`npx tsx ${CLI_PATH} test/fixtures/cli-test-invalid.beancount`, {
+      execSync(`pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-invalid.beancount`, {
         encoding: 'utf-8',
         stdio: 'pipe',
       })
@@ -197,7 +197,7 @@ describe('CLI format tool', () => {
 
     try {
       execSync(
-        `npx tsx ${CLI_PATH} --write non-existent.beancount ${tmpFile}`,
+        `pnpm exec tsx ${CLI_PATH} --write non-existent.beancount ${tmpFile}`,
         {
           encoding: 'utf-8',
           stdio: 'pipe',
@@ -220,7 +220,7 @@ describe('CLI format tool', () => {
   })
 
   test('shows help with --help flag', () => {
-    const output = execSync(`npx tsx ${CLI_PATH} --help`, { encoding: 'utf-8' })
+    const output = execSync(`pnpm exec tsx ${CLI_PATH} --help`, { encoding: 'utf-8' })
 
     expect(output).toContain('Usage:')
     expect(output).toContain('beancount-format')
@@ -231,7 +231,7 @@ describe('CLI format tool', () => {
   })
 
   test('shows help with -h flag', () => {
-    const output = execSync(`npx tsx ${CLI_PATH} -h`, { encoding: 'utf-8' })
+    const output = execSync(`pnpm exec tsx ${CLI_PATH} -h`, { encoding: 'utf-8' })
 
     expect(output).toContain('Usage:')
     expect(output).toContain('beancount-format')
@@ -239,7 +239,7 @@ describe('CLI format tool', () => {
 
   test('shows help and exits with error when no files provided', () => {
     try {
-      execSync(`npx tsx ${CLI_PATH}`, { encoding: 'utf-8', stdio: 'pipe' })
+      execSync(`pnpm exec tsx ${CLI_PATH}`, { encoding: 'utf-8', stdio: 'pipe' })
       // Should not reach here
       expect(true).toBe(false)
     } catch (error: unknown) {
@@ -260,7 +260,7 @@ describe('CLI format tool', () => {
   test('exits with error for invalid currency column value', () => {
     try {
       execSync(
-        `npx tsx ${CLI_PATH} --currency-column invalid test/fixtures/cli-test-unformatted.beancount`,
+        `pnpm exec tsx ${CLI_PATH} --currency-column invalid test/fixtures/cli-test-unformatted.beancount`,
         { encoding: 'utf-8', stdio: 'pipe' },
       )
       // Should not reach here
@@ -282,7 +282,7 @@ describe('CLI format tool', () => {
   test('exits with error for negative currency column value', () => {
     try {
       execSync(
-        `npx tsx ${CLI_PATH} --currency-column=-5 test/fixtures/cli-test-unformatted.beancount`,
+        `pnpm exec tsx ${CLI_PATH} --currency-column=-5 test/fixtures/cli-test-unformatted.beancount`,
         { encoding: 'utf-8', stdio: 'pipe' },
       )
       // Should not reach here
@@ -304,7 +304,7 @@ describe('CLI format tool', () => {
   test('exits with error for file with only comments', () => {
     try {
       execSync(
-        `npx tsx ${CLI_PATH} test/fixtures/cli-test-not-beancount.beancount`,
+        `pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-not-beancount.beancount`,
         { encoding: 'utf-8', stdio: 'pipe' },
       )
       // Should not reach here
@@ -325,7 +325,7 @@ describe('CLI format tool', () => {
 
   test('exits with code 0 on successful formatting', () => {
     const output = execSync(
-      `npx tsx ${CLI_PATH} test/fixtures/cli-test-unformatted.beancount`,
+      `pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-unformatted.beancount`,
       { encoding: 'utf-8' },
     )
 
@@ -334,7 +334,7 @@ describe('CLI format tool', () => {
   })
 
   test('formats example-full.beancount successfully', () => {
-    const output = execSync(`npx tsx ${CLI_PATH} test/example-full.beancount`, {
+    const output = execSync(`pnpm exec tsx ${CLI_PATH} test/example-full.beancount`, {
       encoding: 'utf-8',
     })
 
