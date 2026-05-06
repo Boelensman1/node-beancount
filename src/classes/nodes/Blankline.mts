@@ -13,10 +13,7 @@ export class Blankline extends Node {
    * @param _genericParseResult - Unused, blank lines have no content
    * @returns A new Blankline instance
    */
-  static fromGenericParseResult(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _genericParseResult: GenericParseResult,
-  ) {
+  static fromGenericParseResult(_genericParseResult: GenericParseResult) {
     return new Blankline({})
   }
 
@@ -32,7 +29,7 @@ export class Blankline extends Node {
    */
   static fromString<T extends Node>(
     this: NodeConstructor<T>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     _input: string,
   ): T {
     return this.fromGenericParseResult({} as GenericParseResult)

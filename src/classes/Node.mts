@@ -115,7 +115,6 @@ export abstract class Node {
    * @param _formatOptions - Formatting options (unused in base implementation)
    * @returns The formatted string representation of this node
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   toFormattedString(_formatOptions: FormatOptions = defaultFormatOptions) {
     // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return this.toString()
@@ -154,7 +153,6 @@ export abstract class Node {
  * @internal
  */
 export function assertNodeConstructor<T extends Node>(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _ctor: NodeConstructor<T>,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
 ): void {}

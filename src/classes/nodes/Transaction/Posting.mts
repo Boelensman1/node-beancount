@@ -49,14 +49,9 @@ export class Posting {
           'type' in value &&
           'value' in value
         ) {
-          convertedMetadata[key] = new Value(
-            value as {
-              type: 'string' | 'date' | 'boolean' | 'amount' | 'numbers'
-              value: unknown
-            },
-          )
+          convertedMetadata[key] = new Value(value)
         } else {
-          convertedMetadata[key] = value as Value
+          convertedMetadata[key] = value
         }
       }
       this.metadata = convertedMetadata

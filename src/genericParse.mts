@@ -184,7 +184,7 @@ export const genericParse = (
           flag,
           comment: comment.length > 0 ? comment.join(';').trim() : undefined,
         },
-      } as GenericParseResultTransaction
+      }
     }
 
     const metadata = parseMetadata(rest)
