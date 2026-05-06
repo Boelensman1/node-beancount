@@ -73,8 +73,8 @@ export class Posting {
 
     const amountPattern = `([^A-Z;]*)`
     const costPattern = `{(.*)}`
-    const pricePattern = `+(@|@@) +(?:([^A-Z;]+) ${currencyPattern})`
-    const amountCurrenyCostPattern = `${amountPattern}(?: +${currencyPattern})?(?: +${costPattern})?(?: ${pricePattern})?`
+    const pricePattern = ` *(@@|@) *(?:([^A-Z;]+) ${currencyPattern})`
+    const amountCurrenyCostPattern = `${amountPattern}(?: +${currencyPattern})?(?: +${costPattern})?(?:${pricePattern})?`
     const commentPattern = `( *;.*)?`
 
     const pattern = `^(?:${flagPattern})?${accountPattern}(?: +${amountCurrenyCostPattern})?${commentPattern}$`
