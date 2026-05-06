@@ -172,10 +172,13 @@ describe('CLI format tool', () => {
 
   test('handles invalid beancount syntax gracefully', () => {
     try {
-      execSync(`pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-invalid.beancount`, {
-        encoding: 'utf-8',
-        stdio: 'pipe',
-      })
+      execSync(
+        `pnpm exec tsx ${CLI_PATH} test/fixtures/cli-test-invalid.beancount`,
+        {
+          encoding: 'utf-8',
+          stdio: 'pipe',
+        },
+      )
       // Should not reach here
       expect(true).toBe(false)
     } catch (error: unknown) {
@@ -220,7 +223,9 @@ describe('CLI format tool', () => {
   })
 
   test('shows help with --help flag', () => {
-    const output = execSync(`pnpm exec tsx ${CLI_PATH} --help`, { encoding: 'utf-8' })
+    const output = execSync(`pnpm exec tsx ${CLI_PATH} --help`, {
+      encoding: 'utf-8',
+    })
 
     expect(output).toContain('Usage:')
     expect(output).toContain('beancount-format')
@@ -231,7 +236,9 @@ describe('CLI format tool', () => {
   })
 
   test('shows help with -h flag', () => {
-    const output = execSync(`pnpm exec tsx ${CLI_PATH} -h`, { encoding: 'utf-8' })
+    const output = execSync(`pnpm exec tsx ${CLI_PATH} -h`, {
+      encoding: 'utf-8',
+    })
 
     expect(output).toContain('Usage:')
     expect(output).toContain('beancount-format')
@@ -239,7 +246,10 @@ describe('CLI format tool', () => {
 
   test('shows help and exits with error when no files provided', () => {
     try {
-      execSync(`pnpm exec tsx ${CLI_PATH}`, { encoding: 'utf-8', stdio: 'pipe' })
+      execSync(`pnpm exec tsx ${CLI_PATH}`, {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      })
       // Should not reach here
       expect(true).toBe(false)
     } catch (error: unknown) {
@@ -334,9 +344,12 @@ describe('CLI format tool', () => {
   })
 
   test('formats example-full.beancount successfully', () => {
-    const output = execSync(`pnpm exec tsx ${CLI_PATH} test/example-full.beancount`, {
-      encoding: 'utf-8',
-    })
+    const output = execSync(
+      `pnpm exec tsx ${CLI_PATH} test/example-full.beancount`,
+      {
+        encoding: 'utf-8',
+      },
+    )
 
     // Should contain expected content
     expect(output).toContain('option')

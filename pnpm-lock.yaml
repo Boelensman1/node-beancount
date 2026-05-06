@@ -13,23 +13,23 @@ importers:
         version: 0.5.1
     devDependencies:
       eslint-plugin-jsdoc:
-        specifier: ^62.5.0
+        specifier: ^62.9.0
         version: 62.9.0(eslint@9.39.4)
       prettier:
-        specifier: ^3.8.1
+        specifier: ^3.8.3
         version: 3.8.3
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
       typedoc:
-        specifier: ^0.28.16
+        specifier: ^0.28.19
         version: 0.28.19(typescript@5.9.3)
       vitest:
-        specifier: ^4.0.18
+        specifier: ^4.1.5
         version: 4.1.5(@types/node@22.19.17)(vite@8.0.10(@types/node@22.19.17)(esbuild@0.27.7)(tsx@4.21.0)(yaml@2.8.4))
       wtf-devconfigs:
-        specifier: ^0.3.3
-        version: 0.3.4(@eslint/js@9.39.4)(@tsconfig/node22@22.0.5)(@types/node@22.19.17)(@typescript-eslint/eslint-plugin@8.59.1(@typescript-eslint/parser@8.59.1(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3))(@typescript-eslint/parser@8.59.1(eslint@9.39.4)(typescript@5.9.3))(eslint-plugin-n@17.24.0(eslint@9.39.4)(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react-refresh@0.5.2(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript-eslint@8.59.1(eslint@9.39.4)(typescript@5.9.3))(typescript@5.9.3)
+        specifier: ^0.4.2
+        version: 0.4.2
 
 packages:
 
@@ -1844,21 +1844,8 @@ packages:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
     engines: {node: '>=0.10.0'}
 
-  wtf-devconfigs@0.3.4:
-    resolution: {integrity: sha512-n1PjLAx7ercoOEJ0oyIQR96PP5Yhr3unH08GHdv8hPZzF8oCKQbkPRJ2rpy7NodP+MeZ6jVEORcips7/iQ1vOw==}
-    peerDependencies:
-      '@eslint/js': ^9.38.0
-      '@tsconfig/node22': ^22.0.5
-      '@types/node': ^22
-      '@typescript-eslint/eslint-plugin': ^8.57.1
-      '@typescript-eslint/parser': ^8.57.1
-      eslint: ^9.39.4
-      eslint-plugin-n: ^17.24.0
-      eslint-plugin-react: ^7.37.5
-      eslint-plugin-react-hooks: ^7.0.1
-      eslint-plugin-react-refresh: ^0.5.2
-      typescript: ^5.9.3
-      typescript-eslint: ^8.57.1
+  wtf-devconfigs@0.4.2:
+    resolution: {integrity: sha512-nrM/DrZCXizdomxW7a+voJro+uuaIu0AFtxqYloKYhEIeKw0abuSnWDXCv+gfdpaCI5dLmfWOwvcLV1rZRSexw==}
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -3872,7 +3859,7 @@ snapshots:
 
   word-wrap@1.2.5: {}
 
-  wtf-devconfigs@0.3.4(@eslint/js@9.39.4)(@tsconfig/node22@22.0.5)(@types/node@22.19.17)(@typescript-eslint/eslint-plugin@8.59.1(@typescript-eslint/parser@8.59.1(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3))(@typescript-eslint/parser@8.59.1(eslint@9.39.4)(typescript@5.9.3))(eslint-plugin-n@17.24.0(eslint@9.39.4)(typescript@5.9.3))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react-refresh@0.5.2(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript-eslint@8.59.1(eslint@9.39.4)(typescript@5.9.3))(typescript@5.9.3):
+  wtf-devconfigs@0.4.2:
     dependencies:
       '@eslint/js': 9.39.4
       '@tsconfig/node22': 22.0.5
@@ -3886,6 +3873,9 @@ snapshots:
       eslint-plugin-react-refresh: 0.5.2(eslint@9.39.4)
       typescript: 5.9.3
       typescript-eslint: 8.59.1(eslint@9.39.4)(typescript@5.9.3)
+    transitivePeerDependencies:
+      - jiti
+      - supports-color
 
   yallist@3.1.1: {}
 
