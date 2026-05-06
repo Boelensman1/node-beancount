@@ -82,6 +82,19 @@ test('Parse posting with per-unit price', () => {
   expect(posting.price).toBeDefined()
 })
 
+test('Parse posting with per-unit price as fractional expression', () => {
+  const posting = Posting.fromString(
+    'Assets:NL:Revolut              73046 ISK @ 1/146.0924 EUR',
+  )
+
+  expect(posting.atSigns).toBe(1)
+  expect(posting.account).toBe('Assets:NL:Revolut')
+  expect(posting.amount).toBe('73046')
+  expect(posting.currency).toBe('ISK')
+  expect(posting.priceAmount).toBe('1/146.0924')
+  expect(posting.priceCurrency).toBe('EUR')
+})
+
 test('Parse posting with total price', () => {
   const posting = Posting.fromString(
     'Assets:MyBank:Checking            -400.00 USD @@ 1.09 CAD',
